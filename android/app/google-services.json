@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "453211514275",
+    "project_id": "citydeal-1987f",
+    "storage_bucket": "citydeal-1987f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:453211514275:android:76213f6b9d797b6f52e616",
+        "android_client_info": {
+          "package_name": "com.city.deals"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "453211514275-jcd2t57rlnisa0pc320c5dcb5t9cv26f.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCprGbtVH3iX-9he96tTRBiZvzO7SyQVQ4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "453211514275-jcd2t57rlnisa0pc320c5dcb5t9cv26f.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "453211514275-4anprrkngmh77ibu5m9ndt8gfthaig7a.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.citydeal.webixes"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
