@@ -143,7 +143,7 @@ class _FilterState extends State<Filter> {
     _selectedFilter = _dropdownWhichFilterItems?[0].value;
 
     for (int x = 0; x < _dropdownWhichFilterItems!.length; x++) {
-      if (_dropdownWhichFilterItems[x].value!.option_key ==
+      if (_dropdownWhichFilterItems?[x].value!.option_key ==
           _givenSelectedFilterOptionKey) {
         _selectedFilter = _dropdownWhichFilterItems?[x].value;
       }
@@ -764,10 +764,10 @@ class _FilterState extends State<Filter> {
                   print(suggestion.toString());
                   var subtitle =
                       "${AppLocalizations.of(context)!.filter_screen_searched_for} ${suggestion} ${AppLocalizations.of(context)!.filter_screen_times}";
-                  if (suggestion.type != "search") {
-                    subtitle =
-                        "${suggestion} ${AppLocalizations.of(context)!.filter_screen_found}";
-                  }
+                  // if (suggestion.type != "search") {
+                  //   subtitle =
+                  //       "${suggestion} ${AppLocalizations.of(context)!.filter_screen_found}";
+                  // }
                   return Column(
                     children: [
                       Row(
@@ -797,8 +797,8 @@ class _FilterState extends State<Filter> {
                   );
                 },
                 onSuggestionSelected: (suggestion) {
-                  _searchController.text = suggestion.query;
-                  _searchKey = suggestion.query;
+                  //  _searchController.text = suggestion!.query!;
+                  //    _searchKey = suggestion.query;
                   setState(() {});
                   _onSearchSubmit();
                 },
@@ -812,7 +812,7 @@ class _FilterState extends State<Filter> {
                     _onSearchSubmit();
                   },
                   decoration: InputDecoration(
-                      hintText: AppLocalizations.of(context)
+                      hintText: AppLocalizations.of(context)!
                           .filter_screen_search_here,
                       hintStyle: TextStyle(
                           fontSize: 12.0, color: MyTheme.textfield_grey),
@@ -861,15 +861,15 @@ class _FilterState extends State<Filter> {
   getNearByShops() {
     _getLocation().then((value) {
       LocationData location = value;
-      _getAddress(location?.latitude, location?.longitude).then((value) {
-        setState(() {
-          currentLocation = location;
-          print(
-              "Location: ${currentLocation?.latitude}, ${currentLocation?.longitude}");
-          address = value;
-          fetchNearShopData();
-        });
-      });
+      // _getAddress(location.latitude, location?.longitude).then((value) {
+      //   setState(() {
+      //     currentLocation = location;
+      //     print(
+      //         "Location: ${currentLocation?.latitude}, ${currentLocation?.longitude}");
+      //     address = value;
+      //     fetchNearShopData();
+      //   });
+      // });
     });
   }
 
@@ -883,17 +883,17 @@ class _FilterState extends State<Filter> {
     _serviceEnabled = await location.serviceEnabled();
     if (!_serviceEnabled) {
       _serviceEnabled = await location.requestService();
-      if (!_serviceEnabled) {
-        return null;
-      }
+      // if (!_serviceEnabled) {
+      //   return  ;
+      // }
     }
 
     _permissionGranted = await location.hasPermission();
     if (_permissionGranted == PermissionStatus.denied) {
       _permissionGranted = await location.requestPermission();
-      if (_permissionGranted != PermissionStatus.granted) {
-        return null;
-      }
+      // if (_permissionGranted != PermissionStatus.granted) {
+      //   return null;
+      // }
     }
 
     _locationData = await location.getLocation();
@@ -919,7 +919,7 @@ class _FilterState extends State<Filter> {
                       Padding(
                         padding: const EdgeInsets.only(bottom: 8.0),
                         child: Text(
-                          AppLocalizations.of(context)
+                          AppLocalizations.of(context)!
                               .filter_screen_price_range,
                           style: TextStyle(
                               fontSize: 14, fontWeight: FontWeight.bold),
@@ -938,7 +938,7 @@ class _FilterState extends State<Filter> {
                                 keyboardType: TextInputType.number,
                                 inputFormatters: [_amountValidator],
                                 decoration: InputDecoration(
-                                    hintText: AppLocalizations.of(context)
+                                    hintText: AppLocalizations.of(context)!
                                         .filter_screen_minimum,
                                     hintStyle: TextStyle(
                                         fontSize: 12.0,
@@ -974,7 +974,7 @@ class _FilterState extends State<Filter> {
                                 keyboardType: TextInputType.number,
                                 inputFormatters: [_amountValidator],
                                 decoration: InputDecoration(
-                                    hintText: AppLocalizations.of(context)
+                                    hintText: AppLocalizations.of(context)!
                                         .filter_screen_maximum,
                                     hintStyle: TextStyle(
                                         fontSize: 12.0,
@@ -1012,7 +1012,8 @@ class _FilterState extends State<Filter> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16.0),
                         child: Text(
-                          AppLocalizations.of(context).filter_screen_categories,
+                          AppLocalizations.of(context)!
+                              .filter_screen_categories,
                           style: TextStyle(
                               fontSize: 14, fontWeight: FontWeight.bold),
                         ),
@@ -1022,7 +1023,7 @@ class _FilterState extends State<Filter> {
                               height: 100,
                               child: Center(
                                 child: Text(
-                                  AppLocalizations.of(context)
+                                  AppLocalizations.of(context)!
                                       .common_no_category_is_available,
                                   style: TextStyle(color: MyTheme.font_grey),
                                 ),
@@ -1034,7 +1035,7 @@ class _FilterState extends State<Filter> {
                       Padding(
                         padding: const EdgeInsets.only(left: 16.0),
                         child: Text(
-                          AppLocalizations.of(context).filter_screen_brands,
+                          AppLocalizations.of(context)!.filter_screen_brands,
                           style: TextStyle(
                               fontSize: 14, fontWeight: FontWeight.bold),
                         ),
@@ -1044,7 +1045,7 @@ class _FilterState extends State<Filter> {
                               height: 100,
                               child: Center(
                                 child: Text(
-                                  AppLocalizations.of(context)
+                                  AppLocalizations.of(context)!
                                       .common_no_brand_is_available,
                                   style: TextStyle(color: MyTheme.font_grey),
                                 ),
@@ -1070,7 +1071,7 @@ class _FilterState extends State<Filter> {
                         borderRadius: BorderRadius.circular(4.0),
                       ),
                       child: Text(
-                        AppLocalizations.of(context)
+                        AppLocalizations.of(context)!
                             .common_clear_in_all_capital,
                         style: TextStyle(color: Colors.white),
                       ),
@@ -1096,11 +1097,11 @@ class _FilterState extends State<Filter> {
                         if (min != "" && max != "") {
                           if (max.compareTo(min) < 0) {
                             ToastComponent.showDialog(
-                                AppLocalizations.of(context)
+                                AppLocalizations.of(context)!
                                     .filter_screen_min_max_warning,
                                 context,
-                                gravity: Toast.CENTER,
-                                duration: Toast.LENGTH_LONG);
+                                gravity: Toast.center,
+                                duration: Toast.lengthLong);
                             apply = false;
                           }
                         }
@@ -1129,12 +1130,12 @@ class _FilterState extends State<Filter> {
 
   fetchNearShopData() async {
     var shopResponse = await ShopRepository().getNearByShops(
-      lat: currentLocation.latitude,
-      lag: currentLocation.longitude,
+      lat: currentLocation?.latitude,
+      lag: currentLocation?.longitude,
     );
-    _shopList.addAll(shopResponse.shops);
+    _shopList.addAll(shopResponse.shops ?? []);
     _isShopInitial = false;
-    _totalShopData = shopResponse.meta.total;
+    _totalShopData = shopResponse.meta?.total ?? 0;
     _showShopLoadingContainer = false;
     print("_shopPage:" + _shopPage.toString());
     print("_totalShopData:" + _totalShopData.toString());
@@ -1164,16 +1165,16 @@ class _FilterState extends State<Filter> {
                 dense: true,
                 title: Text(brand.name),
                 value: _selectedBrands.contains(brand.id),
-                onChanged: (bool value) {
-                  if (value) {
-                    setState(() {
-                      _selectedBrands.add(brand.id);
-                    });
-                  } else {
-                    setState(() {
-                      _selectedBrands.remove(brand.id);
-                    });
-                  }
+                onChanged: (bool? value) {
+                  // if (value) {
+                  //   setState(() {
+                  //     _selectedBrands.add(brand.id);
+                  //   });
+                  // } else {
+                  //   setState(() {
+                  //     _selectedBrands.remove(brand.id);
+                  //   });
+                  // }
                 },
               ),
             )
@@ -1195,17 +1196,17 @@ class _FilterState extends State<Filter> {
                 dense: true,
                 title: Text(category.name),
                 value: _selectedCategories.contains(category.id),
-                onChanged: (bool value) {
-                  if (value) {
-                    setState(() {
-                      _selectedCategories.clear();
-                      _selectedCategories.add(category.id);
-                    });
-                  } else {
-                    setState(() {
-                      _selectedCategories.remove(category.id);
-                    });
-                  }
+                onChanged: (bool? value) {
+                  // if (value) {
+                  //   setState(() {
+                  //     _selectedCategories.clear();
+                  //     _selectedCategories.add(category.id);
+                  //   });
+                  // } else {
+                  //   setState(() {
+                  //     _selectedCategories.remove(category.id);
+                  //   });
+                  // }
                 },
               ),
             )
@@ -1284,7 +1285,7 @@ class _FilterState extends State<Filter> {
     } else if (_totalProductData == 0) {
       return Center(
           child: Text(
-              AppLocalizations.of(context).common_no_product_is_available));
+              AppLocalizations.of(context)!.common_no_product_is_available));
     } else {
       return Container(); // should never be happening
     }
@@ -1352,7 +1353,7 @@ class _FilterState extends State<Filter> {
     } else if (_totalBrandData == 0) {
       return Center(
           child:
-              Text(AppLocalizations.of(context).common_no_brand_is_available));
+              Text(AppLocalizations.of(context)!.common_no_brand_is_available));
     } else {
       return Container(); // should never be happening
     }
@@ -1430,7 +1431,7 @@ class _FilterState extends State<Filter> {
     } else if (_totalShopData == 0) {
       return Center(
           child:
-              Text(AppLocalizations.of(context).common_no_shop_is_available));
+              Text(AppLocalizations.of(context)!.common_no_shop_is_available));
     } else {
       return Container(); // should never be happening
     }

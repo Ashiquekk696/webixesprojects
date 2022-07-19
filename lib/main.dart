@@ -23,16 +23,14 @@ import 'package:webixes/providers/locale_provider.dart';
 import 'lang_config.dart';
 import 'package:firebase_core/firebase_core.dart';
 
-
 main() async {
-  HttpOverrides.global = MyHttpOverrides();
+//  HttpOverrides.global = MyHttpOverrides();
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-
 
   AddonsHelper().setAddonsData();
   BusinessSettingHelper().setBusinessSettingData();
@@ -54,12 +52,9 @@ main() async {
       MyApp(),
     ),
   );
-
 }
 
-
 class MyApp extends StatefulWidget {
-
   // This widget is the root of your application.
 
   @override
@@ -80,10 +75,8 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
-
     final textTheme = Theme.of(context).textTheme;
     return MultiProvider(
         providers: [
@@ -126,12 +119,12 @@ class _MyAppState extends State<MyApp> {
         }));
   }
 }
-class MyHttpOverrides extends HttpOverrides{
-  @override
-  HttpClient createHttpClient(SecurityContext context){
-    return super.createHttpClient(context)
-      ..badCertificateCallback = (X509Certificate cert, String host, int port)=> true;
-  }
-}
+// class MyHttpOverrides extends HttpOverrides{
+//   @override
+//   Future<HttpClient> createh(SecurityContext context) async {
+//     return super.createHttpClient(context)
+//       ..badCertificateCallback = (X509Certificate cert, String host, int port)=> true;
+//   }
+// }
 
 
