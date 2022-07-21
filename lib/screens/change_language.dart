@@ -106,8 +106,8 @@ class _ChangeLanguageState extends State<ChangeLanguage> {
 
       Navigator.push(context, MaterialPageRoute(builder: (context) {
         return Main(
-          go_back: false,
-        );
+            // go_back: false,
+            );
       }));
     }
   }

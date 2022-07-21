@@ -48,16 +48,18 @@ class _FlashDealListState extends State<FlashDealList> {
             var flashDealResponse = snapshot.data;
             return SingleChildScrollView(
               child: ListView.builder(
-                itemCount: flashDealResponse.flash_deals.length,
+                //itemCount: flashDealResponse.flash_deals.length??0,
+                itemCount: 2,
                 scrollDirection: Axis.vertical,
                 physics: NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
                 itemBuilder: (context, index) {
                   return Padding(
-                    padding: const EdgeInsets.only(
-                        top: 0.0, left: 16.0, right: 16.0, bottom: 16.0),
-                    child: buildFlashDealListItem(flashDealResponse, index),
-                  );
+                      padding: const EdgeInsets.only(
+                          top: 0.0, left: 16.0, right: 16.0, bottom: 16.0),
+                      child: Container()
+                      //buildFlashDealListItem(flashDealResponse, index),
+                      );
                 },
               ),
             );
@@ -146,90 +148,90 @@ class _FlashDealListState extends State<FlashDealList> {
     return newtxt;
   }
 
-  buildFlashDealListItem(flashDealResponse, index) {
-    DateTime end = convertTimeStampToDateTime(
-        flashDealResponse.flash_deals[index].date); // YYYY-mm-dd
-    DateTime now = DateTime.now();
-    int diff = end.difference(now).inMilliseconds;
-    int endTime = diff + now.millisecondsSinceEpoch;
+  // buildFlashDealListItem(flashDealResponse, index) {
+  //   DateTime end = convertTimeStampToDateTime(
+  //       flashDealResponse.flash_deals[index].date); // YYYY-mm-dd
+  //   DateTime now = DateTime.now();
+  //   int diff = end.difference(now).inMilliseconds;
+  //   int endTime = diff + now.millisecondsSinceEpoch;
 
-    void onEnd() {}
+  //   void onEnd() {}
 
-    CountdownTimerController time_controller =
-        CountdownTimerController(endTime: endTime, onEnd: onEnd);
-    _timerControllerList.add(time_controller);
+  //   CountdownTimerController time_controller =
+  //       CountdownTimerController(endTime: endTime, onEnd: onEnd);
+  //   _timerControllerList.add(time_controller);
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
-      child: CountdownTimer(
-        controller: _timerControllerList[index],
-        widgetBuilder: (_, CurrentRemainingTime time) {
-          return GestureDetector(
-            onTap: () {
-              if (time == null) {
-                ToastComponent.showDialog(AppLocalizations.of(context).flash_deal_list_screen_flash_deal_has_ended, context,
-                    gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
-              } else {
-                Navigator.push(context, MaterialPageRoute(builder: (context) {
-                  return FlashDealProducts(
-                    flash_deal_id: flashDealResponse.flash_deals[index].id,
-                    flash_deal_name: flashDealResponse.flash_deals[index].title,
-                  );
-                }));
-              }
-            },
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Card(
-                  shape: RoundedRectangleBorder(
-                    side: new BorderSide(color: MyTheme.light_grey, width: 1.0),
-                    borderRadius: BorderRadius.circular(16.0),
-                  ),
-                  elevation: 0.0,
-                  child: Container(
-                      width: double.infinity,
-                      height: 100,
-                      child: ClipRRect(
-                          borderRadius: BorderRadius.circular(16.0),
-                          child: FadeInImage.assetNetwork(
-                            placeholder: 'assets/placeholder_rectangle.png',
-                            image: AppConfig.BASE_PATH +
-                                flashDealResponse.flash_deals[index].banner,
-                            fit: BoxFit.cover,
-                          ))),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0),
-                  child: Text(
-                    flashDealResponse.flash_deals[index].title,
-                    maxLines: 1,
-                    style: TextStyle(
-                        color: MyTheme.dark_grey,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600),
-                  ),
-                ),
-                Container(
-                  width: 150,
-                  child: Center(
-                      child: time == null
-                          ? Text(
-                        AppLocalizations.of(context).flash_deal_list_screen_ended,
-                              style: TextStyle(
-                                  color: MyTheme.accent_color,
-                                  fontSize: 16.0,
-                                  fontWeight: FontWeight.w600),
-                            )
-                          : buildTimerRowRow(time)),
-                ),
-              ],
-            ),
-          );
-        },
-      ),
-    );
-  }
+  //   return Padding(
+  //     padding: const EdgeInsets.only(bottom: 8.0),
+  //     child: CountdownTimer(
+  //       controller: _timerControllerList[index],
+  //       widgetBuilder: (_ CurrentRemainingTime? time) {
+  //         return GestureDetector(
+  //           onTap: () {
+  //             if (time == null) {
+  //               ToastComponent.showDialog(AppLocalizations.of(context).flash_deal_list_screen_flash_deal_has_ended, context,
+  //                   gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+  //             } else {
+  //               Navigator.push(context, MaterialPageRoute(builder: (context) {
+  //                 return FlashDealProducts(
+  //                   flash_deal_id: flashDealResponse.flash_deals[index].id,
+  //                   flash_deal_name: flashDealResponse.flash_deals[index].title,
+  //                 );
+  //               }));
+  //             }
+  //           },
+  //           child: Column(
+  //             crossAxisAlignment: CrossAxisAlignment.center,
+  //             children: [
+  //               Card(
+  //                 shape: RoundedRectangleBorder(
+  //                   side: new BorderSide(color: MyTheme.light_grey, width: 1.0),
+  //                   borderRadius: BorderRadius.circular(16.0),
+  //                 ),
+  //                 elevation: 0.0,
+  //                 child: Container(
+  //                     width: double.infinity,
+  //                     height: 100,
+  //                     child: ClipRRect(
+  //                         borderRadius: BorderRadius.circular(16.0),
+  //                         child: FadeInImage.assetNetwork(
+  //                           placeholder: 'assets/placeholder_rectangle.png',
+  //                           image: AppConfig.BASE_PATH +
+  //                               flashDealResponse.flash_deals[index].banner,
+  //                           fit: BoxFit.cover,
+  //                         ))),
+  //               ),
+  //               Padding(
+  //                 padding: const EdgeInsets.only(bottom: 8.0),
+  //                 child: Text(
+  //                   flashDealResponse.flash_deals[index].title,
+  //                   maxLines: 1,
+  //                   style: TextStyle(
+  //                       color: MyTheme.dark_grey,
+  //                       fontSize: 16,
+  //                       fontWeight: FontWeight.w600),
+  //                 ),
+  //               ),
+  //               Container(
+  //                 width: 150,
+  //                 child: Center(
+  //                     child: time == null
+  //                         ? Text(
+  //                       AppLocalizations.of(context).flash_deal_list_screen_ended,
+  //                             style: TextStyle(
+  //                                 color: MyTheme.accent_color,
+  //                                 fontSize: 16.0,
+  //                                 fontWeight: FontWeight.w600),
+  //                           )
+  //                         : buildTimerRowRow(time)),
+  //               ),
+  //             ],
+  //           ),
+  //         );
+  //       },
+  //     ),
+  //   );
+  // }
 
   Row buildTimerRowRow(CurrentRemainingTime time) {
     return Row(
@@ -308,7 +310,7 @@ class _FlashDealListState extends State<FlashDealList> {
         ),
       ),
       title: Text(
-        AppLocalizations.of(context).flash_deal_list_flash_deals,
+        AppLocalizations.of(context)!.flash_deal_list_flash_deals,
         style: TextStyle(fontSize: 16, color: MyTheme.accent_color),
       ),
       elevation: 0.0,

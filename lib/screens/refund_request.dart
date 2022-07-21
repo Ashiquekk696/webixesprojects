@@ -44,9 +44,9 @@ class _RefundRequestState extends State<RefundRequest> {
   fetchData() async {
     var refundRequestResponse = await RefundRequestRepository()
         .getRefundRequestListResponse(page: _page);
-    _list.addAll(refundRequestResponse.refund_requests);
+    _list.addAll(refundRequestResponse.refund_requests ?? []);
     _isInitial = false;
-    _totalData = refundRequestResponse.meta.total;
+    _totalData = refundRequestResponse.meta?.total ?? 0;
     _showLoadingContainer = false;
     setState(() {});
   }
@@ -117,8 +117,8 @@ class _RefundRequestState extends State<RefundRequest> {
       color: Colors.white,
       child: Center(
         child: Text(_totalData == _list.length
-            ? AppLocalizations.of(context).common_no_more_items
-            : AppLocalizations.of(context).common_loading_more_items),
+            ? AppLocalizations.of(context)!.common_no_more_items
+            : AppLocalizations.of(context)!.common_loading_more_items),
       ),
     );
   }
@@ -134,7 +134,7 @@ class _RefundRequestState extends State<RefundRequest> {
         ),
       ),
       title: Text(
-        AppLocalizations.of(context).refund_request_screen_refund_status,
+        AppLocalizations.of(context)!.refund_request_screen_refund_status,
         style: TextStyle(fontSize: 16, color: MyTheme.accent_color),
       ),
       elevation: 0.0,
@@ -162,7 +162,7 @@ class _RefundRequestState extends State<RefundRequest> {
       );
     } else if (_totalData == 0) {
       return Center(
-          child: Text(AppLocalizations.of(context).common_no_data_available));
+          child: Text(AppLocalizations.of(context)!.common_no_data_available));
     } else {
       return Container(); // should never be happening
     }
@@ -195,7 +195,7 @@ class _RefundRequestState extends State<RefundRequest> {
                       height: 10,
                     ),
                     Text(
-                      AppLocalizations.of(context)
+                      AppLocalizations.of(context)!
                           .refund_request_screen_refund_status,
                       style: TextStyle(
                         color: MyTheme.dark_grey,

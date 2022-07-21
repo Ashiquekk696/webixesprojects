@@ -15,7 +15,7 @@ class CartDeleteResponse {
     this.result,
     this.message,
   });
-?
+
   bool? result;
   String? message;
 

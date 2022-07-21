@@ -4,7 +4,6 @@ import 'dart:ui';
 import 'package:flutter/painting.dart';
 import 'dart:async';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import 'package:flutter_icons/flutter_icons.dart';
 import 'package:webixes/custom/toast_component.dart';
 import 'package:toast/toast.dart';
 import 'package:flutter/services.dart';
@@ -16,9 +15,9 @@ import 'package:webixes/helpers/shared_value_helper.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ProductReviews extends StatefulWidget {
-  int id;
+  int? id;
 
-  ProductReviews({Key key, this.id}) : super(key: key);
+  ProductReviews({Key? key, this.id}) : super(key: key);
 
   @override
   _ProductReviewsState createState() => _ProductReviewsState();
@@ -61,12 +60,12 @@ class _ProductReviewsState extends State<ProductReviews> {
 
   fetchData() async {
     var reviewResponse = await ReviewRepository().getReviewResponse(
-      widget.id,
+      widget.id ?? 0,
       page: _page,
     );
-    _reviewList.addAll(reviewResponse.reviews);
+    _reviewList.addAll(reviewResponse.reviews ?? []);
     _isInitial = false;
-    _totalData = reviewResponse.meta.total;
+    _totalData = reviewResponse.meta?.total ?? 0;
     _showLoadingContainer = false;
     setState(() {});
   }
@@ -90,7 +89,7 @@ class _ProductReviewsState extends State<ProductReviews> {
   onTapReviewSubmit(context) async {
     if (is_logged_in.$ == false) {
       ToastComponent.showDialog("You need to login to give a review", context,
-          gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+          gravity: Toast.center, duration: Toast.lengthLong);
       return;
     }
 
@@ -99,32 +98,32 @@ class _ProductReviewsState extends State<ProductReviews> {
     //print(chatText);
     if (myReviewText == "") {
       ToastComponent.showDialog(
-          AppLocalizations.of(context)
+          AppLocalizations.of(context)!
               .product_reviews_screen_review_empty_warning,
           context,
-          gravity: Toast.CENTER,
-          duration: Toast.LENGTH_LONG);
+          gravity: Toast.center,
+          duration: Toast.lengthLong);
       return;
     } else if (_my_rating < 1.0) {
       ToastComponent.showDialog(
-          AppLocalizations.of(context).product_reviews_screen_star_warning,
+          AppLocalizations.of(context)!.product_reviews_screen_star_warning,
           context,
-          gravity: Toast.CENTER,
-          duration: Toast.LENGTH_LONG);
+          gravity: Toast.center,
+          duration: Toast.lengthLong);
       return;
     }
 
-    var reviewSubmitResponse = await ReviewRepository()
-        .getReviewSubmitResponse(widget.id, _my_rating.toInt(), myReviewText);
+    var reviewSubmitResponse = await ReviewRepository().getReviewSubmitResponse(
+        widget.id ?? 0, _my_rating.toInt(), myReviewText);
 
     if (reviewSubmitResponse.result == false) {
-      ToastComponent.showDialog(reviewSubmitResponse.message, context,
-          gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+      ToastComponent.showDialog(reviewSubmitResponse.message ?? "", context,
+          gravity: Toast.center, duration: Toast.lengthLong);
       return;
     }
 
-    ToastComponent.showDialog(reviewSubmitResponse.message, context,
-        gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+    ToastComponent.showDialog(reviewSubmitResponse.message ?? "", context,
+        gravity: Toast.center, duration: Toast.lengthLong);
 
     reset();
     fetchData();
@@ -212,7 +211,7 @@ class _ProductReviewsState extends State<ProductReviews> {
         ),
       ),
       title: Text(
-        AppLocalizations.of(context).product_reviews_screen_reviews,
+        AppLocalizations.of(context)!.product_reviews_screen_reviews,
         style: TextStyle(fontSize: 16, color: MyTheme.accent_color),
       ),
       elevation: 0.0,
@@ -245,7 +244,7 @@ class _ProductReviewsState extends State<ProductReviews> {
       return Container(
         height: 300,
         child: Center(
-            child: Text(AppLocalizations.of(context)
+            child: Text(AppLocalizations.of(context)!
                 .product_reviews_screen_no_reviews_yet)),
       );
     } else {
@@ -314,28 +313,28 @@ class _ProductReviewsState extends State<ProductReviews> {
               ],
             ),
             Spacer(),
-            Padding(
-                padding:
-                    const EdgeInsets.only(top: 0.0, bottom: 0.0, left: 16.0),
-                child: Container(
-                  child: RatingBar(
-                    itemSize: 12.0,
-                    ignoreGestures: true,
-                    initialRating: _reviewList[index].rating,
-                    direction: Axis.horizontal,
-                    allowHalfRating: false,
-                    itemCount: 5,
-                    ratingWidget: RatingWidget(
-                      full: Icon(FontAwesome.star, color: Colors.amber),
-                      empty: Icon(FontAwesome.star,
-                          color: Color.fromRGBO(224, 224, 225, 1)),
-                    ),
-                    itemPadding: EdgeInsets.only(right: 1.0),
-                    onRatingUpdate: (rating) {
-                      print(rating);
-                    },
-                  ),
-                ))
+            // Padding(
+            //     padding:
+            //         const EdgeInsets.only(top: 0.0, bottom: 0.0, left: 16.0),
+            //     child: Container(
+            //       child: RatingBar(
+            //         itemSize: 12.0,
+            //         ignoreGestures: true,
+            //         initialRating: _reviewList[index].rating,
+            //         direction: Axis.horizontal,
+            //         allowHalfRating: false,
+            //         itemCount: 5,
+            //         ratingWidget: RatingWidget(
+            //           full: Icon(FontAwesome.star, color: Colors.amber),
+            //           empty: Icon(FontAwesome.star,
+            //               color: Color.fromRGBO(224, 224, 225, 1)),
+            //         ),
+            //         itemPadding: EdgeInsets.only(right: 1.0),
+            //         onRatingUpdate: (rating) {
+            //           print(rating);
+            //         },
+            //       ),
+            //     ))
           ]),
           Padding(
             padding: const EdgeInsets.only(left: 56.0),
@@ -370,7 +369,10 @@ class _ProductReviewsState extends State<ProductReviews> {
                         var controller = ExpandableController.of(context);
                         return FlatButton(
                           child: Text(
-                            !controller.expanded ? AppLocalizations.of(context).common_view_more : AppLocalizations.of(context).common_show_less,
+                            !controller!.expanded
+                                ? AppLocalizations.of(context)!.common_view_more
+                                : AppLocalizations.of(context)!
+                                    .common_show_less,
                             style: TextStyle(
                                 color: MyTheme.font_grey, fontSize: 11),
                           ),
@@ -395,8 +397,10 @@ class _ProductReviewsState extends State<ProductReviews> {
       color: Colors.white,
       child: Center(
         child: Text(_totalData == _reviewList.length
-            ? AppLocalizations.of(context).product_reviews_screen_no_more_reviews
-            : AppLocalizations.of(context).product_reviews_screen_loading_more_reviews),
+            ? AppLocalizations.of(context)!
+                .product_reviews_screen_no_more_reviews
+            : AppLocalizations.of(context)!
+                .product_reviews_screen_loading_more_reviews),
       ),
     );
   }
@@ -416,7 +420,7 @@ class _ProductReviewsState extends State<ProductReviews> {
             glowColor: Colors.amber,
             itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
             itemBuilder: (context, _) {
-              return Icon(FontAwesome.star, color: Colors.amber);
+              return Icon(Icons.star, color: Colors.amber);
             },
             onRatingUpdate: (rating) {
               setState(() {
@@ -441,7 +445,8 @@ class _ProductReviewsState extends State<ProductReviews> {
                 decoration: InputDecoration(
                     filled: true,
                     fillColor: Color.fromRGBO(251, 251, 251, 1),
-                    hintText: AppLocalizations.of(context).product_reviews_screen_type_your_review_here,
+                    hintText: AppLocalizations.of(context)!
+                        .product_reviews_screen_type_your_review_here,
                     hintStyle: TextStyle(
                         fontSize: 14.0, color: MyTheme.textfield_grey),
                     enabledBorder: OutlineInputBorder(

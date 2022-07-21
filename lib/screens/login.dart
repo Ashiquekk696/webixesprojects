@@ -31,7 +31,6 @@ import 'package:webixes/helpers/shared_value_helper.dart';
 import 'package:webixes/repositories/profile_repository.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-
 class Login extends StatefulWidget {
   @override
   _LoginState createState() => _LoginState();
@@ -57,18 +56,21 @@ class _LoginState extends State<Login> {
     super.initState();
     fetchCategories();
   }
+
   void _checkLocationPermission() async {
     // var handler = PermissionHandler();
     // You can request multiple permissions at once.
     PermissionStatus.PermissionStatus _permissionGranted;
-    Map<PermissionStatus.Permission, PermissionStatus.PermissionStatus> statuses = await [
+    Map<PermissionStatus.Permission, PermissionStatus.PermissionStatus>
+        statuses = await [
       PermissionStatus.Permission.location,
       PermissionStatus.Permission.camera,
       PermissionStatus.Permission.storage,
       //add more permission to request here.
     ].request();
 
-    if(statuses[PermissionStatus.Permission.location].isDenied){ //check each permission status after.
+    if (statuses[PermissionStatus.Permission.location]!.isDenied) {
+      //check each permission status after.
       print("Location permission is denied.");
       _permissionGranted = await PermissionStatus.Permission.location.request();
       if (_permissionGranted != PermissionStatus.PermissionStatus.granted) {
@@ -76,14 +78,16 @@ class _LoginState extends State<Login> {
       }
     }
 
-    if(statuses[PermissionStatus.Permission.camera].isDenied){ //check each permission status after.
+    if (statuses[PermissionStatus.Permission.camera]!.isDenied) {
+      //check each permission status after.
       print("Camera permission is denied.");
       _permissionGranted = await PermissionStatus.Permission.location.request();
       if (_permissionGranted != PermissionStatus.PermissionStatus.granted) {
         return null;
       }
     }
-    if(statuses[PermissionStatus.Permission.storage].isDenied){ //check each permission status after.
+    if (statuses[PermissionStatus.Permission.storage]!.isDenied) {
+      //check each permission status after.
       print("Camera permission is denied.");
       _permissionGranted = await PermissionStatus.Permission.location.request();
       if (_permissionGranted != PermissionStatus.PermissionStatus.granted) {
@@ -91,7 +95,7 @@ class _LoginState extends State<Login> {
       }
     }
 
-  /*  Location location = new Location();
+    /*  Location location = new Location();
     LocationData _locationData;
     bool _serviceEnabled;
     PermissionStatus _permissionGranted;
@@ -113,14 +117,16 @@ class _LoginState extends State<Login> {
       }
     }*/
   }
+
   Future fetchCategories() async {
     print("Initial calling login--");
-    AppConfig.featuredCategoryList=[];
+    AppConfig.featuredCategoryList = [];
     var categoryResponse = await CategoryRepository().getTopCategories();
-    AppConfig.featuredCategoryList.addAll(categoryResponse.categories);
+    AppConfig.featuredCategoryList.addAll(categoryResponse.categories ?? []);
     print("API CALL-->${AppConfig.featuredCategoryList.length}");
     return categoryResponse.categories;
   }
+
   @override
   void dispose() {
     //before going to other screen show statusbar
@@ -134,16 +140,19 @@ class _LoginState extends State<Login> {
     var password = _passwordController.text.toString();
 
     if (_login_by == 'email' && email == "") {
-      ToastComponent.showDialog(AppLocalizations.of(context).login_screen_email_warning, context,
-          gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+      ToastComponent.showDialog(
+          AppLocalizations.of(context)!.login_screen_email_warning, context,
+          gravity: Toast.center, duration: Toast.lengthLong);
       return;
     } else if (_login_by == 'phone' && _phone == "") {
-      ToastComponent.showDialog(AppLocalizations.of(context).login_screen_phone_warning, context,
-          gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+      ToastComponent.showDialog(
+          AppLocalizations.of(context)!.login_screen_phone_warning, context,
+          gravity: Toast.center, duration: Toast.lengthLong);
       return;
     } else if (password == "") {
-      ToastComponent.showDialog(AppLocalizations.of(context).login_screen_password_warning, context,
-          gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+      ToastComponent.showDialog(
+          AppLocalizations.of(context)!.login_screen_password_warning, context,
+          gravity: Toast.center, duration: Toast.lengthLong);
       return;
     }
 
@@ -151,12 +160,11 @@ class _LoginState extends State<Login> {
         .getLoginResponse(_login_by == 'email' ? email : _phone, password);
     print("Login response-->$loginResponse");
     if (loginResponse.result == false) {
-      ToastComponent.showDialog(loginResponse.message, context,
-          gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+      ToastComponent.showDialog(loginResponse.message ?? "", context,
+          gravity: Toast.center, duration: Toast.lengthLong);
     } else {
-
-      ToastComponent.showDialog(loginResponse.message, context,
-          gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+      ToastComponent.showDialog(loginResponse.message ?? "", context,
+          gravity: Toast.center, duration: Toast.lengthLong);
       is_logged_in.$ = true;
       is_logged_in.save();
       AuthHelper().setUserData(loginResponse);
@@ -174,14 +182,15 @@ class _LoginState extends State<Login> {
           sound: true,
         );
 
-        String fcmToken = await _fcm.getToken();
+        String fcmToken = await _fcm.getToken() ?? "";
 
         if (fcmToken != null) {
           print("--fcm token--");
           print(fcmToken);
           if (is_logged_in.$ == true) {
             // update device token
-            var deviceTokenUpdateResponse = await ProfileRepository().getDeviceTokenUpdateResponse(fcmToken);
+            var deviceTokenUpdateResponse = await ProfileRepository()
+                .getDeviceTokenUpdateResponse(fcmToken);
           }
         }
       }
@@ -190,10 +199,7 @@ class _LoginState extends State<Login> {
       print(is_logged_in.$);
       fetchFeaturedCategories().then((value) {
         initDynamicLinks();
-
-
       });
-
     }
   }
 
@@ -201,54 +207,37 @@ class _LoginState extends State<Login> {
     //Getting the link and details from Link
     var data = await FirebaseDynamicLinks.instance.getInitialLink();
 
-    if(data == null){
+    if (data == null) {
       //App is not opened using the DeepLinks
-      return Navigator.push(context,
-          MaterialPageRoute(builder: (context) {
-            return Main();
-          }));
-
+      return Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return Main();
+      }));
     }
 
     //TODO: Start a loader
     //Handling data if the links are valid
-    FirebaseDynamicLinks.instance.onLink(onSuccess: (dynamicLink)
-    async {
-
-      var deepLink = dynamicLink?.link;
-      final queryParams = deepLink.queryParameters;
-
-      //Checking if we can access query params
-      if (queryParams.length == 1) {
-        int id = int.parse(queryParams['id']);
-        //TODO: Make an API call to get the details of your content/feed/post
-        //TODO: Go to the desired widget
-        //TODO: Close the loader
-      return  Navigator.push(context, MaterialPageRoute(builder: (context) {
-          return SellerDetails(id: id,);
-        }));
-      }
-    });
+    FirebaseDynamicLinks.instance.onLink;
   }
 //TODO: Error loading dynamic link page
 
-
-
-onPressedFacebookLogin() async {
-    final facebookLogin =await FacebookAuth.instance.login(loginBehavior: LoginBehavior.webOnly);
+  onPressedFacebookLogin() async {
+    final facebookLogin =
+        await FacebookAuth.instance.login(loginBehavior: LoginBehavior.webOnly);
     if (facebookLogin.status == LoginStatus.success) {
       // get the user data
       // by default we get the userId, email,name and picture
       final userData = await FacebookAuth.instance.getUserData();
       var loginResponse = await AuthRepository().getSocialLoginResponse(
-          userData['name'].toString(), userData['email'].toString(), userData['id'].toString());
+          userData['name'].toString(),
+          userData['email'].toString(),
+          userData['id'].toString());
       print("..........................${loginResponse.toString()}");
       if (loginResponse.result == false) {
-        ToastComponent.showDialog(loginResponse.message, context,
-            gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+        ToastComponent.showDialog(loginResponse.message ?? "", context,
+            gravity: Toast.center, duration: Toast.lengthLong);
       } else {
-        ToastComponent.showDialog(loginResponse.message, context,
-            gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+        ToastComponent.showDialog(loginResponse.message ?? "", context,
+            gravity: Toast.center, duration: Toast.lengthLong);
         AuthHelper().setUserData(loginResponse);
         Navigator.push(context, MaterialPageRoute(builder: (context) {
           return Main();
@@ -262,7 +251,6 @@ onPressedFacebookLogin() async {
       print(facebookLogin.status);
       print(facebookLogin.message);
     }
-
 
     /*print(facebookLoginResult.accessToken);
     print(facebookLoginResult.accessToken.token);
@@ -308,19 +296,21 @@ onPressedFacebookLogin() async {
 
   onPressedGoogleLogin() async {
     try {
-      final GoogleSignInAccount googleUser = await GoogleSignIn().signIn();
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
       // var v = await  GoogleSignIn().signOut();
-      print("googleUser.email ${googleUser.id}");
+      print("googleUser.email ${googleUser?.id}");
 
       var loginResponse = await AuthRepository().getSocialLoginResponse(
-          googleUser.displayName, googleUser.email, googleUser.id);
+          googleUser?.displayName ?? "",
+          googleUser?.email ?? "",
+          googleUser?.id ?? "");
       print(loginResponse);
       if (loginResponse.result == false) {
-        ToastComponent.showDialog(loginResponse.message, context,
-            gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+        ToastComponent.showDialog(loginResponse.message ?? "", context,
+            gravity: Toast.center, duration: Toast.lengthLong);
       } else {
-        ToastComponent.showDialog(loginResponse.message, context,
-            gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+        ToastComponent.showDialog(loginResponse.message ?? "", context,
+            gravity: Toast.center, duration: Toast.lengthLong);
         AuthHelper().setUserData(loginResponse);
         Navigator.push(context, MaterialPageRoute(builder: (context) {
           return Main();
@@ -331,7 +321,6 @@ onPressedFacebookLogin() async {
       print("error is ....... $e");
       // TODO
     }
-
 
     /*
     GoogleSignIn _googleSignIn = GoogleSignIn(
@@ -384,11 +373,11 @@ onPressedFacebookLogin() async {
         backgroundColor: MyTheme.soft_accent_color,
         body: Stack(
           children: [
-           /* Container(
+            /* Container(
               width: _screen_width * (3 / 4),
               //color: MyTheme.soft_accent_color,
-              *//*child: Image.asset(
-                  "assets/splash_login_registration_background_image.png"),*//*
+              */ /*child: Image.asset(
+                  "assets/splash_login_registration_background_image.png"),*/ /*
             ),*/
             Container(
               width: double.infinity,
@@ -401,10 +390,11 @@ onPressedFacebookLogin() async {
                     child: Container(
                       width: 200,
                       height: 75,
-                      child: Image.asset('citydeal/img/core-img/logo-small.png'),
+                      child:
+                          Image.asset('citydeal/img/core-img/logo-small.png'),
                     ),
                   ),
-                /*  Padding(
+                  /*  Padding(
                     padding: const EdgeInsets.only(bottom: 20.0),
                     child: Text(
                       "${AppLocalizations.of(context).login_screen_login_to} " + AppConfig.app_name,
@@ -414,7 +404,9 @@ onPressedFacebookLogin() async {
                           fontWeight: FontWeight.w600),
                     ),
                   ),*/
-                  SizedBox(height: 20,),
+                  SizedBox(
+                    height: 20,
+                  ),
                   Container(
                     width: _screen_width * (3 / 4),
                     child: Column(
@@ -423,7 +415,11 @@ onPressedFacebookLogin() async {
                         Padding(
                           padding: const EdgeInsets.only(bottom: 4.0),
                           child: Text(
-                            _login_by == "email" ? AppLocalizations.of(context).login_screen_email : AppLocalizations.of(context).login_screen_phone,
+                            _login_by == "email"
+                                ? AppLocalizations.of(context)!
+                                    .login_screen_email
+                                : AppLocalizations.of(context)!
+                                    .login_screen_phone,
                             style: TextStyle(
                                 color: MyTheme.black,
                                 fontWeight: FontWeight.w600),
@@ -436,10 +432,14 @@ onPressedFacebookLogin() async {
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
                                 Container(
-                                 // height: 50,
-                                  child: CustomWidgets.textField('Enter mobile number/email',isNumber: false,textController: _emailController,icon:Icons.person_outline),
+                                  // height: 50,
+                                  child: CustomWidgets.textField(
+                                      'Enter mobile number/email',
+                                      isNumber: false,
+                                      textController: _emailController,
+                                      icon: Icons.person_outline),
                                 ),
-                              /*  otp_addon_installed.$
+                                /*  otp_addon_installed.$
                                     ? GestureDetector(
                                         onTap: () {
                                           setState(() {
@@ -465,40 +465,39 @@ onPressedFacebookLogin() async {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                Container(
-                                  height: 36,
-                                  child: CustomInternationalPhoneNumberInput(
-                                    onInputChanged: (PhoneNumber number) {
-                                      print(number.phoneNumber);
-                                      setState(() {
-                                        _phone = number.phoneNumber;
-                                      });
-                                    },
-                                    onInputValidated: (bool value) {
-                                      print(value);
-                                    },
-                                    selectorConfig: SelectorConfig(
-                                      selectorType: PhoneInputSelectorType.DIALOG,
+                                Container(height: 36, child: Container()
+                                    //  CustomInternationalPhoneNumberInput(
+                                    //   onInputChanged: (PhoneNumber number) {
+                                    //     print(number.phoneNumber);
+                                    //     setState(() {
+                                    //       _phone = number.phoneNumber??"";
+                                    //     });
+                                    //   },
+                                    //   onInputValidated: (bool value) {
+                                    //     print(value);
+                                    //   },
+                                    //   selectorConfig: SelectorConfig(
+                                    //     selectorType: PhoneInputSelectorType.DIALOG,
+                                    //   ),
+                                    //   ignoreBlank: false,
+                                    //   autoValidateMode: AutovalidateMode.disabled,
+                                    //   selectorTextStyle:
+                                    //       TextStyle(color: MyTheme.font_grey),
+                                    //   textStyle:
+                                    //       TextStyle(color: MyTheme.font_grey),
+                                    //   initialValue: phoneCode,
+                                    //   textFieldController: _phoneNumberController,
+                                    //   formatInput: true,
+                                    //   keyboardType: TextInputType.numberWithOptions(
+                                    //       signed: true, decimal: true),
+                                    //   inputDecoration: InputDecorations
+                                    //       .buildInputDecoration_phone(
+                                    //           hint_text: "01710 333 558"),
+                                    //   onSaved: (PhoneNumber number) {
+                                    //     print('On Saved: $number');
+                                    //   },
+                                    // ),
                                     ),
-                                    ignoreBlank: false,
-                                    autoValidateMode: AutovalidateMode.disabled,
-                                    selectorTextStyle:
-                                        TextStyle(color: MyTheme.font_grey),
-                                    textStyle:
-                                        TextStyle(color: MyTheme.font_grey),
-                                    initialValue: phoneCode,
-                                    textFieldController: _phoneNumberController,
-                                    formatInput: true,
-                                    keyboardType: TextInputType.numberWithOptions(
-                                        signed: true, decimal: true),
-                                    inputDecoration: InputDecorations
-                                        .buildInputDecoration_phone(
-                                            hint_text: "01710 333 558"),
-                                    onSaved: (PhoneNumber number) {
-                                      print('On Saved: $number');
-                                    },
-                                  ),
-                                ),
                                 GestureDetector(
                                   onTap: () {
                                     setState(() {
@@ -506,7 +505,8 @@ onPressedFacebookLogin() async {
                                     });
                                   },
                                   child: Text(
-                                    AppLocalizations.of(context).login_screen_or_login_with_email,
+                                    AppLocalizations.of(context)!
+                                        .login_screen_or_login_with_email,
                                     style: TextStyle(
                                         color: MyTheme.accent_color,
                                         fontStyle: FontStyle.italic,
@@ -517,9 +517,10 @@ onPressedFacebookLogin() async {
                             ),
                           ),
                         Padding(
-                          padding: const EdgeInsets.only(top:10.0,bottom: 4.0),
+                          padding:
+                              const EdgeInsets.only(top: 10.0, bottom: 4.0),
                           child: Text(
-                            AppLocalizations.of(context).login_screen_password,
+                            AppLocalizations.of(context)!.login_screen_password,
                             style: TextStyle(
                                 color: MyTheme.black,
                                 fontWeight: FontWeight.w600),
@@ -532,12 +533,16 @@ onPressedFacebookLogin() async {
                             children: [
                               Container(
                                 //height: 50,
-                                child: CustomWidgets.textField('Enter password',isPassword:true,isNumber: false,textController: _passwordController,icon:CupertinoIcons.padlock),
+                                child: CustomWidgets.textField('Enter password',
+                                    isPassword: true,
+                                    isNumber: false,
+                                    textController: _passwordController,
+                                    icon: CupertinoIcons.padlock),
                               ),
                             ],
                           ),
                         ),
-                       /* Padding(
+                        /* Padding(
                           padding: const EdgeInsets.only(top: 30.0),
                           child: Container(
                             height: 45,
@@ -567,16 +572,18 @@ onPressedFacebookLogin() async {
                           ),
                         ),*/
                         Padding(
-                          padding: const EdgeInsets.only(top: 15.0),
-                          child: CustomButton(
-                            onPressed: (){
-                              onPressedLogin();
-                            },
-                          title:  AppLocalizations.of(context).login_screen_log_in,
-                            bgColor:  MyTheme.yellow,
-                          )
+                            padding: const EdgeInsets.only(top: 15.0),
+                            child: CustomButton(
+                              onPressed: () {
+                                onPressedLogin();
+                              },
+                              title: AppLocalizations.of(context)!
+                                  .login_screen_log_in,
+                              bgColor: MyTheme.yellow,
+                            )),
+                        SizedBox(
+                          height: 10,
                         ),
-                        SizedBox(height: 10,),
                         Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Row(
@@ -586,13 +593,15 @@ onPressedFacebookLogin() async {
                                 onTap: () {
                                   Navigator.push(context,
                                       MaterialPageRoute(builder: (context) {
-                                        return PasswordForget();
-                                      }));
+                                    return PasswordForget();
+                                  }));
                                 },
                                 child: Text(
-                                  AppLocalizations.of(context).login_screen_forgot_password,textAlign: TextAlign.center,
+                                  AppLocalizations.of(context)!
+                                      .login_screen_forgot_password,
+                                  textAlign: TextAlign.center,
                                   style: TextStyle(
-                                    fontSize: 15,
+                                      fontSize: 15,
                                       color: MyTheme.black,
                                       fontStyle: FontStyle.normal,
                                       fontWeight: FontWeight.bold,
@@ -602,7 +611,9 @@ onPressedFacebookLogin() async {
                             ],
                           ),
                         ),
-                        SizedBox(height: 5,),
+                        SizedBox(
+                          height: 5,
+                        ),
                         Center(
                           child: RichText(
                             textAlign: TextAlign.center,
@@ -614,22 +625,27 @@ onPressedFacebookLogin() async {
                               children: [
                                 new TextSpan(
                                     text: 'Didn\u0027t have an account?\t',
-                                    style: new TextStyle(color: MyTheme.font_grey)),
+                                    style: new TextStyle(
+                                        color: MyTheme.font_grey)),
                                 new TextSpan(
-                                    text: AppLocalizations.of(context).login_screen_or_create_new_account,
-                                    style: new TextStyle(color: MyTheme.black,fontWeight: FontWeight.bold),
+                                    text: AppLocalizations.of(context)!
+                                        .login_screen_or_create_new_account,
+                                    style: new TextStyle(
+                                        color: MyTheme.black,
+                                        fontWeight: FontWeight.bold),
                                     recognizer: TapGestureRecognizer()
                                       ..onTap = () {
                                         Navigator.push(context,
-                                            MaterialPageRoute(builder: (context) {
-                                              return Registration();
-                                            }));
+                                            MaterialPageRoute(
+                                                builder: (context) {
+                                          return Registration();
+                                        }));
                                       }),
                               ],
                             ),
                           ),
                         ),
-                       /* Padding(
+                        /* Padding(
                           padding: const EdgeInsets.only(top: 20.0),
                           child: Center(
                               child: Text(
@@ -638,7 +654,7 @@ onPressedFacebookLogin() async {
                                 color: MyTheme.medium_grey, fontSize: 12),
                           )),
                         ),*/
-                       /* Padding(
+                        /* Padding(
                           padding: const EdgeInsets.only(top: 4.0),
                           child: Container(
                             height: 45,
@@ -670,7 +686,7 @@ onPressedFacebookLogin() async {
                             ),
                           ),
                         ),*/
-                       /* Visibility(
+                        /* Visibility(
                           visible: allow_google_login.$ ||
                               allow_facebook_login.$,
                           child: Padding(
@@ -706,7 +722,9 @@ onPressedFacebookLogin() async {
                                       ),
                                     ),
                                   ),*/
-                                  SizedBox(width: 10,),
+                                  SizedBox(
+                                    width: 10,
+                                  ),
                                   Visibility(
                                     visible: allow_google_login.$,
                                     child: InkWell(
@@ -715,12 +733,11 @@ onPressedFacebookLogin() async {
                                       },
                                       child: Container(
                                         width: 28,
-                                        child:
-                                            Image.asset("citydeal/img/icons/google-plus.png"),
+                                        child: Image.asset(
+                                            "citydeal/img/icons/google-plus.png"),
                                       ),
                                     ),
                                   ),
-
                                   Visibility(
                                     visible: false,
                                     child: InkWell(
@@ -739,33 +756,36 @@ onPressedFacebookLogin() async {
                             ),
                           ),
                         ),
-                         SizedBox(height: 30,),
-                         Material(
-                           color: MyTheme.yellow,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
-                           elevation: 4.0,
-                           child: Container(
-                             height: 40,
-                             child: InkWell(
-                               splashColor: Colors.red,
-                               highlightColor: Colors.blue,
-                               onTap: (){
-
-                                     Navigator.push(context,
-                                         MaterialPageRoute(builder: (context) {
-                                           return Main();
-                                         }));
-
-
-                               },
-                               child: Center(
-                                   child: Text('VIEW AS GUEST',
-                                 style: TextStyle(
-                                     color: Colors.black, fontSize: 16,fontWeight: FontWeight.w600),
-                               )),
-                             ),
-                           ),
-                         ),
+                        SizedBox(
+                          height: 30,
+                        ),
+                        Material(
+                          color: MyTheme.yellow,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5.0)),
+                          elevation: 4.0,
+                          child: Container(
+                            height: 40,
+                            child: InkWell(
+                              splashColor: Colors.red,
+                              highlightColor: Colors.blue,
+                              onTap: () {
+                                Navigator.push(context,
+                                    MaterialPageRoute(builder: (context) {
+                                  return Main();
+                                }));
+                              },
+                              child: Center(
+                                  child: Text(
+                                'VIEW AS GUEST',
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600),
+                              )),
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   )
@@ -777,8 +797,9 @@ onPressedFacebookLogin() async {
       ),
     );
   }
+
   Future fetchFeaturedCategories() async {
     var categoryResponse = await CategoryRepository().getTopCategories();
-    AppConfig.featuredCategoryList.addAll(categoryResponse.categories);
+    AppConfig.featuredCategoryList.addAll(categoryResponse.categories ?? []);
   }
 }

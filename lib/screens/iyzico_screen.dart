@@ -12,14 +12,13 @@ import 'package:webixes/app_config.dart';
 import 'package:webixes/helpers/shared_value_helper.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-
 class IyzicoScreen extends StatefulWidget {
   double amount;
   String payment_type;
   String payment_method_key;
 
   IyzicoScreen(
-      {Key key,
+      {Key? key,
       this.amount = 0.00,
       this.payment_type = "",
       this.payment_method_key = ""})
@@ -33,14 +32,12 @@ class _IyzicoScreenState extends State<IyzicoScreen> {
   int _combined_order_id = 0;
   bool _order_init = false;
 
-  WebViewController _webViewController;
+  WebViewController? _webViewController;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-
-
 
     if (widget.payment_type == "cart_payment") {
       createOrder();
@@ -49,19 +46,18 @@ class _IyzicoScreenState extends State<IyzicoScreen> {
 
   createOrder() async {
     var orderCreateResponse = await PaymentRepository()
-        .getOrderCreateResponse( widget.payment_method_key);
+        .getOrderCreateResponse(widget.payment_method_key);
 
     if (orderCreateResponse.result == false) {
-      ToastComponent.showDialog(orderCreateResponse.message, context,
-          gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+      ToastComponent.showDialog(orderCreateResponse.message ?? "", context,
+          gravity: Toast.center, duration: Toast.lengthLong);
       Navigator.of(context).pop();
       return;
     }
 
-    _combined_order_id = orderCreateResponse.combined_order_id;
+    _combined_order_id = orderCreateResponse.combined_order_id ?? 0;
     _order_init = true;
     setState(() {});
-
   }
 
   @override
@@ -77,42 +73,44 @@ class _IyzicoScreenState extends State<IyzicoScreen> {
   }
 
   void getData() {
-    print('called.........');
-    var payment_details = '';
-    _webViewController
-        .evaluateJavascript("document.body.innerText")
-        .then((data) {
-      var decodedJSON = jsonDecode(data);
-      Map<String, dynamic> responseJSON = jsonDecode(decodedJSON);
-      //print(responseJSON.toString());
-      if (responseJSON["result"] == false) {
-        Toast.show(responseJSON["message"], context,
-            duration: Toast.LENGTH_LONG, gravity: Toast.CENTER);
+    // print('called.........');
+    // var payment_details = '';
+    // _webViewController
+    //     .evaluateJavascript("document.body.innerText")
+    //     .then((data) {
+    //   var decodedJSON = jsonDecode(data);
+    //   Map<String, dynamic> responseJSON = jsonDecode(decodedJSON);
+    //   //print(responseJSON.toString());
+    //   if (responseJSON["result"] == false) {
+    //     Toast.show(responseJSON["message"], context,
+    //         duration: Toast.LENGTH_LONG, gravity: Toast.CENTER);
 
-        Navigator.pop(context);
-      } else if (responseJSON["result"] == true) {
-        print("a");
-        payment_details = responseJSON['payment_details'];
-        onPaymentSuccess(payment_details);
-      }
-    });
+    //     Navigator.pop(context);
+    //   } else if (responseJSON["result"] == true) {
+    //     print("a");
+    //     payment_details = responseJSON['payment_details'];
+    //     onPaymentSuccess(payment_details);
+    //   }
+    // });
   }
 
-  onPaymentSuccess(payment_details) async{
+  onPaymentSuccess(payment_details) async {
     print("b");
 
-    var iyzicoPaymentSuccessResponse = await PaymentRepository().getIyzicoPaymentSuccessResponse(widget.payment_type, widget.amount,_combined_order_id, payment_details);
+    var iyzicoPaymentSuccessResponse = await PaymentRepository()
+        .getIyzicoPaymentSuccessResponse(widget.payment_type, widget.amount,
+            _combined_order_id, payment_details);
 
-    if(iyzicoPaymentSuccessResponse.result == false ){
+    if (iyzicoPaymentSuccessResponse.result == false) {
       print("c");
-      Toast.show(iyzicoPaymentSuccessResponse.message, context,
-          duration: Toast.LENGTH_LONG, gravity: Toast.CENTER);
+      Toast.show(iyzicoPaymentSuccessResponse.message ?? "",
+          duration: Toast.lengthLong, gravity: Toast.center);
       Navigator.pop(context);
       return;
     }
 
-    Toast.show(iyzicoPaymentSuccessResponse.message, context,
-        duration: Toast.LENGTH_LONG, gravity: Toast.CENTER);
+    Toast.show(iyzicoPaymentSuccessResponse.message ?? "",
+        duration: Toast.lengthLong, gravity: Toast.center);
     if (widget.payment_type == "cart_payment") {
       Navigator.push(context, MaterialPageRoute(builder: (context) {
         return OrderList(from_checkout: true);
@@ -123,13 +121,9 @@ class _IyzicoScreenState extends State<IyzicoScreen> {
         return Wallet(from_recharge: true);
       }));
     }
-
-
   }
 
-
   buildBody() {
-
     String initial_url =
         "${AppConfig.BASE_URL}/iyzico/init?payment_type=${widget.payment_type}&combined_order_id=${_combined_order_id}&amount=${widget.amount}&user_id=${user_id.$}";
 
@@ -141,7 +135,7 @@ class _IyzicoScreenState extends State<IyzicoScreen> {
         widget.payment_type == "cart_payment") {
       return Container(
         child: Center(
-          child: Text(AppLocalizations.of(context).common_creating_order),
+          child: Text(AppLocalizations.of(context)!.common_creating_order),
         ),
       );
     } else {
@@ -152,12 +146,12 @@ class _IyzicoScreenState extends State<IyzicoScreen> {
             javascriptMode: JavascriptMode.unrestricted,
             onWebViewCreated: (controller) {
               _webViewController = controller;
-              _webViewController.loadUrl(initial_url);
+              _webViewController?.loadUrl(initial_url);
             },
             onWebResourceError: (error) {},
             onPageFinished: (page) {
               print(page.toString());
-                getData();
+              getData();
             },
           ),
         ),
@@ -167,7 +161,7 @@ class _IyzicoScreenState extends State<IyzicoScreen> {
 
   AppBar buildAppBar(BuildContext context) {
     return AppBar(
-backgroundColor: Colors.white,
+      backgroundColor: Colors.white,
       centerTitle: true,
       leading: Builder(
         builder: (context) => IconButton(
@@ -176,7 +170,7 @@ backgroundColor: Colors.white,
         ),
       ),
       title: Text(
-        AppLocalizations.of(context).iyzico_screen_pay_with_iyzico,
+        AppLocalizations.of(context)!.iyzico_screen_pay_with_iyzico,
         style: TextStyle(fontSize: 16, color: MyTheme.accent_color),
       ),
       elevation: 0.0,

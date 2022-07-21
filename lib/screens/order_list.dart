@@ -2,13 +2,12 @@ import 'package:webixes/screens/order_details.dart';
 import 'package:webixes/screens/main.dart';
 import 'package:flutter/material.dart';
 import 'package:webixes/my_theme.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+
 import 'package:webixes/repositories/order_repository.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:webixes/helpers/shared_value_helper.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:one_context/one_context.dart';
-
 
 class PaymentStatus {
   String option_key;
@@ -18,9 +17,12 @@ class PaymentStatus {
 
   static List<PaymentStatus> getPaymentStatusList() {
     return <PaymentStatus>[
-      PaymentStatus('', AppLocalizations.of(OneContext().context).order_list_screen_all),
-      PaymentStatus('paid', AppLocalizations.of(OneContext().context).order_list_screen_paid),
-      PaymentStatus('unpaid', AppLocalizations.of(OneContext().context).order_list_screen_unpaid),
+      PaymentStatus('',
+          AppLocalizations.of(OneContext().context!)!.order_list_screen_all),
+      PaymentStatus('paid',
+          AppLocalizations.of(OneContext().context!)!.order_list_screen_paid),
+      PaymentStatus('unpaid',
+          AppLocalizations.of(OneContext().context!)!.order_list_screen_unpaid),
     ];
   }
 }
@@ -33,17 +35,28 @@ class DeliveryStatus {
 
   static List<DeliveryStatus> getDeliveryStatusList() {
     return <DeliveryStatus>[
-      DeliveryStatus('', AppLocalizations.of(OneContext().context).order_list_screen_all),
-      DeliveryStatus('confirmed', AppLocalizations.of(OneContext().context).order_list_screen_confirmed),
-      DeliveryStatus('on_delivery', AppLocalizations.of(OneContext().context).order_list_screen_on_delivery),
-      DeliveryStatus('delivered', AppLocalizations.of(OneContext().context).order_list_screen_delivered),
-      DeliveryStatus('cancel', AppLocalizations.of(OneContext().context).order_list_screen_cancel),
+      DeliveryStatus('',
+          AppLocalizations.of(OneContext().context!)!.order_list_screen_all),
+      DeliveryStatus(
+          'confirmed',
+          AppLocalizations.of(OneContext().context!)!
+              .order_list_screen_confirmed),
+      DeliveryStatus(
+          'on_delivery',
+          AppLocalizations.of(OneContext().context!)!
+              .order_list_screen_on_delivery),
+      DeliveryStatus(
+          'delivered',
+          AppLocalizations.of(OneContext().context!)!
+              .order_list_screen_delivered),
+      DeliveryStatus('cancel',
+          AppLocalizations.of(OneContext().context!)!.order_list_screen_cancel),
     ];
   }
 }
 
 class OrderList extends StatefulWidget {
-  OrderList({Key key, this.from_checkout = false}) : super(key: key);
+  OrderList({Key? key, this.from_checkout = false}) : super(key: key);
   final bool from_checkout;
 
   @override
@@ -58,11 +71,11 @@ class _OrderListState extends State<OrderList> {
   List<DeliveryStatus> _deliveryStatusList =
       DeliveryStatus.getDeliveryStatusList();
 
-  PaymentStatus _selectedPaymentStatus;
-  DeliveryStatus _selectedDeliveryStatus;
+  PaymentStatus? _selectedPaymentStatus;
+  DeliveryStatus? _selectedDeliveryStatus;
 
-  List<DropdownMenuItem<PaymentStatus>> _dropdownPaymentStatusItems;
-  List<DropdownMenuItem<DeliveryStatus>> _dropdownDeliveryStatusItems;
+  List<DropdownMenuItem<PaymentStatus>>? _dropdownPaymentStatusItems;
+  List<DropdownMenuItem<DeliveryStatus>>? _dropdownDeliveryStatusItems;
 
   //------------------------------------
   List<dynamic> _orderList = [];
@@ -110,17 +123,17 @@ class _OrderListState extends State<OrderList> {
     _dropdownDeliveryStatusItems =
         buildDropdownDeliveryStatusItems(_deliveryStatusList);
 
-    for (int x = 0; x < _dropdownPaymentStatusItems.length; x++) {
-      if (_dropdownPaymentStatusItems[x].value.option_key ==
+    for (int x = 0; x < (_dropdownPaymentStatusItems?.length ?? 0); x++) {
+      if (_dropdownPaymentStatusItems?[x].value?.option_key ==
           _defaultPaymentStatusKey) {
-        _selectedPaymentStatus = _dropdownPaymentStatusItems[x].value;
+        _selectedPaymentStatus = _dropdownPaymentStatusItems?[x].value;
       }
     }
 
-    for (int x = 0; x < _dropdownDeliveryStatusItems.length; x++) {
-      if (_dropdownDeliveryStatusItems[x].value.option_key ==
+    for (int x = 0; x < (_dropdownDeliveryStatusItems?.length ?? 0); x++) {
+      if (_dropdownDeliveryStatusItems?[x].value?.option_key ==
           _defaultDeliveryStatusKey) {
-        _selectedDeliveryStatus = _dropdownDeliveryStatusItems[x].value;
+        _selectedDeliveryStatus = _dropdownDeliveryStatusItems?[x].value;
       }
     }
   }
@@ -143,17 +156,17 @@ class _OrderListState extends State<OrderList> {
   Future<void> _onRefresh() async {
     reset();
     resetFilterKeys();
-    for (int x = 0; x < _dropdownPaymentStatusItems.length; x++) {
-      if (_dropdownPaymentStatusItems[x].value.option_key ==
+    for (int x = 0; x < (_dropdownPaymentStatusItems?.length ?? 0); x++) {
+      if (_dropdownPaymentStatusItems?[x].value?.option_key ==
           _defaultPaymentStatusKey) {
-        _selectedPaymentStatus = _dropdownPaymentStatusItems[x].value;
+        _selectedPaymentStatus = _dropdownPaymentStatusItems?[x].value;
       }
     }
 
-    for (int x = 0; x < _dropdownDeliveryStatusItems.length; x++) {
-      if (_dropdownDeliveryStatusItems[x].value.option_key ==
+    for (int x = 0; x < (_dropdownDeliveryStatusItems?.length ?? 0); x++) {
+      if (_dropdownDeliveryStatusItems?[x].value?.option_key ==
           _defaultDeliveryStatusKey) {
-        _selectedDeliveryStatus = _dropdownDeliveryStatusItems[x].value;
+        _selectedDeliveryStatus = _dropdownDeliveryStatusItems?[x].value;
       }
     }
     setState(() {});
@@ -163,19 +176,19 @@ class _OrderListState extends State<OrderList> {
   fetchData() async {
     var orderResponse = await OrderRepository().getOrderList(
         page: _page,
-        payment_status: _selectedPaymentStatus.option_key,
-        delivery_status: _selectedDeliveryStatus.option_key);
+        payment_status: _selectedPaymentStatus?.option_key,
+        delivery_status: _selectedDeliveryStatus?.option_key);
     //print("or:"+orderResponse.toJson().toString());
-    _orderList.addAll(orderResponse.orders);
+    _orderList.addAll(orderResponse.orders ?? []);
     _isInitial = false;
-    _totalData = orderResponse.meta.total;
+    _totalData = orderResponse.meta?.total ?? 0;
     _showLoadingContainer = false;
     setState(() {});
   }
 
   List<DropdownMenuItem<PaymentStatus>> buildDropdownPaymentStatusItems(
       List _paymentStatusList) {
-    List<DropdownMenuItem<PaymentStatus>> items = List();
+    List<DropdownMenuItem<PaymentStatus>> items = [];
     for (PaymentStatus item in _paymentStatusList) {
       items.add(
         DropdownMenuItem(
@@ -189,7 +202,7 @@ class _OrderListState extends State<OrderList> {
 
   List<DropdownMenuItem<DeliveryStatus>> buildDropdownDeliveryStatusItems(
       List _deliveryStatusList) {
-    List<DropdownMenuItem<DeliveryStatus>> items = List();
+    List<DropdownMenuItem<DeliveryStatus>> items = [];
     for (DeliveryStatus item in _deliveryStatusList) {
       items.add(
         DropdownMenuItem(
@@ -203,29 +216,20 @@ class _OrderListState extends State<OrderList> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-        onWillPop: () {
-          if (widget.from_checkout) {
-            Navigator.push(context, MaterialPageRoute(builder: (context) {
-              return Main();
-            }));
-          }
-        },
-        child: Directionality(
-          textDirection:
-              app_language_rtl.$ ? TextDirection.rtl : TextDirection.ltr,
-          child: Scaffold(
-              backgroundColor: Colors.white,
-              appBar: buildAppBar(context),
-              body: Stack(
-                children: [
-                  buildOrderListList(),
-                  Align(
-                      alignment: Alignment.bottomCenter,
-                      child: buildLoadingContainer())
-                ],
-              )),
-        ));
+    return Directionality(
+      textDirection: app_language_rtl.$ ? TextDirection.rtl : TextDirection.ltr,
+      child: Scaffold(
+          backgroundColor: Colors.white,
+          appBar: buildAppBar(context),
+          body: Stack(
+            children: [
+              buildOrderListList(),
+              Align(
+                  alignment: Alignment.bottomCenter,
+                  child: buildLoadingContainer())
+            ],
+          )),
+    );
   }
 
   Container buildLoadingContainer() {
@@ -235,109 +239,110 @@ class _OrderListState extends State<OrderList> {
       color: Colors.white,
       child: Center(
         child: Text(_totalData == _orderList.length
-            ? AppLocalizations.of(context).order_list_screen_no_more_orders
-            : AppLocalizations.of(context).order_list_screen_loading_more_orders),
+            ? AppLocalizations.of(context)!.order_list_screen_no_more_orders
+            : AppLocalizations.of(context)!
+                .order_list_screen_loading_more_orders),
       ),
     );
   }
 
-  buildBottomAppBar(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          Container(
-            decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.symmetric(
-                    vertical: BorderSide(color: MyTheme.light_grey, width: .5),
-                    horizontal:
-                        BorderSide(color: MyTheme.light_grey, width: 1))),
-            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            height: 36,
-            width: MediaQuery.of(context).size.width * .3,
-            child: new DropdownButton<PaymentStatus>(
-              icon: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: Icon(Icons.expand_more, color: Colors.black54),
-              ),
-              hint: Text(
-                AppLocalizations.of(context).order_list_screen_all,
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 13,
-                ),
-              ),
-              iconSize: 14,
-              underline: SizedBox(),
-              value: _selectedPaymentStatus,
-              items: _dropdownPaymentStatusItems,
-              onChanged: (PaymentStatus selectedFilter) {
-                setState(() {
-                  _selectedPaymentStatus = selectedFilter;
-                });
-                reset();
-                fetchData();
-              },
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: Icon(
-              Icons.credit_card,
-              color: MyTheme.font_grey,
-              size: 16,
-            ),
-          ),
-          Spacer(),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: Icon(
-              Icons.local_shipping_outlined,
-              color: MyTheme.font_grey,
-              size: 16,
-            ),
-          ),
-          Container(
-            decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.symmetric(
-                    vertical: BorderSide(color: MyTheme.light_grey, width: .5),
-                    horizontal:
-                        BorderSide(color: MyTheme.light_grey, width: 1))),
-            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            height: 36,
-            width: MediaQuery.of(context).size.width * .37,
-            child: new DropdownButton<DeliveryStatus>(
-              icon: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: Icon(Icons.expand_more, color: Colors.black54),
-              ),
-              hint: Text(
-                AppLocalizations.of(context).order_list_screen_all,
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 13,
-                ),
-              ),
-              iconSize: 14,
-              underline: SizedBox(),
-              value: _selectedDeliveryStatus,
-              items: _dropdownDeliveryStatusItems,
-              onChanged: (DeliveryStatus selectedFilter) {
-                setState(() {
-                  _selectedDeliveryStatus = selectedFilter;
-                });
-                reset();
-                fetchData();
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // buildBottomAppBar(BuildContext context) {
+  //   return Padding(
+  //     padding: const EdgeInsets.symmetric(horizontal: 12.0),
+  //     child: Row(
+  //       mainAxisAlignment: MainAxisAlignment.spaceAround,
+  //       children: [
+  //         Container(
+  //           decoration: BoxDecoration(
+  //               color: Colors.white,
+  //               border: Border.symmetric(
+  //                   vertical: BorderSide(color: MyTheme.light_grey, width: .5),
+  //                   horizontal:
+  //                       BorderSide(color: MyTheme.light_grey, width: 1))),
+  //           padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+  //           height: 36,
+  //           width: MediaQuery.of(context).size.width * .3,
+  //           child: new DropdownButton<PaymentStatus>(
+  //             icon: Padding(
+  //               padding: const EdgeInsets.symmetric(horizontal: 8.0),
+  //               child: Icon(Icons.expand_more, color: Colors.black54),
+  //             ),
+  //             hint: Text(
+  //               AppLocalizations.of(context)!.order_list_screen_all,
+  //               style: TextStyle(
+  //                 color: Colors.black,
+  //                 fontSize: 13,
+  //               ),
+  //             ),
+  //             iconSize: 14,
+  //             underline: SizedBox(),
+  //             value: _selectedPaymentStatus,
+  //             items: _dropdownPaymentStatusItems,
+  //             // onChanged: (PaymentStatus selectedFilter) {
+  //             //   setState(() {
+  //             //     _selectedPaymentStatus = selectedFilter;
+  //             //   });
+  //             //   reset();
+  //             //   fetchData();
+  //             // },
+  //           ),
+  //         ),
+  //         Padding(
+  //           padding: const EdgeInsets.symmetric(horizontal: 8.0),
+  //           child: Icon(
+  //             Icons.credit_card,
+  //             color: MyTheme.font_grey,
+  //             size: 16,
+  //           ),
+  //         ),
+  //         Spacer(),
+  //         Padding(
+  //           padding: const EdgeInsets.symmetric(horizontal: 8.0),
+  //           child: Icon(
+  //             Icons.local_shipping_outlined,
+  //             color: MyTheme.font_grey,
+  //             size: 16,
+  //           ),
+  //         ),
+  //         Container(
+  //           decoration: BoxDecoration(
+  //               color: Colors.white,
+  //               border: Border.symmetric(
+  //                   vertical: BorderSide(color: MyTheme.light_grey, width: .5),
+  //                   horizontal:
+  //                       BorderSide(color: MyTheme.light_grey, width: 1))),
+  //           padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+  //           height: 36,
+  //           width: MediaQuery.of(context).size.width * .37,
+  //           child: new DropdownButton<DeliveryStatus>(
+  //             icon: Padding(
+  //               padding: const EdgeInsets.symmetric(horizontal: 8.0),
+  //               child: Icon(Icons.expand_more, color: Colors.black54),
+  //             ),
+  //             hint: Text(
+  //               AppLocalizations.of(context).order_list_screen_all,
+  //               style: TextStyle(
+  //                 color: Colors.black,
+  //                 fontSize: 13,
+  //               ),
+  //             ),
+  //             iconSize: 14,
+  //             underline: SizedBox(),
+  //             value: _selectedDeliveryStatus,
+  //             items: _dropdownDeliveryStatusItems,
+  //             onChanged: (DeliveryStatus selectedFilter) {
+  //               setState(() {
+  //                 _selectedDeliveryStatus = selectedFilter;
+  //               });
+  //               reset();
+  //               fetchData();
+  //             },
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   buildAppBar(BuildContext context) {
     return PreferredSize(
@@ -362,7 +367,7 @@ class _OrderListState extends State<OrderList> {
                       : const EdgeInsets.only(top: 14.0),
                   child: buildTopAppBarContainer(),
                 ),
-                buildBottomAppBar(context)
+                // buildBottomAppBar(context)
               ],
             ),
           )),
@@ -388,7 +393,7 @@ class _OrderListState extends State<OrderList> {
             ),
           ),
           Text(
-            AppLocalizations.of(context).profile_screen_purchase_history,
+            AppLocalizations.of(context)!.profile_screen_purchase_history,
             style: TextStyle(fontSize: 16, color: MyTheme.accent_color),
           ),
         ],
@@ -456,7 +461,8 @@ class _OrderListState extends State<OrderList> {
         ),
       );
     } else if (_totalData == 0) {
-      return Center(child: Text(AppLocalizations.of(context).common_no_data_available));
+      return Center(
+          child: Text(AppLocalizations.of(context)!.common_no_data_available));
     } else {
       return Container(); // should never be happening
     }
@@ -526,7 +532,7 @@ class _OrderListState extends State<OrderList> {
                     ),
                   ),
                   Text(
-                    "${AppLocalizations.of(context).order_list_screen_payment_status} - ",
+                    "${AppLocalizations.of(context)!.order_list_screen_payment_status} - ",
                     style: TextStyle(color: MyTheme.font_grey, fontSize: 13),
                   ),
                   Text(
@@ -556,7 +562,7 @@ class _OrderListState extends State<OrderList> {
                   ),
                 ),
                 Text(
-                  "${AppLocalizations.of(context).order_list_screen_delivery_status} -",
+                  "${AppLocalizations.of(context)!.order_list_screen_delivery_status} -",
                   style: TextStyle(color: MyTheme.font_grey, fontSize: 13),
                 ),
                 Text(
@@ -580,10 +586,8 @@ class _OrderListState extends State<OrderList> {
           color: payment_status == "paid" ? Colors.green : Colors.red),
       child: Padding(
         padding: const EdgeInsets.all(3),
-        child: Icon(
-            payment_status == "paid" ? FontAwesome.check : FontAwesome.times,
-            color: Colors.white,
-            size: 10),
+        child: Icon(payment_status == "paid" ? Icons.check : Icons.tab,
+            color: Colors.white, size: 10),
       ),
     );
   }

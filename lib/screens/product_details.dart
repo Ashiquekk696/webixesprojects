@@ -11,7 +11,7 @@ import 'package:webixes/ui_elements/mini_product_card.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:webixes/my_theme.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:expandable/expandable.dart';
 import 'dart:ui';
@@ -37,10 +37,11 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:http/http.dart' as http;
 
 import 'login.dart';
-class ProductDetails extends StatefulWidget {
-  int id;
 
-  ProductDetails({Key key, this.id}) : super(key: key);
+class ProductDetails extends StatefulWidget {
+  int? id;
+
+  ProductDetails({Key? key, this.id}) : super(key: key);
 
   @override
   _ProductDetailsState createState() => _ProductDetailsState();
@@ -51,8 +52,8 @@ class _ProductDetailsState extends State<ProductDetails> {
   bool _showCopied = false;
   String _appbarPriceString = ". . .";
   int _currentImage = 0;
-  int indexGlobal=0;
-  bool isScrollable=false;
+  int indexGlobal = 0;
+  bool isScrollable = false;
   ScrollController _mainScrollController = ScrollController();
   ScrollController _colorScrollController = ScrollController();
   ScrollController _variantScrollController = ScrollController();
@@ -75,12 +76,12 @@ class _ProductDetailsState extends State<ProductDetails> {
   var _singlePriceString;
   int _quantity = 1;
   int _stock = 0;
- ScrollController _scrollController;
+  ScrollController? _scrollController;
   List<dynamic> _relatedProducts = [];
   bool _relatedProductInit = false;
   List<dynamic> _topProducts = [];
   bool _topProductInit = false;
-  PhotoViewController controller;
+  PhotoViewController? controller;
 
   @override
   void initState() {
@@ -110,13 +111,13 @@ class _ProductDetailsState extends State<ProductDetails> {
 
   fetchProductDetails() async {
     var productDetailsResponse =
-        await ProductRepository().getProductDetails(id: widget.id);
+        await ProductRepository().getProductDetails(id: widget.id ?? 0);
 
-    if (productDetailsResponse.detailed_products.length > 0) {
-      _productDetails = productDetailsResponse.detailed_products[0];
-      sellerChatTitleController.text = productDetailsResponse.detailed_products[0].name;
-       shopId=productDetailsResponse.detailed_products[0].shop_id;
-
+    if ((productDetailsResponse.detailed_products?.length ?? 0) > 0) {
+      _productDetails = productDetailsResponse.detailed_products?[0];
+      sellerChatTitleController.text =
+          productDetailsResponse.detailed_products?[0].name ?? "";
+      shopId = productDetailsResponse.detailed_products?[0].shop_id;
     }
 
     setProductDetailValues();
@@ -125,17 +126,17 @@ class _ProductDetailsState extends State<ProductDetails> {
 
   fetchRelatedProducts() async {
     var relatedProductResponse =
-        await ProductRepository().getRelatedProducts(id: widget.id);
-    _relatedProducts.addAll(relatedProductResponse.products);
+        await ProductRepository().getRelatedProducts(id: widget.id ?? 0);
+    _relatedProducts.addAll(relatedProductResponse.products ?? []);
     _relatedProductInit = true;
 
     setState(() {});
   }
 
   fetchTopProducts() async {
-    var topProductResponse =
-        await ProductRepository().getTopFromThisSellerProducts(id: widget.id);
-    _topProducts.addAll(topProductResponse.products);
+    var topProductResponse = await ProductRepository()
+        .getTopFromThisSellerProducts(id: widget.id ?? 0);
+    _topProducts.addAll(topProductResponse.products ?? []);
     _topProductInit = true;
   }
 
@@ -148,7 +149,6 @@ class _ProductDetailsState extends State<ProductDetails> {
       _stock = _productDetails.current_stock;
       _productDetails.photos.forEach((photo) {
         _productImageList.add(photo.path);
-
       });
 
       _productDetails.choice_options.forEach((choice_opiton) {
@@ -183,7 +183,7 @@ class _ProductDetailsState extends State<ProductDetails> {
     );
 
     //print("p&u:" + widget.id.toString() + " | " + _user_id.toString());
-    _isInWishList = wishListCheckResponse.is_in_wishlist;
+    // _isInWishList = wishListCheckResponse.is_in_wishlist??0;
     setState(() {});
   }
 
@@ -192,7 +192,7 @@ class _ProductDetailsState extends State<ProductDetails> {
         await WishListRepository().add(product_id: widget.id);
 
     //print("p&u:" + widget.id.toString() + " | " + _user_id.toString());
-    _isInWishList = wishListCheckResponse.is_in_wishlist;
+    //_isInWishList = wishListCheckResponse.is_in_wishlist;
     setState(() {});
   }
 
@@ -201,14 +201,15 @@ class _ProductDetailsState extends State<ProductDetails> {
         await WishListRepository().remove(product_id: widget.id);
 
     //print("p&u:" + widget.id.toString() + " | " + _user_id.toString());
-    _isInWishList = wishListCheckResponse.is_in_wishlist;
+    //_isInWishList = wishListCheckResponse.is_in_wishlist;
     setState(() {});
   }
 
   onWishTap() {
     if (is_logged_in.$ == false) {
-      ToastComponent.showDialog(AppLocalizations.of(context).common_login_warning, context,
-          gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+      ToastComponent.showDialog(
+          AppLocalizations.of(context)!.common_login_warning, context,
+          gravity: Toast.center, duration: Toast.lengthLong);
       return;
     }
 
@@ -232,19 +233,19 @@ class _ProductDetailsState extends State<ProductDetails> {
     return;*/
 
     var variantResponse = await ProductRepository().getVariantWiseInfo(
-        id: widget.id, color: color_string, variants: _choiceString);
+        id: widget.id ?? 0, color: color_string, variants: _choiceString);
 
     /*print("vr"+variantResponse.toJson().toString());
     return;*/
 
     _singlePrice = variantResponse.price;
-    _stock = variantResponse.stock;
+    _stock = variantResponse.stock ?? 0;
     if (_quantity > _stock) {
       _quantity = _stock;
       setState(() {});
     }
 
-    _variant = variantResponse.variant;
+//    _variant = variantResponse.variant;
     setState(() {});
 
     calculateTotalPrice();
@@ -324,10 +325,12 @@ class _ProductDetailsState extends State<ProductDetails> {
 
   addToCart({mode, context = null, snackbar = null}) async {
     if (is_logged_in.$ == false) {
-      ToastComponent.showDialog(AppLocalizations.of(context).common_login_warning, context,
-          gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+      ToastComponent.showDialog(
+          AppLocalizations.of(context)!.common_login_warning, context,
+          gravity: Toast.center, duration: Toast.lengthLong);
 
-      return Navigator.push(context, MaterialPageRoute(builder: (context)=>Login()));
+      return Navigator.push(
+          context, MaterialPageRoute(builder: (context) => Login()));
     }
 
     print(widget.id);
@@ -336,11 +339,11 @@ class _ProductDetailsState extends State<ProductDetails> {
     print(_quantity);
 
     var cartAddResponse = await CartRepository()
-        .getCartAddResponse(widget.id, _variant, user_id.$, _quantity);
+        .getCartAddResponse(widget.id ?? 0, _variant, user_id.$, _quantity);
 
     if (cartAddResponse.result == false) {
-      ToastComponent.showDialog(cartAddResponse.message, context,
-          gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+      ToastComponent.showDialog(cartAddResponse.message ?? "", context,
+          gravity: Toast.center, duration: Toast.lengthLong);
       return;
     } else {
       if (mode == "add_to_cart") {
@@ -402,7 +405,8 @@ class _ProductDetailsState extends State<ProductDetails> {
                               side:
                                   BorderSide(color: Colors.black, width: 1.0)),
                           child: Text(
-                            AppLocalizations.of(context).product_details_screen_copy_product_link,
+                            AppLocalizations.of(context)!
+                                .product_details_screen_copy_product_link,
                             style: TextStyle(
                               color: MyTheme.medium_grey,
                             ),
@@ -417,7 +421,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                           ? Padding(
                               padding: const EdgeInsets.only(bottom: 8.0),
                               child: Text(
-                                AppLocalizations.of(context).common_copied,
+                                AppLocalizations.of(context)!.common_copied,
                                 style: TextStyle(
                                     color: MyTheme.medium_grey, fontSize: 12),
                               ),
@@ -434,7 +438,8 @@ class _ProductDetailsState extends State<ProductDetails> {
                               side:
                                   BorderSide(color: Colors.black, width: 1.0)),
                           child: Text(
-                            AppLocalizations.of(context).product_details_screen_share_options,
+                            AppLocalizations.of(context)!
+                                .product_details_screen_share_options,
                             style: TextStyle(color: Colors.white),
                           ),
                           onPressed: () {
@@ -452,7 +457,9 @@ class _ProductDetailsState extends State<ProductDetails> {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     Padding(
-                      padding: app_language_rtl.$ ? EdgeInsets.only(left: 8.0) : EdgeInsets.only(right: 8.0),
+                      padding: app_language_rtl.$
+                          ? EdgeInsets.only(left: 8.0)
+                          : EdgeInsets.only(right: 8.0),
                       child: FlatButton(
                         minWidth: 75,
                         height: 30,
@@ -499,7 +506,9 @@ class _ProductDetailsState extends State<ProductDetails> {
                       children: [
                         Padding(
                           padding: const EdgeInsets.only(bottom: 8.0),
-                          child: Text(AppLocalizations.of(context).product_details_screen_seller_chat_title,
+                          child: Text(
+                              AppLocalizations.of(context)!
+                                  .product_details_screen_seller_chat_title,
                               style: TextStyle(
                                   color: MyTheme.font_grey, fontSize: 12)),
                         ),
@@ -511,7 +520,8 @@ class _ProductDetailsState extends State<ProductDetails> {
                               controller: sellerChatTitleController,
                               autofocus: false,
                               decoration: InputDecoration(
-                                  hintText: AppLocalizations.of(context).product_details_screen_seller_chat_enter_title,
+                                  hintText: AppLocalizations.of(context)!
+                                      .product_details_screen_seller_chat_enter_title,
                                   hintStyle: TextStyle(
                                       fontSize: 12.0,
                                       color: MyTheme.textfield_grey),
@@ -538,7 +548,8 @@ class _ProductDetailsState extends State<ProductDetails> {
                         ),
                         Padding(
                           padding: const EdgeInsets.only(bottom: 8.0),
-                          child: Text("${AppLocalizations.of(context).product_details_screen_seller_chat_messasge} *",
+                          child: Text(
+                              "${AppLocalizations.of(context)!.product_details_screen_seller_chat_messasge} *",
                               style: TextStyle(
                                   color: MyTheme.font_grey, fontSize: 12)),
                         ),
@@ -552,7 +563,8 @@ class _ProductDetailsState extends State<ProductDetails> {
                               maxLines: null,
                               keyboardType: TextInputType.multiline,
                               decoration: InputDecoration(
-                                  hintText: AppLocalizations.of(context).product_details_screen_seller_chat_enter_messasge,
+                                  hintText: AppLocalizations.of(context)!
+                                      .product_details_screen_seller_chat_enter_messasge,
                                   hintStyle: TextStyle(
                                       fontSize: 12.0,
                                       color: MyTheme.textfield_grey),
@@ -599,7 +611,8 @@ class _ProductDetailsState extends State<ProductDetails> {
                               side: BorderSide(
                                   color: MyTheme.light_grey, width: 1.0)),
                           child: Text(
-                            AppLocalizations.of(context).common_close_in_all_capital,
+                            AppLocalizations.of(context)!
+                                .common_close_in_all_capital,
                             style: TextStyle(
                               color: MyTheme.font_grey,
                             ),
@@ -623,7 +636,8 @@ class _ProductDetailsState extends State<ProductDetails> {
                               side: BorderSide(
                                   color: MyTheme.light_grey, width: 1.0)),
                           child: Text(
-                            AppLocalizations.of(context).common_send_in_all_capital,
+                            AppLocalizations.of(context)!
+                                .common_send_in_all_capital,
                             style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
@@ -646,8 +660,12 @@ class _ProductDetailsState extends State<ProductDetails> {
     var message = sellerChatMessageController.text.toString();
 
     if (title == "" || message == "") {
-      ToastComponent.showDialog(AppLocalizations.of(context).product_details_screen_seller_chat_title_message_empty_warning, context,
-          gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+      ToastComponent.showDialog(
+          AppLocalizations.of(context)!
+              .product_details_screen_seller_chat_title_message_empty_warning,
+          context,
+          gravity: Toast.center,
+          duration: Toast.lengthLong);
       return;
     }
 
@@ -656,8 +674,12 @@ class _ProductDetailsState extends State<ProductDetails> {
             product_id: widget.id, title: title, message: message);
 
     if (conversationCreateResponse.result == false) {
-      ToastComponent.showDialog(AppLocalizations.of(context).product_details_screen_seller_chat_creation_unable_warning, context,
-          gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+      ToastComponent.showDialog(
+          AppLocalizations.of(context)!
+              .product_details_screen_seller_chat_creation_unable_warning,
+          context,
+          gravity: Toast.center,
+          duration: Toast.lengthLong);
       return;
     }
 
@@ -684,13 +706,15 @@ class _ProductDetailsState extends State<ProductDetails> {
     final double statusBarHeight = MediaQuery.of(context).padding.top;
     SnackBar _addedToCartSnackbar = SnackBar(
       content: Text(
-        AppLocalizations.of(context).product_details_screen_snackbar_added_to_cart,
+        AppLocalizations.of(context)!
+            .product_details_screen_snackbar_added_to_cart,
         style: TextStyle(color: MyTheme.font_grey),
       ),
       backgroundColor: MyTheme.soft_accent_color,
       duration: const Duration(seconds: 3),
       action: SnackBarAction(
-        label: AppLocalizations.of(context).product_details_screen_snackbar_show_cart,
+        label: AppLocalizations.of(context)!
+            .product_details_screen_snackbar_show_cart,
         onPressed: () {
           Navigator.push(context, MaterialPageRoute(builder: (context) {
             return Cart(has_bottomnav: false);
@@ -907,7 +931,8 @@ class _ProductDetailsState extends State<ProductDetails> {
                         0.0,
                       ),
                       child: Text(
-                        AppLocalizations.of(context).product_details_screen_description,
+                        AppLocalizations.of(context)!
+                            .product_details_screen_description,
                         style: TextStyle(
                             color: MyTheme.font_grey,
                             fontSize: 14,
@@ -937,9 +962,11 @@ class _ProductDetailsState extends State<ProductDetails> {
                       onTap: () {
                         if (_productDetails.video_link == "") {
                           ToastComponent.showDialog(
-                              AppLocalizations.of(context).product_details_screen_video_not_available, context,
-                              gravity: Toast.CENTER,
-                              duration: Toast.LENGTH_LONG);
+                              AppLocalizations.of(context)!
+                                  .product_details_screen_video_not_available,
+                              context,
+                              gravity: Toast.center,
+                              duration: Toast.lengthLong);
                           return;
                         }
 
@@ -964,7 +991,8 @@ class _ProductDetailsState extends State<ProductDetails> {
                           child: Row(
                             children: [
                               Text(
-                                AppLocalizations.of(context).product_details_screen_video,
+                                AppLocalizations.of(context)!
+                                    .product_details_screen_video,
                                 style: TextStyle(
                                     color: MyTheme.font_grey,
                                     fontSize: 14,
@@ -972,7 +1000,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                               ),
                               Spacer(),
                               Icon(
-                                Ionicons.ios_add,
+                                Icons.abc,
                                 color: MyTheme.font_grey,
                                 size: 24,
                               )
@@ -988,7 +1016,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                       onTap: () {
                         Navigator.push(context,
                             MaterialPageRoute(builder: (context) {
-                          return ProductReviews(id: widget.id);
+                          return ProductReviews(id: widget.id ?? 0);
                         })).then((value) {
                           onPopped(value);
                         });
@@ -1005,7 +1033,8 @@ class _ProductDetailsState extends State<ProductDetails> {
                           child: Row(
                             children: [
                               Text(
-                                AppLocalizations.of(context).product_details_screen_reviews,
+                                AppLocalizations.of(context)!
+                                    .product_details_screen_reviews,
                                 style: TextStyle(
                                     color: MyTheme.font_grey,
                                     fontSize: 14,
@@ -1013,7 +1042,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                               ),
                               Spacer(),
                               Icon(
-                                Ionicons.ios_add,
+                                Icons.abc_rounded,
                                 color: MyTheme.font_grey,
                                 size: 24,
                               )
@@ -1027,15 +1056,15 @@ class _ProductDetailsState extends State<ProductDetails> {
                     ),
                     InkWell(
                       onTap: () {
-                        print("${AppConfig.RAW_BASE_URL}/api/v2/policies/shop?type=seller_policy&shop_id=$shopId");
-                          Navigator.push(context,
+                        print(
+                            "${AppConfig.RAW_BASE_URL}/api/v2/policies/shop?type=seller_policy&shop_id=$shopId");
+                        Navigator.push(context,
                             MaterialPageRoute(builder: (context) {
-                            return SellerPolicy(
+                          return SellerPolicy(
                             id: shopId,
-
                           );
                         }));
-                      /*  Navigator.push(context,
+                        /*  Navigator.push(context,
                             MaterialPageRoute(builder: (context) {
                           return CommonWebviewScreen(
                             url: "${AppConfig.RAW_BASE_URL}/api/v2/policies/shop?type=seller_policy&shop_id=$shopId",
@@ -1055,7 +1084,8 @@ class _ProductDetailsState extends State<ProductDetails> {
                           child: Row(
                             children: [
                               Text(
-                                AppLocalizations.of(context).product_details_screen_seller_policy,
+                                AppLocalizations.of(context)!
+                                    .product_details_screen_seller_policy,
                                 style: TextStyle(
                                     color: MyTheme.font_grey,
                                     fontSize: 14,
@@ -1063,7 +1093,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                               ),
                               Spacer(),
                               Icon(
-                                Ionicons.ios_add,
+                                Icons.abc,
                                 color: MyTheme.font_grey,
                                 size: 24,
                               )
@@ -1079,12 +1109,11 @@ class _ProductDetailsState extends State<ProductDetails> {
                       onTap: () {
                         Navigator.push(context,
                             MaterialPageRoute(builder: (context) {
-                              return SellerPolicy(
-                                id: shopId,
-
-                              );
-                            }));
-                       /* Navigator.push(context,
+                          return SellerPolicy(
+                            id: shopId,
+                          );
+                        }));
+                        /* Navigator.push(context,
                             MaterialPageRoute(builder: (context) {
                           return CommonWebviewScreen(
                            // url: "${AppConfig.RAW_BASE_URL}/mobile-page/returnpolicy",
@@ -1105,7 +1134,8 @@ class _ProductDetailsState extends State<ProductDetails> {
                           child: Row(
                             children: [
                               Text(
-                                AppLocalizations.of(context).product_details_screen_return_policy,
+                                AppLocalizations.of(context)!
+                                    .product_details_screen_return_policy,
                                 style: TextStyle(
                                     color: MyTheme.font_grey,
                                     fontSize: 14,
@@ -1113,7 +1143,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                               ),
                               Spacer(),
                               Icon(
-                                Ionicons.ios_add,
+                                Icons.abc,
                                 color: MyTheme.font_grey,
                                 size: 24,
                               )
@@ -1132,7 +1162,8 @@ class _ProductDetailsState extends State<ProductDetails> {
                           return CommonWebviewScreen(
                             url:
                                 "${AppConfig.RAW_BASE_URL}/mobile-page/supportpolicy",
-                            page_name: AppLocalizations.of(context).product_details_screen_support_policy,
+                            page_name: AppLocalizations.of(context)!
+                                .product_details_screen_support_policy,
                           );
                         }));
                       },
@@ -1148,7 +1179,8 @@ class _ProductDetailsState extends State<ProductDetails> {
                           child: Row(
                             children: [
                               Text(
-                                AppLocalizations.of(context).product_details_screen_support_policy,
+                                AppLocalizations.of(context)!
+                                    .product_details_screen_support_policy,
                                 style: TextStyle(
                                     color: MyTheme.font_grey,
                                     fontSize: 14,
@@ -1156,7 +1188,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                               ),
                               Spacer(),
                               Icon(
-                                Ionicons.ios_add,
+                                Icons.abc,
                                 color: MyTheme.font_grey,
                                 size: 24,
                               )
@@ -1180,7 +1212,8 @@ class _ProductDetailsState extends State<ProductDetails> {
                         0.0,
                       ),
                       child: Text(
-                        AppLocalizations.of(context).product_details_screen_products_may_like,
+                        AppLocalizations.of(context)!
+                            .product_details_screen_products_may_like,
                         style: TextStyle(
                             color: MyTheme.font_grey,
                             fontSize: 16,
@@ -1208,7 +1241,8 @@ class _ProductDetailsState extends State<ProductDetails> {
                         0.0,
                       ),
                       child: Text(
-                        AppLocalizations.of(context).top_selling_products_screen_top_selling_products,
+                        AppLocalizations.of(context)!
+                            .top_selling_products_screen_top_selling_products,
                         style: TextStyle(
                             color: MyTheme.font_grey,
                             fontSize: 16,
@@ -1235,9 +1269,11 @@ class _ProductDetailsState extends State<ProductDetails> {
   InkWell buildSellerRow(BuildContext context) {
     //print("sl:" + AppConfig.BASE_PATH + _productDetails.shop_logo);
     return InkWell(
-      onTap: (){
+      onTap: () {
         Navigator.push(context, MaterialPageRoute(builder: (context) {
-          return SellerDetails(id: _productDetails.shop_id,);
+          return SellerDetails(
+            id: _productDetails.shop_id,
+          );
         }));
       },
       child: Row(
@@ -1245,39 +1281,46 @@ class _ProductDetailsState extends State<ProductDetails> {
           _productDetails.added_by == "admin"
               ? Container()
               : Padding(
-                  padding: app_language_rtl.$ ? EdgeInsets.only(left: 8.0) : EdgeInsets.only(right: 8.0),
-                  child:_productDetails.shop_logo!=null? Container(
-                    width: 30,
-                    height: 30,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(2.0),
-                      border: Border.all(
-                          color: Color.fromRGBO(112, 112, 112, .3), width: 0.5),
-                      //shape: BoxShape.rectangle,
-                    ),
-                    child: FadeInImage.assetNetwork(
-                      placeholder: 'assets/placeholder.png',
-                      image: AppConfig.BASE_PATH + _productDetails.shop_logo.replaceAll(",",""),
-                      fit: BoxFit.cover,
-                    ),
-                  ):Container(
-                    width: 30,
-                    height: 30,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(2.0),
-                      border: Border.all(
-                          color: Color.fromRGBO(112, 112, 112, .3), width: 0.5),
-                      //shape: BoxShape.rectangle,
-                    ),
-                    child: Image.asset("assets/placeholder.png")
-                  ),
+                  padding: app_language_rtl.$
+                      ? EdgeInsets.only(left: 8.0)
+                      : EdgeInsets.only(right: 8.0),
+                  child: _productDetails.shop_logo != null
+                      ? Container(
+                          width: 30,
+                          height: 30,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(2.0),
+                            border: Border.all(
+                                color: Color.fromRGBO(112, 112, 112, .3),
+                                width: 0.5),
+                            //shape: BoxShape.rectangle,
+                          ),
+                          child: FadeInImage.assetNetwork(
+                            placeholder: 'assets/placeholder.png',
+                            image: AppConfig.BASE_PATH +
+                                _productDetails.shop_logo.replaceAll(",", ""),
+                            fit: BoxFit.cover,
+                          ),
+                        )
+                      : Container(
+                          width: 30,
+                          height: 30,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(2.0),
+                            border: Border.all(
+                                color: Color.fromRGBO(112, 112, 112, .3),
+                                width: 0.5),
+                            //shape: BoxShape.rectangle,
+                          ),
+                          child: Image.asset("assets/placeholder.png")),
                 ),
           Container(
             width: MediaQuery.of(context).size.width * (.5),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(AppLocalizations.of(context).product_details_screen_seller,
+                Text(
+                    AppLocalizations.of(context)!.product_details_screen_seller,
                     style: TextStyle(
                       color: Color.fromRGBO(153, 153, 153, 1),
                     )),
@@ -1299,7 +1342,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                 onTap: () {
                   if (is_logged_in == false) {
                     ToastComponent.showDialog("You need to log in", context,
-                        gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+                        gravity: Toast.center, duration: Toast.lengthLong);
                     return;
                   }
 
@@ -1308,7 +1351,8 @@ class _ProductDetailsState extends State<ProductDetails> {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 4.0),
                   child: Text(
-                    AppLocalizations.of(context).product_details_screen_chat_with_seller,
+                    AppLocalizations.of(context)!
+                        .product_details_screen_chat_with_seller,
                     style: TextStyle(
                         decoration: TextDecoration.underline,
                         color: Color.fromRGBO(7, 101, 136, 1),
@@ -1317,7 +1361,8 @@ class _ProductDetailsState extends State<ProductDetails> {
                   ),
                 ),
               ),
-              Icon(Icons.message, size: 16, color: Color.fromRGBO(7, 101, 136, 1))
+              Icon(Icons.message,
+                  size: 16, color: Color.fromRGBO(7, 101, 136, 1))
             ],
           ))
         ],
@@ -1329,11 +1374,13 @@ class _ProductDetailsState extends State<ProductDetails> {
     return Row(
       children: [
         Padding(
-          padding: app_language_rtl.$ ? EdgeInsets.only(left: 8.0) : EdgeInsets.only(right: 8.0),
+          padding: app_language_rtl.$
+              ? EdgeInsets.only(left: 8.0)
+              : EdgeInsets.only(right: 8.0),
           child: Container(
             width: 75,
             child: Text(
-              AppLocalizations.of(context).product_details_screen_total_price,
+              AppLocalizations.of(context)!.product_details_screen_total_price,
               style: TextStyle(color: Color.fromRGBO(153, 153, 153, 1)),
             ),
           ),
@@ -1341,9 +1388,7 @@ class _ProductDetailsState extends State<ProductDetails> {
         Text(
           _productDetails.currency_symbol + _totalPrice.toString(),
           style: TextStyle(
-              color: Colors.green,
-              fontSize: 18.0,
-              fontWeight: FontWeight.w600),
+              color: Colors.green, fontSize: 18.0, fontWeight: FontWeight.w600),
         )
       ],
     );
@@ -1353,11 +1398,13 @@ class _ProductDetailsState extends State<ProductDetails> {
     return Row(
       children: [
         Padding(
-          padding: app_language_rtl.$ ? EdgeInsets.only(left: 8.0) : EdgeInsets.only(right: 8.0),
+          padding: app_language_rtl.$
+              ? EdgeInsets.only(left: 8.0)
+              : EdgeInsets.only(right: 8.0),
           child: Container(
             width: 75,
             child: Text(
-              AppLocalizations.of(context).product_details_screen_quantity,
+              AppLocalizations.of(context)!.product_details_screen_quantity,
               style: TextStyle(color: Color.fromRGBO(153, 153, 153, 1)),
             ),
           ),
@@ -1389,7 +1436,7 @@ class _ProductDetailsState extends State<ProductDetails> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8.0),
           child: Text(
-            "(${_stock} ${AppLocalizations.of(context).product_details_screen_available})",
+            "(${_stock} ${AppLocalizations.of(context)!.product_details_screen_available})",
             style: TextStyle(
                 color: Color.fromRGBO(152, 152, 153, 1), fontSize: 14),
           ),
@@ -1413,22 +1460,30 @@ class _ProductDetailsState extends State<ProductDetails> {
             child: Row(
               children: [
                 Padding(
-                  padding: app_language_rtl.$ ? EdgeInsets.only(left: 8.0) : EdgeInsets.only(right: 8.0),
+                  padding: app_language_rtl.$
+                      ? EdgeInsets.only(left: 8.0)
+                      : EdgeInsets.only(right: 8.0),
                   child: ShimmerHelper()
                       .buildBasicShimmer(height: 30.0, width: 60),
                 ),
                 Padding(
-                  padding: app_language_rtl.$ ? EdgeInsets.only(left: 8.0) : EdgeInsets.only(right: 8.0),
+                  padding: app_language_rtl.$
+                      ? EdgeInsets.only(left: 8.0)
+                      : EdgeInsets.only(right: 8.0),
                   child: ShimmerHelper()
                       .buildBasicShimmer(height: 30.0, width: 60),
                 ),
                 Padding(
-                  padding: app_language_rtl.$ ? EdgeInsets.only(left: 8.0) : EdgeInsets.only(right: 8.0),
+                  padding: app_language_rtl.$
+                      ? EdgeInsets.only(left: 8.0)
+                      : EdgeInsets.only(right: 8.0),
                   child: ShimmerHelper()
                       .buildBasicShimmer(height: 30.0, width: 60),
                 ),
                 Padding(
-                  padding: app_language_rtl.$ ? EdgeInsets.only(left: 8.0) : EdgeInsets.only(right: 8.0),
+                  padding: app_language_rtl.$
+                      ? EdgeInsets.only(left: 8.0)
+                      : EdgeInsets.only(right: 8.0),
                   child: ShimmerHelper()
                       .buildBasicShimmer(height: 30.0, width: 60),
                 )
@@ -1440,22 +1495,30 @@ class _ProductDetailsState extends State<ProductDetails> {
             child: Row(
               children: [
                 Padding(
-                  padding: app_language_rtl.$ ? EdgeInsets.only(left: 8.0) : EdgeInsets.only(right: 8.0),
+                  padding: app_language_rtl.$
+                      ? EdgeInsets.only(left: 8.0)
+                      : EdgeInsets.only(right: 8.0),
                   child: ShimmerHelper()
                       .buildBasicShimmer(height: 30.0, width: 60),
                 ),
                 Padding(
-                  padding: app_language_rtl.$ ? EdgeInsets.only(left: 8.0) : EdgeInsets.only(right: 8.0),
+                  padding: app_language_rtl.$
+                      ? EdgeInsets.only(left: 8.0)
+                      : EdgeInsets.only(right: 8.0),
                   child: ShimmerHelper()
                       .buildBasicShimmer(height: 30.0, width: 60),
                 ),
                 Padding(
-                  padding: app_language_rtl.$ ? EdgeInsets.only(left: 8.0) : EdgeInsets.only(right: 8.0),
+                  padding: app_language_rtl.$
+                      ? EdgeInsets.only(left: 8.0)
+                      : EdgeInsets.only(right: 8.0),
                   child: ShimmerHelper()
                       .buildBasicShimmer(height: 30.0, width: 60),
                 ),
                 Padding(
-                  padding: app_language_rtl.$ ? EdgeInsets.only(left: 8.0) : EdgeInsets.only(right: 8.0),
+                  padding: app_language_rtl.$
+                      ? EdgeInsets.only(left: 8.0)
+                      : EdgeInsets.only(right: 8.0),
                   child: ShimmerHelper()
                       .buildBasicShimmer(height: 30.0, width: 60),
                 )
@@ -1493,7 +1556,9 @@ class _ProductDetailsState extends State<ProductDetails> {
       child: Row(
         children: [
           Padding(
-            padding: app_language_rtl.$ ? EdgeInsets.only(left: 8.0) : EdgeInsets.only(right: 8.0),
+            padding: app_language_rtl.$
+                ? EdgeInsets.only(left: 8.0)
+                : EdgeInsets.only(right: 8.0),
             child: Container(
               width: 75,
               child: Text(
@@ -1531,7 +1596,9 @@ class _ProductDetailsState extends State<ProductDetails> {
 
   buildChoiceItem(option, choice_options_index, index) {
     return Padding(
-      padding: app_language_rtl.$ ? EdgeInsets.only(left: 8.0) : EdgeInsets.only(right: 8.0),
+      padding: app_language_rtl.$
+          ? EdgeInsets.only(left: 8.0)
+          : EdgeInsets.only(right: 8.0),
       child: InkWell(
         onTap: () {
           print("choice_options_index-->$choice_options_index");
@@ -1570,11 +1637,13 @@ class _ProductDetailsState extends State<ProductDetails> {
     return Row(
       children: [
         Padding(
-          padding: app_language_rtl.$ ? EdgeInsets.only(left: 8.0) : EdgeInsets.only(right: 8.0),
+          padding: app_language_rtl.$
+              ? EdgeInsets.only(left: 8.0)
+              : EdgeInsets.only(right: 8.0),
           child: Container(
             width: 75,
             child: Text(
-              AppLocalizations.of(context).product_details_screen_color,
+              AppLocalizations.of(context)!.product_details_screen_color,
               style: TextStyle(color: Color.fromRGBO(153, 153, 153, 1)),
             ),
           ),
@@ -1604,7 +1673,9 @@ class _ProductDetailsState extends State<ProductDetails> {
 
   buildColorItem(index) {
     return Padding(
-      padding: app_language_rtl.$ ? EdgeInsets.only(left: 8.0) : EdgeInsets.only(right: 8.0),
+      padding: app_language_rtl.$
+          ? EdgeInsets.only(left: 8.0)
+          : EdgeInsets.only(right: 8.0),
       child: InkWell(
         onTap: () {
           _onColorChange(index);
@@ -1655,11 +1726,13 @@ class _ProductDetailsState extends State<ProductDetails> {
     return Row(
       children: [
         Padding(
-          padding: app_language_rtl.$ ? EdgeInsets.only(left: 8.0) : EdgeInsets.only(right: 8.0),
+          padding: app_language_rtl.$
+              ? EdgeInsets.only(left: 8.0)
+              : EdgeInsets.only(right: 8.0),
           child: Container(
             width: 75,
             child: Text(
-              AppLocalizations.of(context).product_details_screen_club_point,
+              AppLocalizations.of(context)!.product_details_screen_club_point,
               style: TextStyle(color: Color.fromRGBO(153, 153, 153, 1)),
             ),
           ),
@@ -1686,11 +1759,13 @@ class _ProductDetailsState extends State<ProductDetails> {
     return Row(
       children: [
         Padding(
-          padding: app_language_rtl.$ ? EdgeInsets.only(left: 8.0) : EdgeInsets.only(right: 8.0),
+          padding: app_language_rtl.$
+              ? EdgeInsets.only(left: 8.0)
+              : EdgeInsets.only(right: 8.0),
           child: Container(
             width: 75,
             child: Text(
-              AppLocalizations.of(context).product_details_screen_price,
+              AppLocalizations.of(context)!.product_details_screen_price,
               style: TextStyle(color: Color.fromRGBO(153, 153, 153, 1)),
             ),
           ),
@@ -1709,9 +1784,7 @@ class _ProductDetailsState extends State<ProductDetails> {
         Text(
           _singlePriceString,
           style: TextStyle(
-              color: Colors.green,
-              fontSize: 18.0,
-              fontWeight: FontWeight.w600),
+              color: Colors.green, fontSize: 18.0, fontWeight: FontWeight.w600),
         )
       ],
     );
@@ -1737,7 +1810,10 @@ class _ProductDetailsState extends State<ProductDetails> {
               padding: const EdgeInsets.only(top: 22.0),
               child: Text(
                 _appbarPriceString,
-                style: TextStyle(fontWeight:FontWeight.bold,fontSize: 16, color: MyTheme.font_grey),
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: MyTheme.font_grey),
               ),
             )),
       ),
@@ -1774,7 +1850,8 @@ class _ProductDetailsState extends State<ProductDetails> {
                   borderRadius: BorderRadius.circular(0.0),
                 ),
                 child: Text(
-                  AppLocalizations.of(context).product_details_screen_button_add_to_cart,
+                  AppLocalizations.of(context)!
+                      .product_details_screen_button_add_to_cart,
                   style: TextStyle(
                       color: Colors.white,
                       fontSize: 16,
@@ -1795,7 +1872,8 @@ class _ProductDetailsState extends State<ProductDetails> {
                   borderRadius: BorderRadius.circular(0.0),
                 ),
                 child: Text(
-                  AppLocalizations.of(context).product_details_screen_button_buy_now,
+                  AppLocalizations.of(context)!
+                      .product_details_screen_button_buy_now,
                   style: TextStyle(
                       color: Colors.white,
                       fontSize: 16,
@@ -1815,23 +1893,23 @@ class _ProductDetailsState extends State<ProductDetails> {
   buildRatingAndWishButtonRow() {
     return Row(
       children: [
-        RatingBar(
-          itemSize: 18.0,
-          ignoreGestures: true,
-          initialRating: double.parse(_productDetails.rating.toString()),
-          direction: Axis.horizontal,
-          allowHalfRating: false,
-          itemCount: 5,
-          ratingWidget: RatingWidget(
-            full: Icon(FontAwesome.star, color: Colors.amber),
-            empty:
-                Icon(FontAwesome.star, color: Color.fromRGBO(224, 224, 225, 1)),
-          ),
-          itemPadding: EdgeInsets.only(right: 1.0),
-          onRatingUpdate: (rating) {
-            //print(rating);
-          },
-        ),
+        // RatingBar(
+        //   itemSize: 18.0,
+        //   ignoreGestures: true,
+        //   initialRating: double.parse(_productDetails.rating.toString()),
+        //   direction: Axis.horizontal,
+        //   allowHalfRating: false,
+        //   itemCount: 5,
+        //   ratingWidget: RatingWidget(
+        //     full: Icon(FontAwesome.star, color: Colors.amber),
+        //     empty:
+        //         Icon(FontAwesome.star, color: Color.fromRGBO(224, 224, 225, 1)),
+        //   ),
+        //   itemPadding: EdgeInsets.only(right: 1.0),
+        //   onRatingUpdate: (rating) {
+        //     //print(rating);
+        //   },
+        // ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 4.0),
           child: Text(
@@ -1847,7 +1925,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                   onWishTap();
                 },
                 child: Icon(
-                  FontAwesome.heart,
+                  Icons.abc,
                   color: Color.fromRGBO(230, 46, 4, 1),
                   size: 20,
                 ),
@@ -1857,7 +1935,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                   onWishTap();
                 },
                 child: Icon(
-                  FontAwesome.heart_o,
+                  Icons.abc,
                   color: Color.fromRGBO(230, 46, 4, 1),
                   size: 20,
                 ),
@@ -1871,17 +1949,23 @@ class _ProductDetailsState extends State<ProductDetails> {
         ? InkWell(
             onTap: () {
               Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return BrandProducts(id: _productDetails.brand.id,brand_name: _productDetails.brand.name,);
+                return BrandProducts(
+                  id: _productDetails.brand.id,
+                  brand_name: _productDetails.brand.name,
+                );
               }));
             },
             child: Row(
               children: [
                 Padding(
-                  padding: app_language_rtl.$ ? EdgeInsets.only(left: 8.0) : EdgeInsets.only(right: 8.0),
+                  padding: app_language_rtl.$
+                      ? EdgeInsets.only(left: 8.0)
+                      : EdgeInsets.only(right: 8.0),
                   child: Container(
                     width: 75,
                     child: Text(
-                      AppLocalizations.of(context).product_details_screen_brand,
+                      AppLocalizations.of(context)!
+                          .product_details_screen_brand,
                       style: TextStyle(color: Color.fromRGBO(153, 153, 153, 1)),
                     ),
                   ),
@@ -1908,7 +1992,8 @@ class _ProductDetailsState extends State<ProductDetails> {
                       borderRadius: BorderRadius.circular(5),
                       child: FadeInImage.assetNetwork(
                         placeholder: 'assets/placeholder.png',
-                        image: AppConfig.BASE_PATH + _productDetails.brand.logo.replaceAll(",",""),
+                        image: AppConfig.BASE_PATH +
+                            _productDetails.brand.logo.replaceAll(",", ""),
                         fit: BoxFit.contain,
                       )),
                 ),
@@ -1937,7 +2022,9 @@ class _ProductDetailsState extends State<ProductDetails> {
                   var controller = ExpandableController.of(context);
                   return FlatButton(
                     child: Text(
-                      !controller.expanded ? AppLocalizations.of(context).common_view_more : AppLocalizations.of(context).common_show_less,
+                      !controller!.expanded
+                          ? AppLocalizations.of(context)!.common_view_more
+                          : AppLocalizations.of(context)!.common_show_less,
                       style: TextStyle(color: MyTheme.font_grey, fontSize: 11),
                     ),
                     onPressed: () {
@@ -1985,13 +2072,13 @@ class _ProductDetailsState extends State<ProductDetails> {
             return Padding(
               padding: const EdgeInsets.only(bottom: 3.0),
               child: ListProductCard(
-                  id: _topProducts[index].id,
-                  image: _topProducts[index].thumbnail_image.replaceAll(",",""),
-                  name: _topProducts[index].name,
-                  main_price: _topProducts[index].main_price,
-                  stroked_price: _topProducts[index].stroked_price,
-                  has_discount: _topProducts[index].has_discount,
-                  ),
+                id: _topProducts[index].id,
+                image: _topProducts[index].thumbnail_image.replaceAll(",", ""),
+                name: _topProducts[index].name,
+                main_price: _topProducts[index].main_price,
+                stroked_price: _topProducts[index].stroked_price,
+                has_discount: _topProducts[index].has_discount,
+              ),
             );
           },
         ),
@@ -2000,7 +2087,9 @@ class _ProductDetailsState extends State<ProductDetails> {
       return Container(
           height: 100,
           child: Center(
-              child: Text(AppLocalizations.of(context).product_details_screen_no_top_selling_product,
+              child: Text(
+                  AppLocalizations.of(context)!
+                      .product_details_screen_no_top_selling_product,
                   style: TextStyle(color: MyTheme.font_grey))));
     }
   }
@@ -2010,12 +2099,16 @@ class _ProductDetailsState extends State<ProductDetails> {
       return Row(
         children: [
           Padding(
-              padding: app_language_rtl.$ ? EdgeInsets.only(left: 8.0) : EdgeInsets.only(right: 8.0),
+              padding: app_language_rtl.$
+                  ? EdgeInsets.only(left: 8.0)
+                  : EdgeInsets.only(right: 8.0),
               child: ShimmerHelper().buildBasicShimmer(
                   height: 120.0,
                   width: (MediaQuery.of(context).size.width - 32) / 3)),
           Padding(
-              padding: app_language_rtl.$ ? EdgeInsets.only(left: 8.0) : EdgeInsets.only(right: 8.0),
+              padding: app_language_rtl.$
+                  ? EdgeInsets.only(left: 8.0)
+                  : EdgeInsets.only(right: 8.0),
               child: ShimmerHelper().buildBasicShimmer(
                   height: 120.0,
                   width: (MediaQuery.of(context).size.width - 32) / 3)),
@@ -2038,13 +2131,15 @@ class _ProductDetailsState extends State<ProductDetails> {
               return Padding(
                 padding: const EdgeInsets.only(right: 3.0),
                 child: MiniProductCard(
-                    id: _relatedProducts[index].id,
-                    image: _relatedProducts[index].thumbnail_image.replaceAll(",",""),
-                    name: _relatedProducts[index].name,
-                    main_price: _relatedProducts[index].main_price,
-                    stroked_price: _relatedProducts[index].stroked_price,
-                    has_discount: _relatedProducts[index].has_discount,
-                    ),
+                  id: _relatedProducts[index].id,
+                  image: _relatedProducts[index]
+                      .thumbnail_image
+                      .replaceAll(",", ""),
+                  name: _relatedProducts[index].name,
+                  main_price: _relatedProducts[index].main_price,
+                  stroked_price: _relatedProducts[index].stroked_price,
+                  has_discount: _relatedProducts[index].has_discount,
+                ),
               );
             },
           ),
@@ -2055,7 +2150,8 @@ class _ProductDetailsState extends State<ProductDetails> {
           height: 100,
           child: Center(
               child: Text(
-                AppLocalizations.of(context).product_details_screen_no_related_product,
+            AppLocalizations.of(context)!
+                .product_details_screen_no_related_product,
             style: TextStyle(color: MyTheme.font_grey),
           )));
     }
@@ -2064,7 +2160,7 @@ class _ProductDetailsState extends State<ProductDetails> {
   buildQuantityUpButton() => SizedBox(
         width: 36,
         child: IconButton(
-            icon: Icon(FontAwesome.plus, size: 16, color: MyTheme.dark_grey),
+            icon: Icon(Icons.abc_sharp, size: 16, color: MyTheme.dark_grey),
             onPressed: () {
               if (_quantity < _stock) {
                 _quantity++;
@@ -2077,7 +2173,7 @@ class _ProductDetailsState extends State<ProductDetails> {
   buildQuantityDownButton() => SizedBox(
       width: 36,
       child: IconButton(
-          icon: Icon(FontAwesome.minus, size: 16, color: MyTheme.dark_grey),
+          icon: Icon(Icons.abc, size: 16, color: MyTheme.dark_grey),
           onPressed: () {
             if (_quantity > 1) {
               _quantity--;
@@ -2134,7 +2230,7 @@ class _ProductDetailsState extends State<ProductDetails> {
         children: [
           Row(
             children: [
-             /* Container(
+              /* Container(
                 width: 40,
                 child: Column(
                   children: [
@@ -2174,122 +2270,120 @@ class _ProductDetailsState extends State<ProductDetails> {
         ],
       );
     } else {
-      indexGlobal=_currentImage;
+      indexGlobal = _currentImage;
       return Column(
         children: [
-
           Container(
-            //height: DeviceSize.height(context),
-            //margin: EdgeInsets.only(left: 15, right: 15),
-            // width: DeviceSize.width(context),
-            // width: MediaQuery.of(context).size.width,
-            height: 200,
-            //width: 100,
-            child: isScrollable==false?
-            PhotoViewGallery.builder(
+              //height: DeviceSize.height(context),
+              //margin: EdgeInsets.only(left: 15, right: 15),
+              // width: DeviceSize.width(context),
+              // width: MediaQuery.of(context).size.width,
+              height: 200,
+              //width: 100,
+              child: isScrollable == false
+                  ? PhotoViewGallery.builder(
+                      //customSize: Size.fromHeight(50),
+                      reverse: false,
+                      itemCount: _productImageList.length,
+                      builder: (context, indexGlobal) {
+                        print("indexGlobal11-->$indexGlobal");
+                        print("_currentImage 11-->$_currentImage");
+                        _currentImage = indexGlobal;
 
-                //customSize: Size.fromHeight(50),
-                reverse: false,
-                itemCount: _productImageList.length,
-                builder: (context,indexGlobal) {
+                        return PhotoViewGalleryPageOptions(
+                          //controller:_imageScrollController ,
+                          imageProvider: NetworkImage(AppConfig.BASE_PATH +
+                              _productImageList[indexGlobal]),
+                          minScale: PhotoViewComputedScale.contained * 0.8,
+                          maxScale: PhotoViewComputedScale.covered * 2,
+                        );
+                      },
+                      scrollPhysics: BouncingScrollPhysics(),
+                      backgroundDecoration: BoxDecoration(
+                        borderRadius: BorderRadius.all(Radius.circular(20)),
+                        color: Theme.of(context).canvasColor,
+                      ),
+                      onPageChanged: (value) {
+                        print("ON PAHGE-->$value");
+                        _currentImage = value;
+                        print("_currentImage on page-->${_currentImage}");
+                        setState(() {});
+                        // _currentImage=0;
+                      },
+                      // enableRotation:true,
+                      loadingBuilder: (context, event) => Center(
+                        child: Container(
+                          width: 30.0,
+                          height: 30.0,
+                          child: CircularProgressIndicator(
+                            backgroundColor: Colors.orange,
+                            value: event == null
+                                ? 0
+                                : event.cumulativeBytesLoaded /
+                                    (event.expectedTotalBytes ?? 0),
+                          ),
+                        ),
+                      ),
+                    )
+                  : PhotoViewGallery.builder(
+                      //customSize: Size.fromHeight(50),
+                      reverse: false,
+                      itemCount: _productImageList.length,
+                      builder: (context, indexGlobal) {
+                        print("indexGlobal-->$indexGlobal");
+                        print("_currentImage-->$_currentImage");
+                        indexGlobal = _currentImage;
+                        _currentImage = indexGlobal;
 
-                  print("indexGlobal11-->$indexGlobal");
-                  print("_currentImage 11-->$_currentImage");
-                  _currentImage=indexGlobal;
-
-                  return PhotoViewGalleryPageOptions(
-                    //controller:_imageScrollController ,
-                    imageProvider:NetworkImage(AppConfig.BASE_PATH + _productImageList[indexGlobal]),
-                    minScale: PhotoViewComputedScale.contained * 0.8,
-                    maxScale: PhotoViewComputedScale.covered * 2,
-                  );
-                },
-                scrollPhysics: BouncingScrollPhysics(),
-                backgroundDecoration: BoxDecoration(
-                  borderRadius:BorderRadius.all(Radius.circular(20)),
-                  color: Theme.of(context).canvasColor,
-                ),onPageChanged: (value){
-                  print("ON PAHGE-->$value");
-                  _currentImage=value;
-                  print("_currentImage on page-->${_currentImage}");
-                  setState(() {
-
-                  });
-                 // _currentImage=0;
-                  },
-                // enableRotation:true,
-                loadingBuilder: (context, event) => Center(
-                  child: Container(
-                    width: 30.0,
-                    height: 30.0,
-                    child: CircularProgressIndicator(
-                      backgroundColor:Colors.orange,
-                      value: event == null
-                          ? 0
-                          : event.cumulativeBytesLoaded / event.expectedTotalBytes,
-                    ),
-                  ),
-                ),
-              ):
-            PhotoViewGallery.builder(
-
-              //customSize: Size.fromHeight(50),
-              reverse: false,
-              itemCount: _productImageList.length,
-              builder: (context,indexGlobal) {
-
-                print("indexGlobal-->$indexGlobal");
-                print("_currentImage-->$_currentImage");
-                indexGlobal=_currentImage;
-                _currentImage=indexGlobal;
-
-                return PhotoViewGalleryPageOptions(
-                  imageProvider:NetworkImage(AppConfig.BASE_PATH + _productImageList[indexGlobal]),
-                  minScale: PhotoViewComputedScale.contained * 0.8,
-                  maxScale: PhotoViewComputedScale.covered * 2,
-                );
-              },
-              scrollPhysics: BouncingScrollPhysics(),
-              backgroundDecoration: BoxDecoration(
-                borderRadius:BorderRadius.all(Radius.circular(20)),
-                color: Theme.of(context).canvasColor,
-              ),onPageChanged: (value){
-              print("ON PAHGE-->$value");
-              setState(() {
-                _currentImage=value;
-                isScrollable=false;
-              });
-            },
-              // enableRotation:true,
-              loadingBuilder: (context, event) => Center(
-                child: Container(
-                  width: 30.0,
-                  height: 30.0,
-                  child: CircularProgressIndicator(
-                    backgroundColor:Colors.orange,
-                    value: event == null
-                        ? 0
-                        : event.cumulativeBytesLoaded / event.expectedTotalBytes,
-                  ),
-                ),
-              ),
-            )
-          ),
-
-
+                        return PhotoViewGalleryPageOptions(
+                          imageProvider: NetworkImage(AppConfig.BASE_PATH +
+                              _productImageList[indexGlobal]),
+                          minScale: PhotoViewComputedScale.contained * 0.8,
+                          maxScale: PhotoViewComputedScale.covered * 2,
+                        );
+                      },
+                      scrollPhysics: BouncingScrollPhysics(),
+                      backgroundDecoration: BoxDecoration(
+                        borderRadius: BorderRadius.all(Radius.circular(20)),
+                        color: Theme.of(context).canvasColor,
+                      ),
+                      onPageChanged: (value) {
+                        print("ON PAHGE-->$value");
+                        setState(() {
+                          _currentImage = value;
+                          isScrollable = false;
+                        });
+                      },
+                      // enableRotation:true,
+                      loadingBuilder: (context, event) => Center(
+                        child: Container(
+                          width: 30.0,
+                          height: 30.0,
+                          child: CircularProgressIndicator(
+                            backgroundColor: Colors.orange,
+                            value: event == null
+                                ? 0
+                                : event.cumulativeBytesLoaded /
+                                    (event.expectedTotalBytes ?? 0),
+                          ),
+                        ),
+                      ),
+                    )),
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Expanded(
                 child: SizedBox(
                   height: 55,
-                   width: MediaQuery.of(context).size.width,
+                  width: MediaQuery.of(context).size.width,
                   child: Scrollbar(
                     controller: _imageScrollController,
                     isAlwaysShown: false,
                     thickness: 4.0,
                     child: Padding(
-                      padding: app_language_rtl.$ ? EdgeInsets.only(left: 8.0) : EdgeInsets.only(right: 0.0),
+                      padding: app_language_rtl.$
+                          ? EdgeInsets.only(left: 8.0)
+                          : EdgeInsets.only(right: 0.0),
                       child: ListView.builder(
                           controller: _scrollController,
                           itemCount: _productImageList.length,
@@ -2300,8 +2394,8 @@ class _ProductDetailsState extends State<ProductDetails> {
                             return GestureDetector(
                                 onTap: () {
                                   _currentImage = itemIndex;
-                                  isScrollable=true;
-                                  indexGlobal=_currentImage;
+                                  isScrollable = true;
+                                  indexGlobal = _currentImage;
                                   print(_currentImage);
                                   setState(() {});
                                 },
@@ -2316,23 +2410,23 @@ class _ProductDetailsState extends State<ProductDetails> {
                                         color: _currentImage == itemIndex
                                             ? MyTheme.accent_color
                                             : Color.fromRGBO(112, 112, 112, .3),
-                                        width: _currentImage == itemIndex ? 2 : 1),
+                                        width:
+                                            _currentImage == itemIndex ? 2 : 1),
                                     //shape: BoxShape.rectangle,
                                   ),
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(10),
                                     child:
-                                    // Image.asset(_productImageList[index].product_images)
-                                    FadeInImage.assetNetwork(
+                                        // Image.asset(_productImageList[index].product_images)
+                                        FadeInImage.assetNetwork(
                                       placeholder: 'assets/placeholder.png',
                                       image: AppConfig.BASE_PATH +
-                                          _productImageList[index].replaceAll(",",""),
+                                          _productImageList[index]
+                                              .replaceAll(",", ""),
                                       fit: BoxFit.contain,
-                                    )
-                                    ,
+                                    ),
                                   ),
-                                )
-                            );
+                                ));
                           }),
                     ),
                   ),
@@ -2344,5 +2438,4 @@ class _ProductDetailsState extends State<ProductDetails> {
       );
     }
   }
-
 }

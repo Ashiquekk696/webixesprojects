@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:location/location.dart';
 import 'package:onboarding_overlay/onboarding_overlay.dart';
 
-import 'package:smooth_star_rating/smooth_star_rating.dart';
 import 'package:webixes/my_theme.dart';
 import 'package:webixes/screens/filter.dart';
 import 'package:webixes/screens/flash_deal_list.dart';
@@ -27,28 +26,33 @@ import 'package:webixes/helpers/shimmer_helper.dart';
 import 'package:webixes/helpers/shared_value_helper.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:location/location.dart' as locationO;
+
 class Home extends StatefulWidget {
-  Home({Key key, this.title, this.show_back_button = false, go_back = true,this.focusNodes})
+  Home(
+      {Key? key,
+      this.title,
+      this.show_back_button = false,
+      go_back = true,
+      this.focusNodes})
       : super(key: key);
 
-  List<FocusNode> focusNodes;
-  final String title;
-  bool show_back_button;
-  bool go_back;
+  List<FocusNode>? focusNodes;
+  final String? title;
+  bool? show_back_button;
+  bool? go_back;
 
   @override
   _HomeState createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> with TickerProviderStateMixin<Home>{
-
+class _HomeState extends State<Home> with TickerProviderStateMixin<Home> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   int _current_slider = 0;
-  ScrollController _featuredProductScrollController;
-  ScrollController _mainScrollController = ScrollController();
-  TabController _tabController;
-  AnimationController pirated_logo_controller;
-  Animation pirated_logo_animation;
+  ScrollController? _featuredProductScrollController;
+  ScrollController? _mainScrollController = ScrollController();
+  TabController? _tabController;
+  AnimationController? pirated_logo_controller;
+  Animation? pirated_logo_animation;
   var filteredItems;
   var carouselImageList = [];
   var _featuredCategoryList = [];
@@ -56,30 +60,32 @@ class _HomeState extends State<Home> with TickerProviderStateMixin<Home>{
   bool _isProductInitial = true;
   bool _isCategoryInitial = true;
   bool _isCarouselInitial = true;
-  bool _isInWishList=false;
+  bool _isInWishList = false;
   int _totalProductData = 0;
   int _productPage = 1;
   bool _showProductLoadingContainer = false;
   //Future<List<Task>> _tasks;
-  int _activeTabIndex=0;
-  Future api; Future ap2;
+  int _activeTabIndex = 0;
+  Future? api;
+  Future? ap2;
   bool _showBackToTopButton = false;
-  dynamic   catID;
+  dynamic catID;
 
   @override
   void initState() {
     // TODO: implement initState
-   // _checkLocationPermission();
+    // _checkLocationPermission();
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((Duration timeStamp) {
-      final OnboardingState onboarding = Onboarding.of(context);
+      final OnboardingState onboarding = Onboarding.of(context)!;
       if (onboarding != null) {
         onboarding.show();
       }
     });
     AppConfig.featuredCategoryList.toList();
-       _tabController= TabController(vsync: this, length: AppConfig.featuredCategoryList.length);
-    _tabController.addListener(_setActiveTabIndex);
+    _tabController = TabController(
+        vsync: this, length: AppConfig.featuredCategoryList.length);
+    _tabController?.addListener(_setActiveTabIndex);
 
     if (AppConfig.purchase_code == "") {
       initPiratedAnimation();
@@ -90,14 +96,14 @@ class _HomeState extends State<Home> with TickerProviderStateMixin<Home>{
     _mainScrollController = ScrollController()
       ..addListener(() {
         setState(() {
-          if (_mainScrollController.offset >= 400) {
+          if ((_mainScrollController!.offset) >= 400) {
             _showBackToTopButton = true; // show the back-to-top button
           } else {
             _showBackToTopButton = false; // hide the back-to-top button
           }
         });
       });
-   /* _mainScrollController.addListener(() {
+    /* _mainScrollController.addListener(() {
       //print("position: " + _xcrollController.position.pixels.toString());
       //print("max: " + _xcrollController.position.maxScrollExtent.toString());
 
@@ -113,60 +119,62 @@ class _HomeState extends State<Home> with TickerProviderStateMixin<Home>{
     });*/
   }
 
-
-
   void _scrollToTop() {
-    _mainScrollController.animateTo(0,
+    _mainScrollController?.animateTo(0,
         duration: const Duration(seconds: 3), curve: Curves.linear);
   }
+
   void _setActiveTabIndex() {
-    _activeTabIndex = _tabController.index;
+    _activeTabIndex = _tabController?.index ?? 0;
     _featuredProductList.clear();
 
-    fetchFeaturedProducts(AppConfig.featuredCategoryList[_activeTabIndex].links.products);
+    fetchFeaturedProducts(
+        AppConfig.featuredCategoryList[_activeTabIndex].links.products);
   }
+
   fetchAll() {
     // fetchCarouselImages();
     print("HOME PAGE list-->${AppConfig.featuredCategoryList.length}");
     fetchFeaturedCategories();
-    fetchFeaturedProducts(AppConfig.featuredCategoryList[_activeTabIndex].links.products);
-
+    fetchFeaturedProducts(
+        AppConfig.featuredCategoryList[_activeTabIndex].links.products);
   }
 
   fetchCarouselImages() async {
     var carouselResponse = await SlidersRepository().getSliders();
-    carouselResponse.sliders.forEach((slider) {
-       carouselImageList.add(slider.photo);
+    carouselResponse.sliders?.forEach((slider) {
+      carouselImageList.add(slider.photo);
     });
 
     _isCarouselInitial = false;
-   // setState(() {});
+    // setState(() {});
   }
 
-    fetchFeaturedCategories() async {
-      var productResponse = await ProductRepository().getFeaturedProducts(
+  fetchFeaturedCategories() async {
+    var productResponse = await ProductRepository().getFeaturedProducts(
       page: _productPage,
     );
-   // var categoryResponse = await CategoryRepository().getFeturedCategories();
+    // var categoryResponse = await CategoryRepository().getFeturedCategories();
 
-     _featuredCategoryList.addAll(productResponse.products);
-     _isCategoryInitial = false;
-     setState(() {});
+    _featuredCategoryList.addAll(productResponse.products ?? []);
+    _isCategoryInitial = false;
+    setState(() {});
   }
 
   fetchFeaturedProducts(String apiUrl) async {
-    catID=AppConfig.featuredCategoryList[_activeTabIndex].id;
+    catID = AppConfig.featuredCategoryList[_activeTabIndex].id;
     print("SELECTED ID -->$catID");
-   var productResponse = await ProductRepository().getCategoryWiseProducts(apiUrl:apiUrl);
+    var productResponse =
+        await ProductRepository().getCategoryWiseProducts(apiUrl: apiUrl);
     /*var productResponse = await ProductRepository().getFeaturedProducts(
       page: _productPage,
     );*/
 
-    _featuredProductList.addAll(productResponse.products);
+    _featuredProductList.addAll(productResponse.products ?? []);
     print("TOP Product --> ${_featuredProductList.length}");
 
     _isProductInitial = false;
-    _totalProductData = productResponse.meta.total;
+    _totalProductData = productResponse.meta?.total ?? 0;
     _showProductLoadingContainer = false;
     setState(() {});
   }
@@ -184,7 +192,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin<Home>{
 
   Future<void> _onRefresh() async {
     reset();
-   fetchAll();
+    fetchAll();
   }
 
   resetProductList() {
@@ -197,28 +205,28 @@ class _HomeState extends State<Home> with TickerProviderStateMixin<Home>{
   }
 
   initPiratedAnimation() {
-   /* pirated_logo_controller = AnimationController(
+    /* pirated_logo_controller = AnimationController(
         vsync: this, duration: Duration(milliseconds: 2000));*/
     pirated_logo_animation = Tween(begin: 40.0, end: 60.0).animate(
         CurvedAnimation(
-            curve: Curves.bounceOut, parent: pirated_logo_controller));
+            curve: Curves.bounceOut, parent: pirated_logo_controller!));
 
-    pirated_logo_controller.addStatusListener((AnimationStatus status) {
+    pirated_logo_controller?.addStatusListener((AnimationStatus status) {
       if (status == AnimationStatus.completed) {
-        pirated_logo_controller.repeat();
+        pirated_logo_controller?.repeat();
       }
     });
 
-    pirated_logo_controller.forward();
+    pirated_logo_controller?.forward();
   }
 
   @override
   void dispose() {
     // TODO: implement dispose
     super.dispose();
-    _tabController.dispose();
+    _tabController?.dispose();
     pirated_logo_controller?.dispose();
-    _mainScrollController.dispose();
+    _mainScrollController?.dispose();
   }
 
   @override
@@ -227,33 +235,33 @@ class _HomeState extends State<Home> with TickerProviderStateMixin<Home>{
     //print(MediaQuery.of(context).viewPadding.top);
 
     return WillPopScope(
-      onWillPop: () async {
-        return widget.go_back;
-      },
-      child: Directionality(
-     textDirection: app_language_rtl.$
-    ? TextDirection.rtl
-      : TextDirection.ltr,
-      child: Scaffold(
-        key: _scaffoldKey,
-        backgroundColor: Colors.grey.shade200,
-        appBar: buildAppBar(statusBarHeight, context),
-        drawer: MainDrawer(),
-        body: DefaultTabController(
-          length: AppConfig.featuredCategoryList.length,
-          child: Column(
-            children: <Widget>[
-              SizedBox(
-                height: 20,
-              ),
-              Expanded(
-                child: Container(
-                    child: Stack(
+        onWillPop: () async {
+          return widget.go_back ?? false;
+        },
+        child: Directionality(
+          textDirection:
+              app_language_rtl.$ ? TextDirection.rtl : TextDirection.ltr,
+          child: Scaffold(
+            key: _scaffoldKey,
+            backgroundColor: Colors.grey.shade200,
+            appBar: buildAppBar(statusBarHeight, context),
+            drawer: MainDrawer(),
+            body: DefaultTabController(
+              length: AppConfig.featuredCategoryList.length,
+              child: Column(
+                children: <Widget>[
+                  SizedBox(
+                    height: 20,
+                  ),
+                  Expanded(
+                    child: Container(
+                        child: Stack(
                       children: [
                         TabBarView(
                           controller: _tabController,
-                          children: AppConfig.featuredCategoryList.map((choice) {
-                            print('Current Index: ${_tabController.index}');
+                          children:
+                              AppConfig.featuredCategoryList.map((choice) {
+                            print('Current Index: ${_tabController?.index}');
                             return RefreshIndicator(
                               color: MyTheme.accent_color,
                               backgroundColor: Colors.white,
@@ -266,120 +274,113 @@ class _HomeState extends State<Home> with TickerProviderStateMixin<Home>{
                                     parent: AlwaysScrollableScrollPhysics()),
                                 slivers: <Widget>[
                                   SliverList(
-                                    delegate: SliverChildListDelegate(
-                                        [
-                                          AppConfig.purchase_code ==
-                                              ""
-                                              ? Padding(
-                                            padding: const EdgeInsets
-                                                .fromLTRB(
-                                              8.0,
-                                              16.0,
-                                              8.0,
-                                              0.0,
-                                            ),
-                                            child: Container(
-                                              height: 140,
-                                              color: Colors.black,
-                                              child: Stack(
-                                                children: [
-                                                  Positioned(
-                                                      left: 20,
-                                                      top: 0,
-                                                      child: AnimatedBuilder(
-                                                          animation:
-                                                          pirated_logo_animation,
-                                                          builder:
-                                                              (
-                                                              context,
-                                                              child) {
-                                                            return Image
-                                                                .asset(
-                                                              "assets/pirated_square.png",
-                                                              height:
-                                                              pirated_logo_animation
-                                                                  .value,
+                                    delegate: SliverChildListDelegate([
+                                      AppConfig.purchase_code == ""
+                                          ? Padding(
+                                              padding:
+                                                  const EdgeInsets.fromLTRB(
+                                                8.0,
+                                                16.0,
+                                                8.0,
+                                                0.0,
+                                              ),
+                                              child: Container(
+                                                height: 140,
+                                                color: Colors.black,
+                                                child: Stack(
+                                                  children: [
+                                                    Positioned(
+                                                        left: 20,
+                                                        top: 0,
+                                                        child: AnimatedBuilder(
+                                                            animation:
+                                                                pirated_logo_animation!,
+                                                            builder: (context,
+                                                                child) {
+                                                              return Image
+                                                                  .asset(
+                                                                "assets/pirated_square.png",
+                                                                height: pirated_logo_animation
+                                                                        ?.value ??
+                                                                    0,
+                                                                color: Colors
+                                                                    .white,
+                                                              );
+                                                            })),
+                                                    Center(
+                                                      child: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                    .only(
+                                                                top: 24.0,
+                                                                left: 24,
+                                                                right: 24),
+                                                        child: Text(
+                                                          "This is a pirated app. Do not use this. It may have security issues.",
+                                                          style: TextStyle(
                                                               color:
-                                                              Colors
-                                                                  .white,
-                                                            );
-                                                          })),
-                                                  Center(
-                                                    child: Padding(
-                                                      padding:
-                                                      const EdgeInsets
-                                                          .only(
-                                                          top: 24.0,
-                                                          left: 24,
-                                                          right: 24),
-                                                      child: Text(
-                                                        "This is a pirated app. Do not use this. It may have security issues.",
-                                                        style: TextStyle(
-                                                            color: Colors
-                                                                .white,
-                                                            fontSize: 18),
+                                                                  Colors.white,
+                                                              fontSize: 18),
+                                                        ),
                                                       ),
                                                     ),
-                                                  ),
-                                                ],
+                                                  ],
+                                                ),
                                               ),
-                                            ),
-                                          )
-                                              : Container(),
-                                          Padding(
-                                            padding: const EdgeInsets
-                                                .fromLTRB(
-                                              8.0,
-                                              16.0,
-                                              8.0,
-                                              0.0,
-                                            ),
-                                            child: buildHomeCarouselSlider(
-                                                context,
-                                                AppConfig.featuredCategoryList[_tabController.index].banner),
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets
-                                                .fromLTRB(
-                                              8.0,
-                                              16.0,
-                                              8.0,
-                                              0.0,
-                                            ),
-                                            child: buildHomeMenuRow(context),
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets
-                                                .fromLTRB(
-                                              8.0,
-                                              16.0,
-                                              8.0,
-                                              0.0,
-                                            ),
-                                            child: buildFlashSaleRow(context),
-                                          ),
-                                        ]),
+                                            )
+                                          : Container(),
+                                      Padding(
+                                        padding: const EdgeInsets.fromLTRB(
+                                          8.0,
+                                          16.0,
+                                          8.0,
+                                          0.0,
+                                        ),
+                                        child: buildHomeCarouselSlider(
+                                            context,
+                                            AppConfig
+                                                .featuredCategoryList[
+                                                    _tabController?.index ?? 0]
+                                                .banner),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.fromLTRB(
+                                          8.0,
+                                          16.0,
+                                          8.0,
+                                          0.0,
+                                        ),
+                                        child: buildHomeMenuRow(context),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.fromLTRB(
+                                          8.0,
+                                          16.0,
+                                          8.0,
+                                          0.0,
+                                        ),
+                                        child: buildFlashSaleRow(context),
+                                      ),
+                                    ]),
                                   ),
                                   SliverToBoxAdapter(
                                     child: Padding(
-                                      padding: const EdgeInsets
-                                          .fromLTRB(
+                                      padding: const EdgeInsets.fromLTRB(
                                         0.0,
                                         16.0,
                                         0.0,
                                         0.0,
                                       ),
                                       child: Container(
-                                        color: MyTheme
-                                            .soft_accent_color1,
+                                        color: MyTheme.soft_accent_color1,
                                         height: 202,
                                         child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment
-                                              .start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Padding(
-                                              padding: const EdgeInsets
-                                                  .all(8.0),
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
                                               child: Text(
                                                 'Featured Product',
                                                 // AppLocalizations.of(context).home_screen_featured_categories,
@@ -389,8 +390,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin<Home>{
                                               ),
                                             ),
                                             Expanded(
-                                                child: buildHomeFeaturedProduct(context))
-
+                                                child: buildHomeFeaturedProduct(
+                                                    context))
                                           ],
                                         ),
                                       ),
@@ -398,8 +399,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin<Home>{
                                   ),
                                   SliverToBoxAdapter(
                                     child: Padding(
-                                        padding: const EdgeInsets
-                                            .fromLTRB(
+                                        padding: const EdgeInsets.fromLTRB(
                                           0.0,
                                           16.0,
                                           0.0,
@@ -408,13 +408,11 @@ class _HomeState extends State<Home> with TickerProviderStateMixin<Home>{
                                         child: Stack(
                                           children: [
                                             Container(
-                                              margin: EdgeInsets
-                                                  .all(15),
+                                              margin: EdgeInsets.all(15),
                                               decoration: BoxDecoration(
-                                                color: Colors
-                                                    .transparent,
-                                                borderRadius: BorderRadius
-                                                    .circular(8),
+                                                color: Colors.transparent,
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
                                                 image: DecorationImage(
                                                   fit: BoxFit.cover,
                                                   image: AssetImage(
@@ -425,117 +423,128 @@ class _HomeState extends State<Home> with TickerProviderStateMixin<Home>{
                                               height: 151.0,
                                             ),
                                           ],
-                                        )
-                                    ),
+                                        )),
                                   ),
                                   SliverList(
-                                    delegate: SliverChildListDelegate(
-                                        [
-                                          SingleChildScrollView(
-                                            child: Container(
-                                              color: MyTheme
-                                                  .soft_accent_color1,
-                                              child: Column(
-                                                children: [
-                                                  Padding(
-                                                    padding: const EdgeInsets
-                                                        .fromLTRB(
-                                                      4.0,
-                                                      16.0,
-                                                      8.0,
-                                                      0.0,
-                                                    ),
-                                                    child: Column(
-                                                      crossAxisAlignment: CrossAxisAlignment
-                                                          .start,
-                                                      children: [
-                                                        Row(
-                                                          mainAxisAlignment: MainAxisAlignment
+                                    delegate: SliverChildListDelegate([
+                                      SingleChildScrollView(
+                                        child: Container(
+                                          color: MyTheme.soft_accent_color1,
+                                          child: Column(
+                                            children: [
+                                              Padding(
+                                                padding:
+                                                    const EdgeInsets.fromLTRB(
+                                                  4.0,
+                                                  16.0,
+                                                  8.0,
+                                                  0.0,
+                                                ),
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
                                                               .spaceBetween,
-                                                          children: [
-                                                            Padding(
-                                                              padding: const EdgeInsets
-                                                                  .all(
-                                                                  8.0),
-                                                              child: Text(
-                                                                'Top Products',
-                                                                // AppLocalizations.of(context).home_screen_featured_categories,
-                                                                style: TextStyle(
-                                                                  fontSize: 15,
-                                                                ),
-                                                              ),
+                                                      children: [
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .all(8.0),
+                                                          child: Text(
+                                                            'Top Products',
+                                                            // AppLocalizations.of(context).home_screen_featured_categories,
+                                                            style: TextStyle(
+                                                              fontSize: 15,
                                                             ),
-
-                                                          ],
+                                                          ),
                                                         ),
-                                                        buildHomeTopProducts(context),
-                                                        Row(
-                                                          mainAxisAlignment:MainAxisAlignment.center ,
-                                                          children: [
-                                                            InkWell(
-                                                              onTap: () {
-                                                                print("selected tab-->${catID}");
-                                                                Navigator.push(context, MaterialPageRoute(builder: (context) {
-                                                                  return Filter(
-                                                                    selected_filter: "product",
-                                                                    selected_cat_id:catID,
-                                                                  );
-                                                                }));
-                                                              },
-                                                              child: Padding(
-                                                                padding: const EdgeInsets
-                                                                    .all(
-                                                                    8.0),
-                                                                child: Text(
-                                                                  'view more',
-                                                                  // AppLocalizations.of(context).home_screen_featured_categories,
-                                                                  style: TextStyle(
-                                                                      fontSize: 15,
-                                                                      color: Colors.blue,fontWeight: FontWeight.w600
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        )
                                                       ],
                                                     ),
-
-                                                  ),
-                                                ],
+                                                    buildHomeTopProducts(
+                                                        context),
+                                                    Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        InkWell(
+                                                          onTap: () {
+                                                            print(
+                                                                "selected tab-->${catID}");
+                                                            Navigator.push(
+                                                                context,
+                                                                MaterialPageRoute(
+                                                                    builder:
+                                                                        (context) {
+                                                              return Filter(
+                                                                selected_filter:
+                                                                    "product",
+                                                                selected_cat_id:
+                                                                    catID,
+                                                              );
+                                                            }));
+                                                          },
+                                                          child: Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .all(8.0),
+                                                            child: Text(
+                                                              'view more',
+                                                              // AppLocalizations.of(context).home_screen_featured_categories,
+                                                              style: TextStyle(
+                                                                  fontSize: 15,
+                                                                  color: Colors
+                                                                      .blue,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w600),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    )
+                                                  ],
+                                                ),
                                               ),
-                                            ),
+                                            ],
                                           ),
-                                         SizedBox(height: 5,)
-                                        ]),
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        height: 5,
+                                      )
+                                    ]),
                                   ),
-
                                   SliverToBoxAdapter(
                                     child: Container(
                                       color: MyTheme.soft_accent_color1,
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Padding(
-                                            padding: const EdgeInsets
-                                                .fromLTRB(
+                                            padding: const EdgeInsets.fromLTRB(
                                               4.0,
                                               16.0,
                                               8.0,
                                               0.0,
                                             ),
                                             child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment
-                                                  .start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
                                               children: [
                                                 Row(
-                                                  mainAxisAlignment: MainAxisAlignment
-                                                      .spaceBetween,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
                                                   children: [
                                                     Padding(
-                                                      padding: const EdgeInsets
-                                                          .all(
-                                                          8.0),
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              8.0),
                                                       child: Text(
                                                         'Seasson Special',
                                                         // AppLocalizations.of(context).home_screen_featured_categories,
@@ -544,56 +553,53 @@ class _HomeState extends State<Home> with TickerProviderStateMixin<Home>{
                                                         ),
                                                       ),
                                                     ),
-
                                                   ],
                                                 ),
                                                 buildSeasonSpecial(context),
                                               ],
                                             ),
-
                                           ),
                                         ],
                                       ),
                                     ),
                                   ),
                                   SliverList(
-                                    delegate: SliverChildListDelegate(
-                                        [
-                                          SingleChildScrollView(
-                                            child: Container(
-                                              color: MyTheme
-                                                  .soft_accent_color1,
-                                              child: Column(
-                                                children: [
-                                                  Padding(
-                                                    padding: const EdgeInsets
-                                                        .fromLTRB(
-                                                      4.0,
-                                                      10.0,
-                                                      8.0,
-                                                      20.0,
-                                                    ),
-                                                    child: Column(
-                                                      crossAxisAlignment: CrossAxisAlignment
-                                                          .start,
-                                                      children: [
-                                                        Align(
-                                                            alignment: Alignment.center,
-                                                            child:_showBackToTopButton == false
-                                                                ? null
-                                                                : buildProductLoadingContainer()
-                                                        ),
-                                                        SizedBox(height: 60,)
-                                                      ],
-                                                    ),
-
-                                                  ),
-                                                ],
+                                    delegate: SliverChildListDelegate([
+                                      SingleChildScrollView(
+                                        child: Container(
+                                          color: MyTheme.soft_accent_color1,
+                                          child: Column(
+                                            children: [
+                                              Padding(
+                                                padding:
+                                                    const EdgeInsets.fromLTRB(
+                                                  4.0,
+                                                  10.0,
+                                                  8.0,
+                                                  20.0,
+                                                ),
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Align(
+                                                        alignment:
+                                                            Alignment.center,
+                                                        child: _showBackToTopButton ==
+                                                                false
+                                                            ? null
+                                                            : buildProductLoadingContainer()),
+                                                    SizedBox(
+                                                      height: 60,
+                                                    )
+                                                  ],
+                                                ),
                                               ),
-                                            ),
+                                            ],
                                           ),
-
-                                        ]),
+                                        ),
+                                      ),
+                                    ]),
                                   ),
                                 ],
                               ),
@@ -601,16 +607,13 @@ class _HomeState extends State<Home> with TickerProviderStateMixin<Home>{
                           }).toList(),
                         ),
                       ],
-                    )
-                ),
-              )
-            ],
+                    )),
+                  )
+                ],
+              ),
+            ),
           ),
-        ),
-      ),
-    )
-
-    );
+        ));
   }
 
   buildHomeTopProducts(context) {
@@ -619,51 +622,49 @@ class _HomeState extends State<Home> with TickerProviderStateMixin<Home>{
           child: ShimmerHelper().buildProductGridShimmer(
               scontroller: _featuredProductScrollController));
     } else if (_featuredProductList.length > 0) {
-
-       return   GridView.builder(
-       // 2
-       addAutomaticKeepAlives: true,
-         padding: EdgeInsets.zero,
-       itemCount: _featuredProductList.length,
-       controller: _featuredProductScrollController,
-       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-           crossAxisCount: 2,
-           crossAxisSpacing: 10,
-           mainAxisSpacing: 10,
-           childAspectRatio: 0.618),
-      // padding: EdgeInsets.all(4),
-       physics: NeverScrollableScrollPhysics(),
-       shrinkWrap: true,
-       itemBuilder: (context, index) {
-
-
-         return ProductCard(
-             id: _featuredProductList[index].id,
-             shop_name: null,
-             image:_featuredProductList[index].thumbnail_image!=null? _featuredProductList[index].thumbnail_image.replaceAll(",", ""):null,
-             name: _featuredProductList[index].name,
-             main_price: _featuredProductList[index].main_price,
-             stroked_price: _featuredProductList[index].stroked_price,
-             has_discount: _featuredProductList[index].has_discount,
-             wishListButton: false,
-
-         );
-       },
-     );
-
+      return GridView.builder(
+        // 2
+        addAutomaticKeepAlives: true,
+        padding: EdgeInsets.zero,
+        itemCount: _featuredProductList.length,
+        controller: _featuredProductScrollController,
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 10,
+            mainAxisSpacing: 10,
+            childAspectRatio: 0.618),
+        // padding: EdgeInsets.all(4),
+        physics: NeverScrollableScrollPhysics(),
+        shrinkWrap: true,
+        itemBuilder: (context, index) {
+          return ProductCard(
+            id: _featuredProductList[index].id,
+            shop_name: "",
+            image: _featuredProductList[index].thumbnail_image != null
+                ? _featuredProductList[index]
+                    .thumbnail_image
+                    .replaceAll(",", "")
+                : null,
+            name: _featuredProductList[index].name,
+            main_price: _featuredProductList[index].main_price,
+            stroked_price: _featuredProductList[index].stroked_price,
+            has_discount: _featuredProductList[index].has_discount,
+            wishListButton: false,
+          );
+        },
+      );
     } else if (_totalProductData == 0) {
       return Center(
           child: Text(
-              AppLocalizations.of(context).common_no_product_is_available));
+              AppLocalizations.of(context)!.common_no_product_is_available));
     } else {
       return Container(); // should never be happening
     }
-
   }
 
   buildHomeFeaturedProduct(context) {
     if (_isCategoryInitial && _featuredCategoryList.length == 0) {
-      return  Row(
+      return Row(
         children: [
           Padding(
               padding: const EdgeInsets.only(right: 0.0),
@@ -690,13 +691,16 @@ class _HomeState extends State<Home> with TickerProviderStateMixin<Home>{
           itemExtent: 120,
           shrinkWrap: true,
           itemBuilder: (context, index) {
-           double rating=double.parse(_featuredCategoryList[index].rating.toString());
+            double rating =
+                double.parse(_featuredCategoryList[index].rating.toString());
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 2),
               child: GestureDetector(
                 onTap: () {
                   Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return ProductDetails(id: _featuredCategoryList[index].id,);
+                    return ProductDetails(
+                      id: _featuredCategoryList[index].id,
+                    );
                   }));
                 },
                 child: Card(
@@ -713,7 +717,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin<Home>{
                         padding: const EdgeInsets.only(top: 8.0),
                         child: Container(
                             //width: 100,
-                          //color: Colors.yellow,
+                            //color: Colors.yellow,
                             height: 63,
                             child: ClipRRect(
                                 borderRadius: BorderRadius.vertical(
@@ -722,10 +726,10 @@ class _HomeState extends State<Home> with TickerProviderStateMixin<Home>{
                                 child: FadeInImage.assetNetwork(
                                   placeholder: 'assets/placeholder.png',
                                   image: AppConfig.BASE_PATH +
-                                      _featuredCategoryList[index].thumbnail_image,
+                                      _featuredCategoryList[index]
+                                          .thumbnail_image,
                                   fit: BoxFit.cover,
-                                )
-                                )),
+                                ))),
                       ),
                       Padding(
                         padding: EdgeInsets.fromLTRB(16, 4, 16, 0),
@@ -741,27 +745,28 @@ class _HomeState extends State<Home> with TickerProviderStateMixin<Home>{
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.only(left: 8.0,right: 8.0,top: 5.0),
+                        padding: const EdgeInsets.only(
+                            left: 8.0, right: 8.0, top: 5.0),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            SmoothStarRating(
+                            // SmoothStarRating(
 
-                              rating: double.parse(_featuredCategoryList[index].rating.toString()),
-                              // rating: reviewList[index]['order_rating'],
-                              starCount: 5,
-                              isReadOnly: true,
-                              allowHalfRating: false,
-                              spacing: 1,
-                              size: 15,
-                              color: Colors.amber,
-                              borderColor: Colors.amber,
-                              onRated: (value) {
-                                setState(() {
-                                });
-                              },
-                            )
-                           /* RatingBar(
+                            //   rating: double.parse(_featuredCategoryList[index].rating.toString()),
+                            //   // rating: reviewList[index]['order_rating'],
+                            //   starCount: 5,
+                            //   isReadOnly: true,
+                            //   allowHalfRating: false,
+                            //   spacing: 1,
+                            //   size: 15,
+                            //   color: Colors.amber,
+                            //   borderColor: Colors.amber,
+                            //   onRated: (value) {
+                            //     setState(() {
+                            //     });
+                            //   },
+                            // )
+                            /* RatingBar(
                               unratedColor:Colors.grey,
                               itemSize: 15.0,
                               ignoreGestures: true,
@@ -796,8 +801,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin<Home>{
                           ),
                         ),
                       ),
-
-
                     ],
                   ),
                 ),
@@ -809,7 +812,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin<Home>{
           height: 100,
           child: Center(
               child: Text(
-            AppLocalizations.of(context).home_screen_no_category_found,
+            AppLocalizations.of(context)!.home_screen_no_category_found,
             style: TextStyle(color: MyTheme.font_grey),
           )));
     } else {
@@ -828,7 +831,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin<Home>{
         Expanded(
           child: GestureDetector(
             onTap: () {
-
               Navigator.push(context, MaterialPageRoute(builder: (context) {
                 return CategoryList(
                   is_top_category: false,
@@ -876,7 +878,9 @@ class _HomeState extends State<Home> with TickerProviderStateMixin<Home>{
             ),
           ),
         ),
-        SizedBox(width: 5,),
+        SizedBox(
+          width: 5,
+        ),
         Expanded(
           child: GestureDetector(
             onTap: () {
@@ -926,7 +930,9 @@ class _HomeState extends State<Home> with TickerProviderStateMixin<Home>{
             ),
           ),
         ),
-        SizedBox(width: 5,),
+        SizedBox(
+          width: 5,
+        ),
         Expanded(
           child: GestureDetector(
             onTap: () {
@@ -962,8 +968,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin<Home>{
                       )),
                   Padding(
                       padding: const EdgeInsets.only(top: 0),
-                      child: Text(
-                          'Search by Brand',
+                      child: Text('Search by Brand',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                               color: Color.fromRGBO(132, 132, 132, 1),
@@ -1093,11 +1098,13 @@ class _HomeState extends State<Home> with TickerProviderStateMixin<Home>{
             ),
           ),
         ),
-        SizedBox(width: 5,),
+        SizedBox(
+          width: 5,
+        ),
         Expanded(
           child: GestureDetector(
             onTap: () {
-             /* Navigator.push(context, MaterialPageRoute(builder: (context) {
+              /* Navigator.push(context, MaterialPageRoute(builder: (context) {
                 return Filter(
                   selected_filter: "brands",
                 );
@@ -1129,8 +1136,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin<Home>{
                       )),
                   Padding(
                       padding: const EdgeInsets.only(top: 0),
-                      child: Text(
-                          'Season Special',
+                      child: Text('Season Special',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                               color: Color.fromRGBO(132, 132, 132, 1),
@@ -1140,7 +1146,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin<Home>{
             ),
           ),
         ),
-       /*  GestureDetector(
+        /*  GestureDetector(
           onTap: () {
             Navigator.push(context, MaterialPageRoute(builder: (context) {
               return TodaysDealProducts();
@@ -1173,7 +1179,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin<Home>{
             ),
           ),
         ),*/
-       /* GestureDetector(
+        /* GestureDetector(
           onTap: () {
             Navigator.push(context, MaterialPageRoute(builder: (context) {
               return FlashDealList();
@@ -1210,7 +1216,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin<Home>{
     );
   }
 
-  buildHomeCarouselSlider(context,List<dynamic> carouselImageList) {
+  buildHomeCarouselSlider(context, List<dynamic> carouselImageList) {
     if (_isCarouselInitial && carouselImageList.length == 0) {
       return Padding(
         padding: const EdgeInsets.only(left: 5.0, right: 5.0),
@@ -1228,41 +1234,42 @@ class _HomeState extends State<Home> with TickerProviderStateMixin<Home>{
       return CarouselSlider(
         options: CarouselOptions(
           height: 170,
-            aspectRatio: 2.07,
-            viewportFraction: 1,
-            initialPage: 0,
-            enableInfiniteScroll: true,
-            reverse: false,
-            autoPlay: true,
-            //autoPlayInterval: Duration(seconds: 5),
-            //autoPlayAnimationDuration: Duration(milliseconds: 1000),
-            autoPlayCurve: Curves.easeInCubic,
-            enlargeCenterPage: true,
-            scrollDirection: Axis.horizontal,
-            /*onPageChanged: (index, reason) {
+          aspectRatio: 2.07,
+          viewportFraction: 1,
+          initialPage: 0,
+          enableInfiniteScroll: true,
+          reverse: false,
+          autoPlay: true,
+          //autoPlayInterval: Duration(seconds: 5),
+          //autoPlayAnimationDuration: Duration(milliseconds: 1000),
+          autoPlayCurve: Curves.easeInCubic,
+          enlargeCenterPage: true,
+          scrollDirection: Axis.horizontal,
+          /*onPageChanged: (index, reason) {
               setState(() {
                 _current_slider = index;
               });
             }*/
-            ),
+        ),
         items: carouselImageList.map((i) {
-          return carouselImageList!=null?
-            Builder(
-            builder: (BuildContext context) {
-              return Stack(
-                children: <Widget>[
-                  Container(
-                      width: double.infinity,
-                      margin: EdgeInsets.symmetric(horizontal: 5.0),
-                      child: ClipRRect(
-                          borderRadius: BorderRadius.all(Radius.circular(8)),
-                          child: FadeInImage.assetNetwork(
-                            placeholder: 'assets/placeholder_rectangle.png',
-                            image: AppConfig.BASE_PATH + i,
-                            fit: BoxFit.fill,
-                          )
-                          )),
-                  /*Align(
+          return carouselImageList != null
+              ? Builder(
+                  builder: (BuildContext context) {
+                    return Stack(
+                      children: <Widget>[
+                        Container(
+                            width: double.infinity,
+                            margin: EdgeInsets.symmetric(horizontal: 5.0),
+                            child: ClipRRect(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(8)),
+                                child: FadeInImage.assetNetwork(
+                                  placeholder:
+                                      'assets/placeholder_rectangle.png',
+                                  image: AppConfig.BASE_PATH + i,
+                                  fit: BoxFit.fill,
+                                ))),
+                        /*Align(
                     alignment: Alignment.bottomCenter,
                     child: SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
@@ -1288,22 +1295,26 @@ class _HomeState extends State<Home> with TickerProviderStateMixin<Home>{
                       ),
                     ),
                   ),*/
-                ],
-              );
-            },
-          )
-          : Builder(
-            builder: (BuildContext context) {
-              return Stack(
-                children: <Widget>[
-                  Container(
-                      width: double.infinity,
-                      margin: EdgeInsets.symmetric(horizontal: 5.0),
-                      child: ClipRRect(
-                          borderRadius: BorderRadius.all(Radius.circular(8)),
-                          child: Image.asset("assets/placeholder.png",width: 50,height: 50,)
-                      )),
-                 /* Align(
+                      ],
+                    );
+                  },
+                )
+              : Builder(
+                  builder: (BuildContext context) {
+                    return Stack(
+                      children: <Widget>[
+                        Container(
+                            width: double.infinity,
+                            margin: EdgeInsets.symmetric(horizontal: 5.0),
+                            child: ClipRRect(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(8)),
+                                child: Image.asset(
+                                  "assets/placeholder.png",
+                                  width: 50,
+                                  height: 50,
+                                ))),
+                        /* Align(
                     alignment: Alignment.bottomCenter,
                     child: SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
@@ -1329,10 +1340,10 @@ class _HomeState extends State<Home> with TickerProviderStateMixin<Home>{
                       ),
                     ),
                   ),*/
-                ],
-              );
-            },
-          );
+                      ],
+                    );
+                  },
+                );
         }).toList(),
       );
     } else if (!_isCarouselInitial && carouselImageList.length == 0) {
@@ -1340,7 +1351,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin<Home>{
           height: 100,
           child: Center(
               child: Text(
-            AppLocalizations.of(context).home_screen_no_carousel_image_found,
+            AppLocalizations.of(context)!.home_screen_no_carousel_image_found,
             style: TextStyle(color: MyTheme.font_grey),
           )));
     } else {
@@ -1351,7 +1362,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin<Home>{
     }
   }
 
-  PreferredSizeWidget buildAppBar(double statusBarHeight, BuildContext context) {
+  PreferredSizeWidget buildAppBar(
+      double statusBarHeight, BuildContext context) {
     return PreferredSize(
         preferredSize: Size.fromHeight(100.0), // here the desired height
         child: AppBar(
@@ -1360,39 +1372,38 @@ class _HomeState extends State<Home> with TickerProviderStateMixin<Home>{
           elevation: 0,
           centerTitle: false,
           leading: GestureDetector(
-
-        onTap: () {
-          _scaffoldKey.currentState.openDrawer();
-        },
-        child: widget.show_back_button
-            ? Builder(
-                builder: (context) => IconButton(
-                    icon: Icon(Icons.arrow_back, color: MyTheme.dark_grey),
-                    onPressed: () {
-                      if (!widget.go_back) {
-                        return;
-                      }
-                      return Navigator.of(context).pop();
-                    }),
-              )
-            : Focus(
-          focusNode: AppConfig.focusNodes[3],
-              child: Builder(
-                  builder: (context) => Padding(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 18.0, horizontal: 0.0),
-                    child: Container(
-                      child: Image.asset(
-                        'assets/hamburger.png',
-                        height: 16,
-                        //color: MyTheme.dark_grey,
-                        color: MyTheme.dark_grey,
+            onTap: () {
+              _scaffoldKey.currentState?.openDrawer();
+            },
+            child: widget.show_back_button!
+                ? Builder(
+                    builder: (context) => IconButton(
+                        icon: Icon(Icons.arrow_back, color: MyTheme.dark_grey),
+                        onPressed: () {
+                          if (!widget.go_back!) {
+                            return;
+                          }
+                          return Navigator.of(context).pop();
+                        }),
+                  )
+                : Focus(
+                    focusNode: AppConfig.focusNodes[3],
+                    child: Builder(
+                      builder: (context) => Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 18.0, horizontal: 0.0),
+                        child: Container(
+                          child: Image.asset(
+                            'assets/hamburger.png',
+                            height: 16,
+                            //color: MyTheme.dark_grey,
+                            color: MyTheme.dark_grey,
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
-            ),
-      ),
+          ),
           title: Container(
             width: double.infinity,
             height: kToolbarHeight +
@@ -1400,7 +1411,6 @@ class _HomeState extends State<Home> with TickerProviderStateMixin<Home>{
                 (MediaQuery.of(context).viewPadding.top > 40 ? 16.0 : 16.0),
             //MediaQuery.of(context).viewPadding.top is the statusbar height, with a notch phone it results almost 50, without a notch it shows 24.0.For safety we have checked if its greater than thirty
             child: Container(
-
               child: Padding(
                   padding: app_language_rtl.$
                       ? const EdgeInsets.only(top: 14.0, bottom: 14, left: 0)
@@ -1410,109 +1420,25 @@ class _HomeState extends State<Home> with TickerProviderStateMixin<Home>{
                       onTap: () {
                         Navigator.push(context,
                             MaterialPageRoute(builder: (context) {
-                              return Filter();
-                            }));
+                          return Filter();
+                        }));
                       },
                       child: buildHomeSearchBox(context))),
             ),
           ),
-          bottom:  TabBar(
+          bottom: TabBar(
               controller: _tabController,
-            isScrollable: true,
-            indicatorColor: MyTheme.black,
-            tabs: AppConfig.featuredCategoryList.map((choice){
-             return new Tab(text: choice.name);
-          /*List<Widget>.generate(_featuredCategoryList.length, (int index){
+              isScrollable: true,
+              indicatorColor: MyTheme.black,
+              tabs: AppConfig.featuredCategoryList.map((choice) {
+                return new Tab(text: choice.name);
+                /*List<Widget>.generate(_featuredCategoryList.length, (int index){
           print(_featuredCategoryList[index].links.products);
           return new Tab(text: _featuredCategoryList[index].name);
 
           }),*/
-          }).toList()
-
-          ),
-        )
-    );
-    return AppBar(
-      backgroundColor: Colors.white,
-      centerTitle: false,
-      /*leading: GestureDetector(
-        onTap: () {
-          _scaffoldKey.currentState.openDrawer();
-        },
-        child: widget.show_back_button
-            ? Builder(
-                builder: (context) => IconButton(
-                    icon: Icon(Icons.arrow_back, color: MyTheme.dark_grey),
-                    onPressed: () {
-                      if (!widget.go_back) {
-                        return;
-                      }
-                      return Navigator.of(context).pop();
-                    }),
-              )
-            : Builder(
-                builder: (context) => Padding(
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 18.0, horizontal: 0.0),
-                  child: Container(
-                    child: Image.asset(
-                      'assets/hamburger.png',
-                      height: 16,
-                      //color: MyTheme.dark_grey,
-                      color: MyTheme.dark_grey,
-                    ),
-                  ),
-                ),
-              ),
-      ),*/
-      title: Container(
-        height: kToolbarHeight +
-            statusBarHeight -
-            (MediaQuery.of(context).viewPadding.top > 40 ? 16.0 : 16.0),
-        //MediaQuery.of(context).viewPadding.top is the statusbar height, with a notch phone it results almost 50, without a notch it shows 24.0.For safety we have checked if its greater than thirty
-        child: Container(
-          child: Padding(
-              padding: app_language_rtl.$
-                  ? const EdgeInsets.only(top: 14.0, bottom: 14, left: 0)
-                  : const EdgeInsets.only(top: 14.0, bottom: 14, right: 0),
-              // when notification bell will be shown , the right padding will cease to exist.
-              child: GestureDetector(
-                  onTap: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) {
-                      return Filter();
-                    }));
-                  },
-                  child: buildHomeSearchBox(context))),
-        ),
-      ),
-      elevation: 3.0,
-      titleSpacing: 0.0,
-      actions: <Widget>[
-        InkWell(
-          onTap: () {
-            //ToastComponent.showDialog(AppLocalizations.of(context).common_coming_soon, context, gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
-          },
-          child: Visibility(
-            visible: true,
-            child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(vertical: 18.0, horizontal: 12.0),
-              child: Container(
-                width: 40,
-                child: Image.asset(
-                  'citydeal/img/gps.png',
-                  height: 20,
-                  color: MyTheme.black,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
-
-
-    );
+              }).toList()),
+        ));
   }
 
   buildHomeSearchBox(BuildContext context) {
@@ -1525,7 +1451,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin<Home>{
       autofocus: false,
       readOnly: true,
       decoration: InputDecoration(
-          hintText: AppLocalizations.of(context).home_screen_search,
+          hintText: AppLocalizations.of(context)!.home_screen_search,
           hintStyle: TextStyle(fontSize: 12.0, color: MyTheme.dark_grey),
           enabledBorder: OutlineInputBorder(
             borderSide: BorderSide(color: MyTheme.medium_grey_50, width: 1.0),
@@ -1550,6 +1476,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin<Home>{
           contentPadding: EdgeInsets.all(0.0)),
     );
   }
+
   buildSeasonSpecial(context) {
     if (_isProductInitial && _featuredProductList.length == 0) {
       return SingleChildScrollView(
@@ -1558,49 +1485,49 @@ class _HomeState extends State<Home> with TickerProviderStateMixin<Home>{
     } else if (_featuredProductList.length > 0) {
       //snapshot.hasData
 
-      return  Container(
+      return Container(
         //height: MediaQuery.of(context).size.height,
         child: Column(
           children: [
             ListView.builder(
-              padding: EdgeInsets.zero,
+                padding: EdgeInsets.zero,
                 itemCount: _featuredCategoryList.length,
                 // itemExtent: 120,
                 shrinkWrap: true,
-                physics:NeverScrollableScrollPhysics(),
+                physics: NeverScrollableScrollPhysics(),
                 itemBuilder: (context, index) {
-
-                   return   SeassonCard(
-                        id: _featuredCategoryList[index].id,
-                        image:_featuredCategoryList[index].thumbnail_image!=null? _featuredCategoryList[index].thumbnail_image.replaceAll(",", ""):null,
-                        name: _featuredCategoryList[index].name,
-                        main_price: _featuredCategoryList[index].main_price,
-                        stroked_price: _featuredCategoryList[index].stroked_price,
-                        has_discount: _featuredCategoryList[index].has_discount,
-                        wishListButton: false,
-                      );
-
+                  return SeassonCard(
+                    id: _featuredCategoryList[index].id,
+                    image: _featuredCategoryList[index].thumbnail_image != null
+                        ? _featuredCategoryList[index]
+                            .thumbnail_image
+                            .replaceAll(",", "")
+                        : null,
+                    name: _featuredCategoryList[index].name,
+                    main_price: _featuredCategoryList[index].main_price,
+                    stroked_price: _featuredCategoryList[index].stroked_price,
+                    has_discount: _featuredCategoryList[index].has_discount,
+                    wishListButton: false,
+                  );
                 }),
             InkWell(
-              onTap: (){
+              onTap: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) {
                   return Filter(
                     selected_filter: "product",
-                    selected_cat_id:catID,
+                    selected_cat_id: catID,
                   );
                 }));
               },
               child: Padding(
-                padding: const EdgeInsets
-                    .all(
-                    8.0),
+                padding: const EdgeInsets.all(8.0),
                 child: Text(
                   'View more',
                   // AppLocalizations.of(context).home_screen_featured_categories,
                   style: TextStyle(
-                      fontSize: 15,fontWeight: FontWeight.w600,
-                      color:Colors.blue
-                  ),
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.blue),
                 ),
               ),
             ),
@@ -1610,7 +1537,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin<Home>{
     } else if (_totalProductData == 0) {
       return Center(
           child: Text(
-              AppLocalizations.of(context).common_no_product_is_available));
+              AppLocalizations.of(context)!.common_no_product_is_available));
     } else {
       return Container(); // should never be happening
     }
@@ -1621,50 +1548,50 @@ class _HomeState extends State<Home> with TickerProviderStateMixin<Home>{
       padding: const EdgeInsets.all(8.0),
       child: Container(
         height: 60,
-       // height: _showProductLoadingContainer ? 36 : 0,
+        // height: _showProductLoadingContainer ? 36 : 0,
         width: 150,
         child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-
-            child:Material(
-              color: MyTheme.accent_color,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
-              elevation: 6.0,
-              child: InkWell(
-                splashColor: Colors.yellow,
-                highlightColor: Colors.blue,
-                onTap: (){
-                  _scrollToTop();
-                },
-                child: Container(
-                  //width: 220,
-                  height: 40,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Icon(Icons.arrow_upward,color: Colors.white,),
-                      Text(
-                        "Back To Top",
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w400,
-                          color: Colors.white,
-                        ),
+            child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Material(
+                  color: MyTheme.accent_color,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20.0)),
+                  elevation: 6.0,
+                  child: InkWell(
+                    splashColor: Colors.yellow,
+                    highlightColor: Colors.blue,
+                    onTap: () {
+                      _scrollToTop();
+                    },
+                    child: Container(
+                      //width: 220,
+                      height: 40,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Icon(
+                            Icons.arrow_upward,
+                            color: Colors.white,
+                          ),
+                          Text(
+                            "Back To Top",
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w400,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
-                ),
-              ),
-            )
-
-          )
-          /*Text(_totalProductData == _featuredProductList.length
+                ))
+            /*Text(_totalProductData == _featuredProductList.length
               ? AppLocalizations.of(context).common_no_more_products
               : AppLocalizations.of(context).common_loading_more_products),*/
-        ),
+            ),
       ),
     );
   }
 }
-

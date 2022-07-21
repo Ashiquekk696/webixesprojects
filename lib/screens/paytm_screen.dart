@@ -18,7 +18,7 @@ class PaytmScreen extends StatefulWidget {
   String payment_method_key;
 
   PaytmScreen(
-      {Key key,
+      {Key? key,
       this.amount = 0.00,
       this.payment_type = "",
       this.payment_method_key = ""})
@@ -32,7 +32,7 @@ class _PaytmScreenState extends State<PaytmScreen> {
   int _combined_order_id = 0;
   bool _order_init = false;
 
-  WebViewController _webViewController;
+  WebViewController? _webViewController;
 
   @override
   void initState() {
@@ -53,13 +53,13 @@ class _PaytmScreenState extends State<PaytmScreen> {
         .getOrderCreateResponse(widget.payment_method_key);
 
     if (orderCreateResponse.result == false) {
-      ToastComponent.showDialog(orderCreateResponse.message, context,
-          gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+      ToastComponent.showDialog(orderCreateResponse.message ?? "", context,
+          gravity: Toast.center, duration: Toast.lengthLong);
       Navigator.of(context).pop();
       return;
     }
 
-    _combined_order_id = orderCreateResponse.combined_order_id;
+    _combined_order_id = orderCreateResponse.combined_order_id ?? 0;
     _order_init = true;
     setState(() {});
   }
@@ -70,8 +70,8 @@ class _PaytmScreenState extends State<PaytmScreen> {
     print(phoneEmailAvailabilityResponse.toString());
     if (phoneEmailAvailabilityResponse.phone_available == false) {
       ToastComponent.showDialog(
-          phoneEmailAvailabilityResponse.phone_available_message, context,
-          gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+          phoneEmailAvailabilityResponse.phone_available_message ?? "", context,
+          gravity: Toast.center, duration: Toast.lengthLong);
       Navigator.of(context).pop();
       return;
     }
@@ -91,31 +91,31 @@ class _PaytmScreenState extends State<PaytmScreen> {
   }
 
   void getData() {
-    _webViewController
-        .evaluateJavascript("document.body.innerText")
-        .then((data) {
-      var decodedJSON = jsonDecode(data);
-      Map<String, dynamic> responseJSON = jsonDecode(decodedJSON);
-      //print(data.toString());
-      if (responseJSON["result"] == false) {
-        Toast.show(responseJSON["message"], context,
-            duration: Toast.LENGTH_LONG, gravity: Toast.CENTER);
-        Navigator.pop(context);
-      } else if (responseJSON["result"] == true) {
-        Toast.show(responseJSON["message"], context,
-            duration: Toast.LENGTH_LONG, gravity: Toast.CENTER);
+    // _webViewController
+    //     .evaluateJavascript("document.body.innerText")
+    //     .then((data) {
+    //   var decodedJSON = jsonDecode(data);
+    //   Map<String, dynamic> responseJSON = jsonDecode(decodedJSON);
+    //   //print(data.toString());
+    //   if (responseJSON["result"] == false) {
+    //     Toast.show(responseJSON["message"],
+    //         duration: Toast.lengthLong, gravity: Toast.center);
+    //     Navigator.pop(context);
+    //   } else if (responseJSON["result"] == true) {
+    //     Toast.show(responseJSON["message"], context,
+    //         duration: Toast.LENGTH_LONG, gravity: Toast.CENTER);
 
-        if (widget.payment_type == "cart_payment") {
-          Navigator.push(context, MaterialPageRoute(builder: (context) {
-            return OrderList(from_checkout: true);
-          }));
-        } else if (widget.payment_type == "wallet_payment") {
-          Navigator.push(context, MaterialPageRoute(builder: (context) {
-            return Wallet(from_recharge: true);
-          }));
-        }
-      }
-    });
+    //     if (widget.payment_type == "cart_payment") {
+    //       Navigator.push(context, MaterialPageRoute(builder: (context) {
+    //         return OrderList(from_checkout: true);
+    //       }));
+    //     } else if (widget.payment_type == "wallet_payment") {
+    //       Navigator.push(context, MaterialPageRoute(builder: (context) {
+    //         return Wallet(from_recharge: true);
+    //       }));
+    //     }
+    //   }
+    // });
   }
 
   buildBody() {
@@ -128,7 +128,7 @@ class _PaytmScreenState extends State<PaytmScreen> {
         widget.payment_type == "cart_payment") {
       return Container(
         child: Center(
-          child: Text(AppLocalizations.of(context).common_creating_order),
+          child: Text(AppLocalizations.of(context)!.common_creating_order),
         ),
       );
     } else {
@@ -141,7 +141,7 @@ class _PaytmScreenState extends State<PaytmScreen> {
             javascriptMode: JavascriptMode.unrestricted,
             onWebViewCreated: (controller) {
               _webViewController = controller;
-              _webViewController.loadUrl(initial_url);
+              _webViewController?.loadUrl(initial_url);
             },
             onWebResourceError: (error) {
               //(error.description);
@@ -171,7 +171,7 @@ class _PaytmScreenState extends State<PaytmScreen> {
         ),
       ),
       title: Text(
-        AppLocalizations.of(context).paytm_screen_pay_with_paytm,
+        AppLocalizations.of(context)!.paytm_screen_pay_with_paytm,
         style: TextStyle(fontSize: 16, color: MyTheme.accent_color),
       ),
       elevation: 0.0,

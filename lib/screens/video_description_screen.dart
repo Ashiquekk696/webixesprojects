@@ -5,16 +5,16 @@ import 'package:webixes/my_theme.dart';
 import 'package:webixes/helpers/shared_value_helper.dart';
 
 class VideoDescription extends StatefulWidget {
-  String url;
+  String? url;
 
-  VideoDescription({Key key, this.url}) : super(key: key);
+  VideoDescription({Key? key, this.url}) : super(key: key);
 
   @override
   _VideoDescriptionState createState() => _VideoDescriptionState();
 }
 
 class _VideoDescriptionState extends State<VideoDescription> {
-  WebViewController _webViewController;
+  WebViewController? _webViewController;
 
   @override
   void initState() {
@@ -35,7 +35,8 @@ class _VideoDescriptionState extends State<VideoDescription> {
         return Future.value(true);
       },
       child: Directionality(
-        textDirection: app_language_rtl.$ ? TextDirection.rtl : TextDirection.ltr,
+        textDirection:
+            app_language_rtl.$ ? TextDirection.rtl : TextDirection.ltr,
         child: Scaffold(
           backgroundColor: Colors.white,
           body: buildBody(),
@@ -54,8 +55,7 @@ class _VideoDescriptionState extends State<VideoDescription> {
               javascriptMode: JavascriptMode.unrestricted,
               onWebViewCreated: (controller) {
                 _webViewController = controller;
-                _webViewController.loadUrl(widget.url);
-
+                _webViewController?.loadUrl(widget.url ?? "");
               },
               onWebResourceError: (error) {},
               onPageFinished: (page) {
@@ -63,9 +63,10 @@ class _VideoDescriptionState extends State<VideoDescription> {
               },
             ),
             Align(
-              alignment: app_language_rtl.$ ? Alignment.centerRight : Alignment.centerLeft,
+              alignment: app_language_rtl.$
+                  ? Alignment.centerRight
+                  : Alignment.centerLeft,
               child: Container(
-
                 decoration: ShapeDecoration(
                   color: MyTheme.medium_grey_50,
                   shape: RoundedRectangleBorder(
@@ -75,14 +76,17 @@ class _VideoDescriptionState extends State<VideoDescription> {
                     ),
                   ),
                 ),
-
                 width: 40,
                 height: 40,
                 child: IconButton(
                   icon: Icon(Icons.arrow_back, color: MyTheme.white),
                   onPressed: () {
-                    if (MediaQuery.of(context).orientation == Orientation.landscape) {
-                      SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+                    if (MediaQuery.of(context).orientation ==
+                        Orientation.landscape) {
+                      SystemChrome.setPreferredOrientations([
+                        DeviceOrientation.portraitUp,
+                        DeviceOrientation.portraitDown
+                      ]);
                     }
                     return Navigator.of(context).pop();
                   },

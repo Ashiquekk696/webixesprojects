@@ -13,7 +13,6 @@ import 'package:webixes/repositories/auth_repository.dart';
 import 'package:webixes/helpers/shared_value_helper.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-
 class PasswordForget extends StatefulWidget {
   @override
   _PasswordForgetState createState() => _PasswordForgetState();
@@ -48,12 +47,18 @@ class _PasswordForgetState extends State<PasswordForget> {
     var email = _emailController.text.toString();
 
     if (_send_code_by == 'email' && email == "") {
-      ToastComponent.showDialog(AppLocalizations.of(context).password_forget_screen_email_warning, context,
-          gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+      ToastComponent.showDialog(
+          AppLocalizations.of(context)!.password_forget_screen_email_warning,
+          context,
+          gravity: Toast.center,
+          duration: Toast.lengthLong);
       return;
     } else if (_send_code_by == 'phone' && _phone == "") {
-      ToastComponent.showDialog(AppLocalizations.of(context).password_forget_screen_phone_warning, context,
-          gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+      ToastComponent.showDialog(
+          AppLocalizations.of(context)!.password_forget_screen_phone_warning,
+          context,
+          gravity: Toast.center,
+          duration: Toast.lengthLong);
       return;
     }
 
@@ -62,11 +67,11 @@ class _PasswordForgetState extends State<PasswordForget> {
             _send_code_by == 'email' ? email : _phone, _send_code_by);
 
     if (passwordForgetResponse.result == false) {
-      ToastComponent.showDialog(passwordForgetResponse.message, context,
-          gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+      ToastComponent.showDialog(passwordForgetResponse.message ?? "", context,
+          gravity: Toast.center, duration: Toast.lengthLong);
     } else {
-      ToastComponent.showDialog(passwordForgetResponse.message, context,
-          gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+      ToastComponent.showDialog(passwordForgetResponse.message ?? "", context,
+          gravity: Toast.center, duration: Toast.lengthLong);
 
       Navigator.push(context, MaterialPageRoute(builder: (context) {
         return PasswordOtp(
@@ -86,9 +91,11 @@ class _PasswordForgetState extends State<PasswordForget> {
         backgroundColor: MyTheme.soft_accent_color,
         body: SingleChildScrollView(
           child: Column(
-           // alignment: Alignment.center,
+            // alignment: Alignment.center,
             children: [
-              SizedBox(height: 100,),
+              SizedBox(
+                height: 100,
+              ),
               Container(
                 width: double.infinity,
                 child: SingleChildScrollView(
@@ -100,10 +107,13 @@ class _PasswordForgetState extends State<PasswordForget> {
                       child: Container(
                         width: 200,
                         height: 75,
-                        child: Image.asset('citydeal/img/core-img/logo-small.png'),
+                        child:
+                            Image.asset('citydeal/img/core-img/logo-small.png'),
                       ),
                     ),
-                    SizedBox(height: 20,),
+                    SizedBox(
+                      height: 20,
+                    ),
                     /*Padding(
                       padding: const EdgeInsets.only(bottom: 20.0),
                       child: Text(
@@ -122,7 +132,11 @@ class _PasswordForgetState extends State<PasswordForget> {
                           Padding(
                             padding: const EdgeInsets.only(bottom: 4.0),
                             child: Text(
-                              _send_code_by == "email" ? AppLocalizations.of(context).login_screen_email : AppLocalizations.of(context).login_screen_phone,
+                              _send_code_by == "email"
+                                  ? AppLocalizations.of(context)!
+                                      .login_screen_email
+                                  : AppLocalizations.of(context)!
+                                      .login_screen_phone,
                               style: TextStyle(
                                   color: MyTheme.black,
                                   fontWeight: FontWeight.w600),
@@ -136,9 +150,13 @@ class _PasswordForgetState extends State<PasswordForget> {
                                 children: [
                                   Container(
                                     // height: 50,
-                                    child: CustomWidgets.textField('Enter mobile number/email',isNumber: false,textController: _emailController,icon:Icons.person_outline),
+                                    child: CustomWidgets.textField(
+                                        'Enter mobile number/email',
+                                        isNumber: false,
+                                        textController: _emailController,
+                                        icon: Icons.person_outline),
                                   ),
-                                /*  otp_addon_installed.$
+                                  /*  otp_addon_installed.$
                                       ? GestureDetector(
                                           onTap: () {
                                             setState(() {
@@ -164,7 +182,7 @@ class _PasswordForgetState extends State<PasswordForget> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
-                                 /* Container(
+                                  /* Container(
                                     height: 36,
                                     child: CustomInternationalPhoneNumberInput(
                                       onInputChanged: (PhoneNumber number) {
@@ -213,18 +231,16 @@ class _PasswordForgetState extends State<PasswordForget> {
                                 ],
                               ),
                             ),
-
                           Padding(
                               padding: const EdgeInsets.only(top: 15.0),
                               child: CustomButton(
-                                onPressed: (){
+                                onPressed: () {
                                   onPressSendCode();
                                 },
-                                title:  'Reset Password',
-                                bgColor:  MyTheme.yellow,
-                              )
-                          ),
-                         /* Padding(
+                                title: 'Reset Password',
+                                bgColor: MyTheme.yellow,
+                              )),
+                          /* Padding(
                             padding: const EdgeInsets.only(top: 40.0),
                             child: Container(
                               height: 45,

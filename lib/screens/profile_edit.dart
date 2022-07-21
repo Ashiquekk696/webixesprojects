@@ -31,31 +31,31 @@ class _ProfileEditState extends State<ProfileEdit> {
   TextEditingController _fullNameController = TextEditingController();
   TextEditingController _phoneController = TextEditingController();
   TextEditingController _emailController = TextEditingController();
-  TextEditingController _shippingAddress=TextEditingController();
-  TextEditingController _deliveryAddress=TextEditingController();
+  TextEditingController _shippingAddress = TextEditingController();
+  TextEditingController _deliveryAddress = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
   TextEditingController _passwordConfirmController = TextEditingController();
-  BuildContext con;
+  BuildContext? con;
   //for image uploading
   final ImagePicker _picker = ImagePicker();
-  XFile _file;
-  String shippingAddress="";
+  XFile? _file;
+  String shippingAddress = "";
   bool _isInitial = true;
   List<dynamic> _shippingAddressList = [];
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    _nameController.text=user_name.$;
-    _fullNameController.text=user_name.$;
-    _emailController.text=user_email.$;
-    if(user_phone.$!=null||user_phone.$!=""){
-      _phoneController.text=user_phone.$;
+    _nameController.text = user_name.$;
+    _fullNameController.text = user_name.$;
+    _emailController.text = user_email.$;
+    if (user_phone.$ != null || user_phone.$ != "") {
+      _phoneController.text = user_phone.$;
     }
     print("mobile -->${user_phone.$}");
     fetchShippingAddressList();
-
   }
+
   chooseAndUploadImage(context) async {
     var status = await Permission.photos.request();
 
@@ -64,39 +64,39 @@ class _ProfileEditState extends State<ProfileEdit> {
       showDialog(
           context: context,
           builder: (BuildContext context) => CupertinoAlertDialog(
-                title: Text(AppLocalizations.of(context).common_photo_permission),
+                title:
+                    Text(AppLocalizations.of(context)!.common_photo_permission),
                 content: Text(
-                    AppLocalizations.of(context).common_app_needs_permission),
+                    AppLocalizations.of(context)!.common_app_needs_permission),
                 actions: <Widget>[
                   CupertinoDialogAction(
-                    child: Text(AppLocalizations.of(context).common_deny),
+                    child: Text(AppLocalizations.of(context)!.common_deny),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                   CupertinoDialogAction(
-                    child: Text(AppLocalizations.of(context).common_settings),
+                    child: Text(AppLocalizations.of(context)!.common_settings),
                     onPressed: () => openAppSettings(),
                   ),
                 ],
               ));
     } else if (status.isRestricted) {
       ToastComponent.showDialog(
-          AppLocalizations.of(context).common_give_photo_permission,
-          context,
-          gravity: Toast.CENTER,
-          duration: Toast.LENGTH_LONG);
+          AppLocalizations.of(context)!.common_give_photo_permission, context,
+          gravity: Toast.center, duration: Toast.lengthLong);
     } else if (status.isGranted) {
       //file = await ImagePicker.pickImage(source: ImageSource.camera);
       _file = await _picker.pickImage(source: ImageSource.gallery);
 
       if (_file == null) {
-        ToastComponent.showDialog(AppLocalizations.of(context).common_no_file_chosen, context,
-            gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+        ToastComponent.showDialog(
+            AppLocalizations.of(context)!.common_no_file_chosen, context,
+            gravity: Toast.center, duration: Toast.lengthLong);
         return;
       }
 
       //return;
-      String base64Image = FileHelper.getBase64FormateFile(_file.path);
-      String fileName = _file.path.split("/").last;
+      String base64Image = FileHelper.getBase64FormateFile(_file?.path ?? "");
+      String fileName = _file?.path.split("/").last ?? "";
 
       var profileImageUpdateResponse =
           await ProfileRepository().getProfileImageUpdateResponse(
@@ -105,22 +105,26 @@ class _ProfileEditState extends State<ProfileEdit> {
       );
 
       if (profileImageUpdateResponse.result == false) {
-        ToastComponent.showDialog(profileImageUpdateResponse.message, context,
-            gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+        ToastComponent.showDialog(
+            profileImageUpdateResponse.message ?? "", context,
+            gravity: Toast.center, duration: Toast.lengthLong);
         return;
       } else {
-        ToastComponent.showDialog(profileImageUpdateResponse.message, context,
-            gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
-       print("profileImageUpdateResponse.path-->${profileImageUpdateResponse.path}");
-        avatar_original.$ = profileImageUpdateResponse.path;
+        ToastComponent.showDialog(
+            profileImageUpdateResponse.message ?? "", context,
+            gravity: Toast.center, duration: Toast.lengthLong);
+        print(
+            "profileImageUpdateResponse.path-->${profileImageUpdateResponse.path}");
+        avatar_original.$ = profileImageUpdateResponse.path ?? "";
         setState(() {});
       }
     }
   }
+
   fetchShippingAddressList() async {
     print("enter fetchShippingAddressList");
     var addressResponse = await AddressRepository().getAddressList();
-    _shippingAddressList.addAll(addressResponse.addresses);
+    _shippingAddressList.addAll(addressResponse.addresses ?? []);
     setState(() {
       _isInitial = false;
     });
@@ -129,9 +133,15 @@ class _ProfileEditState extends State<ProfileEdit> {
 
       var count = 0;
       _shippingAddressList.forEach((address) {
-
-        _shippingAddress.text=address.address+" "+address.postal_code+" "+address.country_name+" "+address.state_name+" "+address.city_name;
-
+        _shippingAddress.text = address.address +
+            " " +
+            address.postal_code +
+            " " +
+            address.country_name +
+            " " +
+            address.state_name +
+            " " +
+            address.city_name;
       });
 
       print("fetchShippingAddressList");
@@ -139,6 +149,7 @@ class _ProfileEditState extends State<ProfileEdit> {
 
     setState(() {});
   }
+
   Future<void> _onPageRefresh() async {}
 
   onPressUpdate() async {
@@ -152,49 +163,64 @@ class _ProfileEditState extends State<ProfileEdit> {
             ""; // if both fields are empty we will not change user's password
 
     if (name == "") {
-      ToastComponent.showDialog(AppLocalizations.of(context).profile_edit_screen_name_warning, context,
-          gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+      ToastComponent.showDialog(
+          AppLocalizations.of(context)!.profile_edit_screen_name_warning,
+          context,
+          gravity: Toast.center,
+          duration: Toast.lengthLong);
       return;
     }
     if (change_password && password == "") {
-      ToastComponent.showDialog(AppLocalizations.of(context).profile_edit_screen_password_warning, context,
-          gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+      ToastComponent.showDialog(
+          AppLocalizations.of(context)!.profile_edit_screen_password_warning,
+          context,
+          gravity: Toast.center,
+          duration: Toast.lengthLong);
       return;
     }
     if (change_password && password_confirm == "") {
-      ToastComponent.showDialog(AppLocalizations.of(context).profile_edit_screen_password_confirm_warning, context,
-          gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+      ToastComponent.showDialog(
+          AppLocalizations.of(context)!
+              .profile_edit_screen_password_confirm_warning,
+          context,
+          gravity: Toast.center,
+          duration: Toast.lengthLong);
       return;
     }
     if (change_password && password.length < 6) {
       ToastComponent.showDialog(
-          AppLocalizations.of(context).password_otp_screen_password_length_warning, context,
-          gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+          AppLocalizations.of(context)!
+                  .password_otp_screen_password_length_warning ??
+              "",
+          context,
+          gravity: Toast.center,
+          duration: Toast.lengthLong);
       return;
     }
     if (change_password && password != password_confirm) {
-      ToastComponent.showDialog(AppLocalizations.of(context).profile_edit_screen_password_match_warning, context,
-          gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+      ToastComponent.showDialog(
+          AppLocalizations.of(context)!
+              .profile_edit_screen_password_match_warning,
+          context,
+          gravity: Toast.center,
+          duration: Toast.lengthLong);
       return;
     }
-   // DialogBuilder(context).showLoadingIndicator('');
-    var profileUpdateResponse =
-        await ProfileRepository().getProfileUpdateResponse(
-      name,
-      change_password ? password : "",phone
-    );
+    // DialogBuilder(context).showLoadingIndicator('');
+    var profileUpdateResponse = await ProfileRepository()
+        .getProfileUpdateResponse(name, change_password ? password : "", phone);
 
     if (profileUpdateResponse.result == false) {
-     // DialogBuilder(context).hideOpenDialog();
-      ToastComponent.showDialog(profileUpdateResponse.message, context,
-          gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+      // DialogBuilder(context).hideOpenDialog();
+      ToastComponent.showDialog(profileUpdateResponse.message ?? "", context,
+          gravity: Toast.center, duration: Toast.lengthLong);
     } else {
       // DialogBuilder(context).hideOpenDialog();
-      ToastComponent.showDialog(profileUpdateResponse.message, context,
-          gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+      ToastComponent.showDialog(profileUpdateResponse.message ?? "", context,
+          gravity: Toast.center, duration: Toast.lengthLong);
 
       user_name.$ = name;
-      user_phone.$=phone;
+      user_phone.$ = phone;
       setState(() {});
     }
   }
@@ -220,12 +246,12 @@ class _ProfileEditState extends State<ProfileEdit> {
           icon: Icon(Icons.arrow_back, color: MyTheme.dark_grey),
           onPressed: () {
             Navigator.of(context).pop(true);
-           // Navigator.push(context, MaterialPageRoute(builder: (context)=>Profile()));
+            // Navigator.push(context, MaterialPageRoute(builder: (context)=>Profile()));
           },
         ),
       ),
       title: Text(
-        AppLocalizations.of(context).profile_edit_screen_edit_profile,
+        AppLocalizations.of(context)!.profile_edit_screen_edit_profile,
         style: TextStyle(fontSize: 16, color: MyTheme.black),
       ),
       elevation: 5.0,
@@ -239,7 +265,7 @@ class _ProfileEditState extends State<ProfileEdit> {
           height: 100,
           child: Center(
               child: Text(
-                AppLocalizations.of(context).profile_edit_screen_login_warning,
+            AppLocalizations.of(context)!.profile_edit_screen_login_warning,
             style: TextStyle(color: MyTheme.font_grey),
           )));
     } else {
@@ -254,13 +280,13 @@ class _ProfileEditState extends State<ProfileEdit> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     InkWell(
-                      onTap: (){
+                      onTap: () {
                         chooseAndUploadImage(context);
                       },
                       child: Container(
                         height: 100,
                         width: 100,
-                       // color: Colors.teal,
+                        // color: Colors.teal,
                         child: CircleAvatar(
                           backgroundImage: NetworkImage(
                             AppConfig.BASE_PATH + "${avatar_original.$}",
@@ -268,8 +294,6 @@ class _ProfileEditState extends State<ProfileEdit> {
                         ),
                       ),
                     ),
-
-
                   ],
                 ),
               ),
@@ -282,12 +306,17 @@ class _ProfileEditState extends State<ProfileEdit> {
                       borderRadius: BorderRadius.circular(8),
                       color: Colors.teal,
                     ),
-
-                    child: Icon(Icons.person,color: Colors.white,),
+                    child: Icon(
+                      Icons.person,
+                      color: Colors.white,
+                    ),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text("Username",style: TextStyle(fontSize: 15),),
+                    child: Text(
+                      "Username",
+                      style: TextStyle(fontSize: 15),
+                    ),
                   ),
                 ],
               ),
@@ -316,7 +345,9 @@ class _ProfileEditState extends State<ProfileEdit> {
                   ),
                 ),
               ),
-              SizedBox(height: 5,),
+              SizedBox(
+                height: 5,
+              ),
               Row(
                 children: [
                   Container(
@@ -326,41 +357,48 @@ class _ProfileEditState extends State<ProfileEdit> {
                       borderRadius: BorderRadius.circular(8),
                       color: Colors.teal,
                     ),
-
-                    child: Icon(Icons.person,color: Colors.white,),
+                    child: Icon(
+                      Icons.person,
+                      color: Colors.white,
+                    ),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text("Full Name",style: TextStyle(fontSize: 15),),
+                    child: Text(
+                      "Full Name",
+                      style: TextStyle(fontSize: 15),
+                    ),
                   ),
                 ],
               ),
 
               Padding(
-      padding: const EdgeInsets.only(top: 8.0),
-    child: Container(
-    height: 45,
-    child: Center(
-    child: TextField(
-    controller: _fullNameController,
-    autocorrect: true,
-    keyboardType: TextInputType.name,
-    decoration: InputDecoration(
-    hintStyle: TextStyle(color: Colors.black),
-    enabledBorder: OutlineInputBorder(
-    borderRadius: BorderRadius.all(Radius.circular(12.0)),
-    borderSide: BorderSide(color: Colors.grey),
-    ),
-    focusedBorder: OutlineInputBorder(
-    borderRadius: BorderRadius.all(Radius.circular(10.0)),
-    borderSide: BorderSide(color: Colors.grey),
-    ),
-    ),
-    ),
-    ),
-    ),
-    ),
-              SizedBox(height: 5,),
+                padding: const EdgeInsets.only(top: 8.0),
+                child: Container(
+                  height: 45,
+                  child: Center(
+                    child: TextField(
+                      controller: _fullNameController,
+                      autocorrect: true,
+                      keyboardType: TextInputType.name,
+                      decoration: InputDecoration(
+                        hintStyle: TextStyle(color: Colors.black),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                          borderSide: BorderSide(color: Colors.grey),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                          borderSide: BorderSide(color: Colors.grey),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 5,
+              ),
               Row(
                 children: [
                   Container(
@@ -370,12 +408,17 @@ class _ProfileEditState extends State<ProfileEdit> {
                       borderRadius: BorderRadius.circular(8),
                       color: Colors.teal,
                     ),
-
-                    child: Icon(Icons.call,color: Colors.white,),
+                    child: Icon(
+                      Icons.call,
+                      color: Colors.white,
+                    ),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text("Phone",style: TextStyle(fontSize: 15),),
+                    child: Text(
+                      "Phone",
+                      style: TextStyle(fontSize: 15),
+                    ),
                   ),
                 ],
               ),
@@ -385,10 +428,10 @@ class _ProfileEditState extends State<ProfileEdit> {
                   height: 45,
                   child: Center(
                     child: TextField(
-                     // readOnly: readOnly,
+                      // readOnly: readOnly,
                       controller: _phoneController,
                       autocorrect: true,
-                      maxLength:10 ,
+                      maxLength: 10,
                       keyboardType: TextInputType.phone,
                       decoration: InputDecoration(
                         counterText: '',
@@ -408,7 +451,9 @@ class _ProfileEditState extends State<ProfileEdit> {
                 ),
               ),
               //commonTextField(_phoneController,TextInputType.number,false),
-              SizedBox(height: 5,),
+              SizedBox(
+                height: 5,
+              ),
               Row(
                 children: [
                   Container(
@@ -418,12 +463,17 @@ class _ProfileEditState extends State<ProfileEdit> {
                       borderRadius: BorderRadius.circular(8),
                       color: Colors.teal,
                     ),
-
-                    child: Icon(Icons.email,color: Colors.white,),
+                    child: Icon(
+                      Icons.email,
+                      color: Colors.white,
+                    ),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text("Email Address",style: TextStyle(fontSize: 15),),
+                    child: Text(
+                      "Email Address",
+                      style: TextStyle(fontSize: 15),
+                    ),
                   ),
                 ],
               ),
@@ -452,7 +502,9 @@ class _ProfileEditState extends State<ProfileEdit> {
                   ),
                 ),
               ),
-              SizedBox(height: 5,),
+              SizedBox(
+                height: 5,
+              ),
               Row(
                 children: [
                   Container(
@@ -462,18 +514,23 @@ class _ProfileEditState extends State<ProfileEdit> {
                       borderRadius: BorderRadius.circular(8),
                       color: Colors.teal,
                     ),
-
-                    child: Icon(Icons.location_on,color: Colors.white,),
+                    child: Icon(
+                      Icons.location_on,
+                      color: Colors.white,
+                    ),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text("Shipping Address",style: TextStyle(fontSize: 15),),
+                    child: Text(
+                      "Shipping Address",
+                      style: TextStyle(fontSize: 15),
+                    ),
                   ),
                 ],
               ),
               GestureDetector(
                 onTap: () async {
-                  Map map=await Navigator.push(
+                  Map map = await Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => Address(),
@@ -481,39 +538,43 @@ class _ProfileEditState extends State<ProfileEdit> {
                   );
                   setState(() {
                     print("mapp-->$map");
-                    _shippingAddress.text= map["address"];
+                    _shippingAddress.text = map["address"];
                     print("add-${map["address"]}");
                   });
                 },
                 child: Container(
                   color: Colors.transparent,
                   child: IgnorePointer(
-                      child:  Padding(
-                        padding: const EdgeInsets.only(top: 8.0),
-                        child: Container(
-                          height: 45,
-                          child: Center(
-                            child: TextField(
-                              controller: _shippingAddress,
-                              decoration: InputDecoration(
-                                hintStyle: TextStyle(color: Colors.black),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.all(Radius.circular(12.0)),
-                                  borderSide: BorderSide(color: Colors.grey),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                                  borderSide: BorderSide(color: Colors.grey),
-                                ),
-                              ),
+                      child: Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Container(
+                      height: 45,
+                      child: Center(
+                        child: TextField(
+                          controller: _shippingAddress,
+                          decoration: InputDecoration(
+                            hintStyle: TextStyle(color: Colors.black),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(12.0)),
+                              borderSide: BorderSide(color: Colors.grey),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10.0)),
+                              borderSide: BorderSide(color: Colors.grey),
                             ),
                           ),
                         ),
-                      )),
+                      ),
+                    ),
+                  )),
                 ),
               ),
 
-              SizedBox(height: 5,),
+              SizedBox(
+                height: 5,
+              ),
               Row(
                 children: [
                   Container(
@@ -523,37 +584,42 @@ class _ProfileEditState extends State<ProfileEdit> {
                       borderRadius: BorderRadius.circular(8),
                       color: Colors.teal,
                     ),
-
-                    child: Icon(Icons.location_on,color: Colors.white,),
+                    child: Icon(
+                      Icons.location_on,
+                      color: Colors.white,
+                    ),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text("Delivery Address",style: TextStyle(fontSize: 15),),
+                    child: Text(
+                      "Delivery Address",
+                      style: TextStyle(fontSize: 15),
+                    ),
                   ),
                 ],
               ),
               GestureDetector(
-                onTap: () async {
-                  Map map=await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => Address(),
-                    ),
-                  );
-                  setState(() {
-                     print("mapp-->$map");
-                   shippingAddress= map["address"];
-                    print("add-${map["address"]}");
-                  });
+                  onTap: () async {
+                    Map map = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => Address(),
+                      ),
+                    );
+                    setState(() {
+                      print("mapp-->$map");
+                      shippingAddress = map["address"];
+                      print("add-${map["address"]}");
+                    });
 
-                  /*Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    /*Navigator.push(context, MaterialPageRoute(builder: (context) {
                     return Address();
                   }));*/
-                },
+                  },
                   child: Container(
                       color: Colors.transparent,
-                      child: IgnorePointer(child:
-                      Padding(
+                      child: IgnorePointer(
+                          child: Padding(
                         padding: const EdgeInsets.only(top: 8.0),
                         child: Container(
                           height: 45,
@@ -563,22 +629,23 @@ class _ProfileEditState extends State<ProfileEdit> {
                               decoration: InputDecoration(
                                 hintStyle: TextStyle(color: Colors.black),
                                 enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(12.0)),
                                   borderSide: BorderSide(color: Colors.grey),
                                 ),
                                 focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10.0)),
                                   borderSide: BorderSide(color: Colors.grey),
                                 ),
                               ),
                             ),
                           ),
                         ),
-                      )
-                      ))),
+                      )))),
 
               Padding(
-                padding: const EdgeInsets.only(bottom: 8.0,top: 8.0),
+                padding: const EdgeInsets.only(bottom: 8.0, top: 8.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
@@ -591,12 +658,17 @@ class _ProfileEditState extends State<ProfileEdit> {
                             borderRadius: BorderRadius.circular(8),
                             color: Colors.teal,
                           ),
-
-                          child: Icon(Icons.lock,color: Colors.white,),
+                          child: Icon(
+                            Icons.lock,
+                            color: Colors.white,
+                          ),
                         ),
                         Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child: Text("Password",style: TextStyle(fontSize: 15),),
+                          child: Text(
+                            "Password",
+                            style: TextStyle(fontSize: 15),
+                          ),
                         ),
                       ],
                     ),
@@ -608,12 +680,14 @@ class _ProfileEditState extends State<ProfileEdit> {
                         obscureText: true,
                         enableSuggestions: false,
                         autocorrect: false,
-                        decoration: InputDecorations.buildInputDecorationWithBorder(
-                            hint_text: "• • • • • • • •"),
+                        decoration:
+                            InputDecorations.buildInputDecorationWithBorder(
+                                hint_text: "• • • • • • • •"),
                       ),
                     ),
                     Text(
-                      AppLocalizations.of(context).profile_edit_screen_password_length_recommendation,
+                      AppLocalizations.of(context)!
+                          .profile_edit_screen_password_length_recommendation,
                       style: TextStyle(
                           color: MyTheme.textfield_grey,
                           fontStyle: FontStyle.italic),
@@ -624,7 +698,8 @@ class _ProfileEditState extends State<ProfileEdit> {
               Padding(
                 padding: const EdgeInsets.only(bottom: 4.0),
                 child: Text(
-                  AppLocalizations.of(context).profile_edit_screen_retype_password,
+                  AppLocalizations.of(context)!
+                      .profile_edit_screen_retype_password,
                   style: TextStyle(
                       color: MyTheme.accent_color, fontWeight: FontWeight.w600),
                 ),
@@ -644,45 +719,22 @@ class _ProfileEditState extends State<ProfileEdit> {
                   ),
                 ),
               ),
-              SizedBox(height: 10,),
-              CustomButton(onPressed: (){
-
-                onPressUpdate();
-              },title: "Save All changes",bgColor: Colors.teal,)
-
+              SizedBox(
+                height: 10,
+              ),
+              CustomButton(
+                onPressed: () {
+                  onPressUpdate();
+                },
+                title: "Save All changes",
+                bgColor: Colors.teal,
+              )
             ],
           ),
         ),
       );
-      return RefreshIndicator(
-        color: MyTheme.accent_color,
-        backgroundColor: Colors.white,
-        onRefresh: _onPageRefresh,
-        displacement: 10,
-        child: CustomScrollView(
-          controller: _mainScrollController,
-          physics: const BouncingScrollPhysics(
-              parent: AlwaysScrollableScrollPhysics()),
-          slivers: [
-            SliverList(
-              delegate: SliverChildListDelegate([
-                buildTopSection(),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Divider(
-                    height: 24,
-                  ),
-                ),
-                buildProfileForm(context)
-              ]),
-            )
-          ],
-        ),
-      );
     }
   }
-
-
 
   buildTopSection() {
     return Column(
@@ -751,7 +803,8 @@ class _ProfileEditState extends State<ProfileEdit> {
             Padding(
               padding: const EdgeInsets.only(bottom: 8.0),
               child: Text(
-                AppLocalizations.of(context).profile_edit_screen_basic_information,
+                AppLocalizations.of(context)!
+                    .profile_edit_screen_basic_information,
                 style: TextStyle(
                     color: MyTheme.grey_153,
                     fontWeight: FontWeight.w600,
@@ -761,7 +814,7 @@ class _ProfileEditState extends State<ProfileEdit> {
             Padding(
               padding: const EdgeInsets.only(bottom: 4.0),
               child: Text(
-                AppLocalizations.of(context).profile_edit_screen_name,
+                AppLocalizations.of(context)!.profile_edit_screen_name,
                 style: TextStyle(
                     color: MyTheme.accent_color, fontWeight: FontWeight.w600),
               ),
@@ -781,7 +834,7 @@ class _ProfileEditState extends State<ProfileEdit> {
             Padding(
               padding: const EdgeInsets.only(bottom: 4.0),
               child: Text(
-                AppLocalizations.of(context).profile_edit_screen_password,
+                AppLocalizations.of(context)!.profile_edit_screen_password,
                 style: TextStyle(
                     color: MyTheme.accent_color, fontWeight: FontWeight.w600),
               ),
@@ -804,7 +857,8 @@ class _ProfileEditState extends State<ProfileEdit> {
                     ),
                   ),
                   Text(
-                    AppLocalizations.of(context).profile_edit_screen_password_length_recommendation,
+                    AppLocalizations.of(context)!
+                        .profile_edit_screen_password_length_recommendation,
                     style: TextStyle(
                         color: MyTheme.textfield_grey,
                         fontStyle: FontStyle.italic),
@@ -815,7 +869,8 @@ class _ProfileEditState extends State<ProfileEdit> {
             Padding(
               padding: const EdgeInsets.only(bottom: 4.0),
               child: Text(
-                  AppLocalizations.of(context).profile_edit_screen_retype_password,
+                AppLocalizations.of(context)!
+                    .profile_edit_screen_retype_password,
                 style: TextStyle(
                     color: MyTheme.accent_color, fontWeight: FontWeight.w600),
               ),
@@ -856,7 +911,8 @@ class _ProfileEditState extends State<ProfileEdit> {
                           borderRadius:
                               const BorderRadius.all(Radius.circular(8.0))),
                       child: Text(
-                        AppLocalizations.of(context).profile_edit_screen_btn_update_profile,
+                        AppLocalizations.of(context)!
+                            .profile_edit_screen_btn_update_profile,
                         style: TextStyle(
                             color: Colors.white,
                             fontSize: 14,

@@ -15,13 +15,14 @@ class RazorpayScreen extends StatefulWidget {
   double amount;
   String payment_type;
   String payment_method_key;
-  String filePath;
+  String? filePath;
 
   RazorpayScreen(
-      {Key key,
+      {Key? key,
       this.amount = 0.00,
       this.payment_type = "",
-      this.payment_method_key = "",this.filePath})
+      this.payment_method_key = "",
+      this.filePath})
       : super(key: key);
 
   @override
@@ -32,7 +33,7 @@ class _RazorpayScreenState extends State<RazorpayScreen> {
   int _combined_order_id = 0;
   bool _order_init = false;
 
-  WebViewController _webViewController;
+  WebViewController? _webViewController;
 
   @override
   void initState() {
@@ -47,16 +48,18 @@ class _RazorpayScreenState extends State<RazorpayScreen> {
   }
 
   createOrder() async {
-    var orderCreateResponse = await PaymentRepository().getOrderCreateResponse(widget.payment_method_key,imagePath: widget.filePath);
-print("orderCreateResponse==>$orderCreateResponse");
+    var orderCreateResponse = await PaymentRepository().getOrderCreateResponse(
+        widget.payment_method_key,
+        imagePath: widget.filePath);
+    print("orderCreateResponse==>$orderCreateResponse");
     if (orderCreateResponse.result == false) {
-      ToastComponent.showDialog(orderCreateResponse.message, context,
-          gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+      ToastComponent.showDialog(orderCreateResponse.message ?? "", context,
+          gravity: Toast.center, duration: Toast.lengthLong);
       Navigator.of(context).pop();
       return;
     }
 
-    _combined_order_id = orderCreateResponse.combined_order_id;
+    _combined_order_id = orderCreateResponse.combined_order_id ?? 0;
     _order_init = true;
     setState(() {});
 
@@ -85,24 +88,24 @@ print("orderCreateResponse==>$orderCreateResponse");
     print('called.........');
     var payment_details = '';
 
-    _webViewController
-        .evaluateJavascript("document.body.innerText")
-        .then((data) {
-          print("data-->$data");
-      var decodedJSON = jsonDecode(data);
-      Map<String, dynamic> responseJSON = jsonDecode(decodedJSON);
-      //print(responseJSON.toString());
-      if (responseJSON["result"] == false) {
-        Toast.show(responseJSON["message"], context,
-            duration: Toast.LENGTH_LONG, gravity: Toast.CENTER);
+    // _webViewController
+    //     .evaluateJavascript("document.body.innerText")
+    //     .then((data) {
+    //       print("data-->$data");
+    //   var decodedJSON = jsonDecode(data);
+    //   Map<String, dynamic> responseJSON = jsonDecode(decodedJSON);
+    //   //print(responseJSON.toString());
+    //   if (responseJSON["result"] == false) {
+    //     Toast.show(responseJSON["message"], context,
+    //         duration: Toast.LENGTH_LONG, gravity: Toast.CENTER);
 
-        Navigator.pop(context);
-      } else if (responseJSON["result"] == true) {
-        print("a");
-        payment_details = responseJSON['payment_details'];
-        onPaymentSuccess(payment_details);
-      }
-    });
+    //     Navigator.pop(context);
+    //   } else if (responseJSON["result"] == true) {
+    //     print("a");
+    //     payment_details = responseJSON['payment_details'];
+    //     onPaymentSuccess(payment_details);
+    //   }
+    // });
   }
 
   onPaymentSuccess(payment_details) async {
@@ -114,14 +117,14 @@ print("orderCreateResponse==>$orderCreateResponse");
 
     if (razorpayPaymentSuccessResponse.result == false) {
       print("c");
-      Toast.show(razorpayPaymentSuccessResponse.message, context,
-          duration: Toast.LENGTH_LONG, gravity: Toast.CENTER);
+      Toast.show(razorpayPaymentSuccessResponse.message ?? "",
+          duration: Toast.lengthLong, gravity: Toast.center);
       Navigator.pop(context);
       return;
     }
 
-    Toast.show(razorpayPaymentSuccessResponse.message, context,
-        duration: Toast.LENGTH_LONG, gravity: Toast.CENTER);
+    Toast.show(razorpayPaymentSuccessResponse.message ?? "",
+        duration: Toast.lengthLong, gravity: Toast.center);
     if (widget.payment_type == "cart_payment") {
       Navigator.push(context, MaterialPageRoute(builder: (context) {
         return OrderList(from_checkout: true);
@@ -139,7 +142,8 @@ print("orderCreateResponse==>$orderCreateResponse");
   }
 
   buildBody() {
-    String initial_url = "${AppConfig.BASE_URL}/razorpay/pay-with-razorpay?payment_type=${widget.payment_type}&combined_order_id=${_combined_order_id}&amount=${widget.amount}&user_id=${user_id.$}";
+    String initial_url =
+        "${AppConfig.BASE_URL}/razorpay/pay-with-razorpay?payment_type=${widget.payment_type}&combined_order_id=${_combined_order_id}&amount=${widget.amount}&user_id=${user_id.$}";
 
     print("init url");
     print(initial_url);
@@ -149,7 +153,7 @@ print("orderCreateResponse==>$orderCreateResponse");
         widget.payment_type == "cart_payment") {
       return Container(
         child: Center(
-          child: Text(AppLocalizations.of(context).common_creating_order),
+          child: Text(AppLocalizations.of(context)!.common_creating_order),
         ),
       );
     } else {
@@ -160,7 +164,7 @@ print("orderCreateResponse==>$orderCreateResponse");
             javascriptMode: JavascriptMode.unrestricted,
             onWebViewCreated: (controller) {
               _webViewController = controller;
-              _webViewController.loadUrl(initial_url);
+              _webViewController?.loadUrl(initial_url);
             },
             onWebResourceError: (error) {},
             onPageFinished: (page) {
@@ -175,7 +179,7 @@ print("orderCreateResponse==>$orderCreateResponse");
 
   AppBar buildAppBar(BuildContext context) {
     return AppBar(
-backgroundColor: Colors.white,
+      backgroundColor: Colors.white,
       centerTitle: true,
       leading: Builder(
         builder: (context) => IconButton(
@@ -184,7 +188,7 @@ backgroundColor: Colors.white,
         ),
       ),
       title: Text(
-        AppLocalizations.of(context).razorpay_screen_pay_with_razorpay,
+        AppLocalizations.of(context)!.razorpay_screen_pay_with_razorpay,
         style: TextStyle(fontSize: 16, color: MyTheme.accent_color),
       ),
       elevation: 0.0,

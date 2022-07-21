@@ -9,7 +9,6 @@ import 'package:toast/toast.dart';
 import 'package:webixes/helpers/shared_value_helper.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-
 class Wishlist extends StatefulWidget {
   @override
   _WishlistState createState() => _WishlistState();
@@ -39,7 +38,7 @@ class _WishlistState extends State<Wishlist> {
 
   fetchWishlistItems() async {
     var wishlistResponse = await WishListRepository().getUserWishlist();
-    _wishlistItems.addAll(wishlistResponse.wishlist_items);
+    _wishlistItems.addAll(wishlistResponse.wishlist_items ?? []);
     _wishlistInit = false;
     setState(() {});
   }
@@ -64,8 +63,8 @@ class _WishlistState extends State<Wishlist> {
         await WishListRepository().delete(wishlist_id: wishlist_id);
 
     if (wishlistDeleteResponse.result == true) {
-      ToastComponent.showDialog(wishlistDeleteResponse.message, context,
-          gravity: Toast.TOP, duration: Toast.LENGTH_SHORT);
+      ToastComponent.showDialog(wishlistDeleteResponse.message ?? "", context,
+          gravity: Toast.top, duration: Toast.lengthLong);
     }
   }
 
@@ -106,7 +105,7 @@ class _WishlistState extends State<Wishlist> {
         ),
       ),
       title: Text(
-        AppLocalizations.of(context).wishlist_screen_my_wishlist,
+        AppLocalizations.of(context)!.wishlist_screen_my_wishlist,
         style: TextStyle(fontSize: 16, color: MyTheme.accent_color),
       ),
       elevation: 0.0,
@@ -120,7 +119,7 @@ class _WishlistState extends State<Wishlist> {
           height: 100,
           child: Center(
               child: Text(
-                AppLocalizations.of(context).wishlist_screen_login_warning,
+            AppLocalizations.of(context)!.wishlist_screen_login_warning,
             style: TextStyle(color: MyTheme.font_grey),
           )));
     } else if (_wishlistInit == true && _wishlistItems.length == 0) {
@@ -146,7 +145,8 @@ class _WishlistState extends State<Wishlist> {
       return Container(
           height: 100,
           child: Center(
-              child: Text(AppLocalizations.of(context).common_no_item_is_available,
+              child: Text(
+                  AppLocalizations.of(context)!.common_no_item_is_available,
                   style: TextStyle(color: MyTheme.font_grey))));
     }
   }
@@ -180,8 +180,8 @@ class _WishlistState extends State<Wishlist> {
                             borderRadius: BorderRadius.horizontal(
                                 left: Radius.circular(16), right: Radius.zero),
                             child: Image.network(
-                             // placeholder: 'assets/placeholder.png',
-                               AppConfig.BASE_PATH +
+                              // placeholder: 'assets/placeholder.png',
+                              AppConfig.BASE_PATH +
                                   _wishlistItems[index].product.thumbnail_image,
                               fit: BoxFit.cover,
                             ))),

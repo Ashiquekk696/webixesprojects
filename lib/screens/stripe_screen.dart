@@ -17,7 +17,7 @@ class StripeScreen extends StatefulWidget {
   String payment_method_key;
 
   StripeScreen(
-      {Key key,
+      {Key? key,
       this.amount = 0.00,
       this.payment_type = "",
       this.payment_method_key = ""})
@@ -31,7 +31,7 @@ class _StripeScreenState extends State<StripeScreen> {
   int _combined_order_id = 0;
   bool _order_init = false;
 
-  WebViewController _webViewController;
+  WebViewController? _webViewController;
 
   @override
   void initState() {
@@ -48,13 +48,13 @@ class _StripeScreenState extends State<StripeScreen> {
         .getOrderCreateResponse(widget.payment_method_key);
 
     if (orderCreateResponse.result == false) {
-      ToastComponent.showDialog(orderCreateResponse.message, context,
-          gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+      ToastComponent.showDialog(orderCreateResponse.message ?? "", context,
+          gravity: Toast.center, duration: Toast.lengthShort);
       Navigator.of(context).pop();
       return;
     }
 
-    _combined_order_id = orderCreateResponse.combined_order_id;
+    _combined_order_id = orderCreateResponse.combined_order_id ?? 0;
     _order_init = true;
     setState(() {});
   }
@@ -72,30 +72,30 @@ class _StripeScreenState extends State<StripeScreen> {
   }
 
   void getData() {
-    _webViewController
-        .evaluateJavascript("document.body.innerText")
-        .then((data) {
-      var decodedJSON = jsonDecode(data);
-      Map<String, dynamic> responseJSON = jsonDecode(decodedJSON);
-      //print(data.toString());
-      if (responseJSON["result"] == false) {
-        Toast.show(responseJSON["message"], context,
-            duration: Toast.LENGTH_LONG, gravity: Toast.CENTER);
-        Navigator.pop(context);
-      } else if (responseJSON["result"] == true) {
-        Toast.show(responseJSON["message"], context,
-            duration: Toast.LENGTH_LONG, gravity: Toast.CENTER);
-        if (widget.payment_type == "cart_payment") {
-          Navigator.push(context, MaterialPageRoute(builder: (context) {
-            return OrderList(from_checkout: true);
-          }));
-        } else if (widget.payment_type == "wallet_payment") {
-          Navigator.push(context, MaterialPageRoute(builder: (context) {
-            return Wallet(from_recharge: true);
-          }));
-        }
-      }
-    });
+    // _webViewController
+    //     .evaluateJavascript("document.body.innerText")
+    //     .then((data) {
+    //   var decodedJSON = jsonDecode(data);
+    //   Map<String, dynamic> responseJSON = jsonDecode(decodedJSON);
+    //   //print(data.toString());
+    //   if (responseJSON["result"] == false) {
+    //     Toast.show(responseJSON["message"], context,
+    //         duration: Toast.LENGTH_LONG, gravity: Toast.CENTER);
+    //     Navigator.pop(context);
+    //   } else if (responseJSON["result"] == true) {
+    //     Toast.show(responseJSON["message"], context,
+    //         duration: Toast.LENGTH_LONG, gravity: Toast.CENTER);
+    //     if (widget.payment_type == "cart_payment") {
+    //       Navigator.push(context, MaterialPageRoute(builder: (context) {
+    //         return OrderList(from_checkout: true);
+    //       }));
+    //     } else if (widget.payment_type == "wallet_payment") {
+    //       Navigator.push(context, MaterialPageRoute(builder: (context) {
+    //         return Wallet(from_recharge: true);
+    //       }));
+    //     }
+    //   }
+    // });
   }
 
   buildBody() {
@@ -110,7 +110,7 @@ class _StripeScreenState extends State<StripeScreen> {
         widget.payment_type == "cart_payment") {
       return Container(
         child: Center(
-          child: Text(AppLocalizations.of(context).common_creating_order),
+          child: Text(AppLocalizations.of(context)!.common_creating_order),
         ),
       );
     } else {
@@ -123,7 +123,7 @@ class _StripeScreenState extends State<StripeScreen> {
             javascriptMode: JavascriptMode.unrestricted,
             onWebViewCreated: (controller) {
               _webViewController = controller;
-              _webViewController.loadUrl(initial_url);
+              _webViewController?.loadUrl(initial_url);
             },
             onWebResourceError: (error) {},
             onPageFinished: (page) {
@@ -133,10 +133,10 @@ class _StripeScreenState extends State<StripeScreen> {
                 getData();
               } else if (page.contains("/stripe/cancel")) {
                 ToastComponent.showDialog(
-                    AppLocalizations.of(context).common_payment_cancelled,
+                    AppLocalizations.of(context)!.common_payment_cancelled,
                     context,
-                    gravity: Toast.CENTER,
-                    duration: Toast.LENGTH_LONG);
+                    gravity: Toast.center,
+                    duration: Toast.lengthLong);
                 Navigator.of(context).pop();
                 return;
               }
@@ -158,7 +158,7 @@ class _StripeScreenState extends State<StripeScreen> {
         ),
       ),
       title: Text(
-        AppLocalizations.of(context).stripe_screen_pay_with_stripe,
+        AppLocalizations.of(context)!.stripe_screen_pay_with_stripe,
         style: TextStyle(fontSize: 16, color: MyTheme.accent_color),
       ),
       elevation: 0.0,

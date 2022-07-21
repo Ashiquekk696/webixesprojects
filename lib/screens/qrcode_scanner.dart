@@ -7,16 +7,16 @@ import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 class QRViewExample extends StatefulWidget {
-  const QRViewExample({Key key}) : super(key: key);
+  const QRViewExample({Key? key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => _QRViewExampleState();
 }
 
 class _QRViewExampleState extends State<QRViewExample> {
-  Barcode result;
-  String storeName="";
-  QRViewController controller;
+  Barcode? result;
+  String storeName = "";
+  QRViewController? controller;
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
 
   // In order to get hot reload to work we need to pause the camera if the platform
@@ -25,11 +25,10 @@ class _QRViewExampleState extends State<QRViewExample> {
   void reassemble() {
     super.reassemble();
     if (Platform.isAndroid) {
-      controller.pauseCamera();
+      controller?.pauseCamera();
     }
-    controller.resumeCamera();
+    controller?.resumeCamera();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +43,7 @@ class _QRViewExampleState extends State<QRViewExample> {
               children: <Widget>[
                 if (result != null)
                   Text(
-                      'Barcode Type: ${describeEnum(result.format)}   Data: ${result.code}')
+                      'Barcode Type: ${describeEnum(result?.format ?? 0)}   Data: ${result?.code ?? 0}')
                 else
                   const Text(''),
                 /*Row(
@@ -129,7 +128,8 @@ class _QRViewExampleState extends State<QRViewExample> {
 
   Widget _buildQrView(BuildContext context) {
     // For this example we check how width or tall the device is and change the scanArea and overlay accordingly.
-    var scanArea = (MediaQuery.of(context).size.width < 400 || MediaQuery.of(context).size.height < 400)
+    var scanArea = (MediaQuery.of(context).size.width < 400 ||
+            MediaQuery.of(context).size.height < 400)
         ? 250.0
         : 300.0;
     // To ensure the Scanner view is properly sizes after rotation
@@ -154,13 +154,12 @@ class _QRViewExampleState extends State<QRViewExample> {
     controller.scannedDataStream.listen((scanData) {
       setState(() {
         result = scanData;
-        print("scanning--->${result.code}");
-        var parts = result.code.split('/');
-        storeName=parts[4].toString();
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) {
-              return ShopDetails(shopName:storeName);
-            }));
+        print("scanning--->${result?.code}");
+        var parts = result?.code?.split('/');
+        storeName = parts?[4].toString() ?? "";
+        Navigator.push(context, MaterialPageRoute(builder: (context) {
+          return ShopDetails(shopName: storeName);
+        }));
       });
     });
   }

@@ -4,11 +4,11 @@ import 'package:webixes/app_config.dart';
 import 'package:webixes/screens/brand_products.dart';
 
 class BrandSquareCard extends StatefulWidget {
-  int id;
-  String image;
-  String name;
+  int? id;
+  String? image;
+  String? name;
 
-  BrandSquareCard({Key key, this.id,this.image, this.name}) : super(key: key);
+  BrandSquareCard({Key? key, this.id, this.image, this.name}) : super(key: key);
 
   @override
   _BrandSquareCardState createState() => _BrandSquareCardState();
@@ -18,9 +18,12 @@ class _BrandSquareCardState extends State<BrandSquareCard> {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: (){
+      onTap: () {
         Navigator.push(context, MaterialPageRoute(builder: (context) {
-          return BrandProducts(id: widget.id,brand_name: widget.name,);
+          return BrandProducts(
+            id: widget.id,
+            brand_name: widget.name,
+          );
         }));
       },
       child: Card(
@@ -36,13 +39,13 @@ class _BrandSquareCardState extends State<BrandSquareCard> {
             children: <Widget>[
               Container(
                   width: double.infinity,
-                  height: ((MediaQuery.of(context).size.width - 24) /2) * .72,
+                  height: ((MediaQuery.of(context).size.width - 24) / 2) * .72,
                   child: ClipRRect(
                       borderRadius: BorderRadius.vertical(
                           top: Radius.circular(16), bottom: Radius.zero),
                       child: FadeInImage.assetNetwork(
                         placeholder: 'assets/placeholder.png',
-                        image: AppConfig.BASE_PATH + widget.image,
+                        image: AppConfig.BASE_PATH + (widget.image ?? ""),
                         fit: BoxFit.scaleDown,
                       ))),
               Expanded(
@@ -51,7 +54,7 @@ class _BrandSquareCardState extends State<BrandSquareCard> {
                   child: Padding(
                     padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
                     child: Text(
-                      widget.name,
+                      (widget.name ?? ""),
                       textAlign: TextAlign.left,
                       overflow: TextOverflow.ellipsis,
                       maxLines: 2,

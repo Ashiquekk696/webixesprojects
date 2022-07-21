@@ -19,9 +19,8 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../helpers/auth_helper.dart';
 
-
 class Profile extends StatefulWidget {
-  Profile({Key key, this.show_back_button = true}) : super(key: key);
+  Profile({Key? key, this.show_back_button = true}) : super(key: key);
 
   bool show_back_button;
 
@@ -39,7 +38,7 @@ class _ProfileState extends State<Profile> {
   String _wishlistCounterString = "...";
   int _orderCounter = 0;
   String _orderCounterString = "...";
-  String shippingAddress="";
+  String shippingAddress = "";
   bool _isInitial = true;
   List<dynamic> _shippingAddressList = [];
   @override
@@ -71,10 +70,11 @@ class _ProfileState extends State<Profile> {
     fetchCounters();
     fetchShippingAddressList();
   }
+
   fetchShippingAddressList() async {
     print("enter fetchShippingAddressList");
     var addressResponse = await AddressRepository().getAddressList();
-    _shippingAddressList.addAll(addressResponse.addresses);
+    _shippingAddressList.addAll(addressResponse.addresses ?? []);
     setState(() {
       _isInitial = false;
     });
@@ -83,9 +83,15 @@ class _ProfileState extends State<Profile> {
 
       var count = 0;
       _shippingAddressList.forEach((address) {
-
-        shippingAddress=address.address+" "+address.postal_code+" "+address.country_name+" "+address.state_name+" "+address.city_name;
-
+        shippingAddress = address.address +
+            " " +
+            address.postal_code +
+            " " +
+            address.country_name +
+            " " +
+            address.state_name +
+            " " +
+            address.city_name;
       });
 
       print("fetchShippingAddressList");
@@ -98,10 +104,10 @@ class _ProfileState extends State<Profile> {
     var profileCountersResponse =
         await ProfileRepository().getProfileCountersResponse();
 
-    _cartCounter = profileCountersResponse.cart_item_count;
+    _cartCounter = profileCountersResponse.cart_item_count ?? 0;
     print("_cartCounter-->$_cartCounter");
-    _wishlistCounter = profileCountersResponse.wishlist_item_count;
-    _orderCounter = profileCountersResponse.order_count;
+    _wishlistCounter = profileCountersResponse.wishlist_item_count ?? 0;
+    _orderCounter = profileCountersResponse.order_count ?? 0;
 
     _cartCounterString =
         counterText(_cartCounter.toString(), default_length: 2);
@@ -156,14 +162,14 @@ class _ProfileState extends State<Profile> {
     return Directionality(
       textDirection: app_language_rtl.$ ? TextDirection.rtl : TextDirection.ltr,
       child: Scaffold(
-        key: _scaffoldKey,
-        drawer: MainDrawer(),
-        backgroundColor: MyTheme.gray,
-        appBar: buildAppBar(context),
-        body:buildBody(context)
-      ),
+          key: _scaffoldKey,
+          drawer: MainDrawer(),
+          backgroundColor: MyTheme.gray,
+          appBar: buildAppBar(context),
+          body: buildBody(context)),
     );
   }
+
   onTapLogout(context) async {
     AuthHelper().clearUserData();
 
@@ -181,36 +187,40 @@ class _ProfileState extends State<Profile> {
       return Login();
     }));
   }
+
   buildBody(context) {
     if (is_logged_in.$ == false) {
       return Container(
           height: 200,
           child: Center(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  SizedBox(height: 20,),
-                  Text(
-                    AppLocalizations.of(context).profile_screen_please_log_in,
-                    style: TextStyle(color: MyTheme.font_grey),
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(
+                height: 20,
+              ),
+              Text(
+                AppLocalizations.of(context)!.profile_screen_please_log_in,
+                style: TextStyle(color: MyTheme.font_grey),
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Container(
+                  width: 150,
+                  child: CustomButton(
+                    onPressed: () {
+                      onTapLogout(context);
+                    },
+                    title: "Log out",
+                    bgColor: MyTheme.yellow,
                   ),
-                  SizedBox(height: 20,),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Container(
-                      width: 150,
-                      child: CustomButton(
-                        onPressed: (){
-                          onTapLogout(context);
-                        },
-                        title: "Log out",
-                        bgColor: MyTheme.yellow,
-                      ),
-                    ),
-                  )
-                ],
+                ),
               )
-          ));
+            ],
+          )));
     } else {
       return Column(
         children: [
@@ -226,38 +236,23 @@ class _ProfileState extends State<Profile> {
                         height: 30,
                         width: 30,
                         color: Colors.teal,
-                        child: Icon(Icons.person_outline,color: Colors.white,),
+                        child: Icon(
+                          Icons.person_outline,
+                          color: Colors.white,
+                        ),
                       ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: Text("Full Name",style: TextStyle(fontSize: 15),),
+                        child: Text(
+                          "Full Name",
+                          style: TextStyle(fontSize: 15),
+                        ),
                       ),
                       Container(
                           width: 220,
                           alignment: Alignment.centerRight,
-                          child: Text("${user_name.$}",textAlign:TextAlign.end,style: TextStyle(fontSize: 13)))
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        height: 30,
-                        width: 30,
-                        color: Colors.teal,
-                        child: Icon(Icons.phone,color: Colors.white,),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text("Phone",style: TextStyle(fontSize: 15),),
-                      ),
-                      Container(
-                          width: 240,
-                          alignment: Alignment.centerRight,
-                          child: Text(user_phone.$ != "" && user_phone.$ != null?user_phone.$:'',textAlign: TextAlign.end,
+                          child: Text("${user_name.$}",
+                              textAlign: TextAlign.end,
                               style: TextStyle(fontSize: 13)))
                     ],
                   ),
@@ -271,19 +266,27 @@ class _ProfileState extends State<Profile> {
                         height: 30,
                         width: 30,
                         color: Colors.teal,
-                        child: Icon(Icons.email_outlined,color: Colors.white,),
+                        child: Icon(
+                          Icons.phone,
+                          color: Colors.white,
+                        ),
                       ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: Text("Email Address",style: TextStyle(fontSize: 15),),
+                        child: Text(
+                          "Phone",
+                          style: TextStyle(fontSize: 15),
+                        ),
                       ),
-                      Expanded(
-                        child: Container(
-                           // width: 200,
-                            alignment: Alignment.centerRight,
-                            child: Text(user_email.$ != "" && user_email.$ != null?
-                            user_email.$:'',textAlign: TextAlign.end,style: TextStyle(fontSize: 13))),
-                      )
+                      Container(
+                          width: 240,
+                          alignment: Alignment.centerRight,
+                          child: Text(
+                              user_phone.$ != "" && user_phone.$ != null
+                                  ? user_phone.$
+                                  : '',
+                              textAlign: TextAlign.end,
+                              style: TextStyle(fontSize: 13)))
                     ],
                   ),
                 ),
@@ -292,25 +295,32 @@ class _ProfileState extends State<Profile> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                     Row(
-                       children: [
-                         Container(
-                           height: 30,
-                           width: 30,
-                           color: Colors.teal,
-                           child: Icon(Icons.location_on_outlined,color: Colors.white,),
-                         ),
-                         Padding(
-                           padding: const EdgeInsets.all(8.0),
-                           child: Text("Shipping",style: TextStyle(fontSize: 15),),
-                         ),
-                       ],
-                     ),
+                      Container(
+                        height: 30,
+                        width: 30,
+                        color: Colors.teal,
+                        child: Icon(
+                          Icons.email_outlined,
+                          color: Colors.white,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          "Email Address",
+                          style: TextStyle(fontSize: 15),
+                        ),
+                      ),
                       Expanded(
                         child: Container(
-                          // width: 200,
+                            // width: 200,
                             alignment: Alignment.centerRight,
-                            child: Text(shippingAddress,textAlign:TextAlign.end,maxLines:2,style: TextStyle(fontSize: 13))),
+                            child: Text(
+                                user_email.$ != "" && user_email.$ != null
+                                    ? user_email.$
+                                    : '',
+                                textAlign: TextAlign.end,
+                                style: TextStyle(fontSize: 13))),
                       )
                     ],
                   ),
@@ -326,19 +336,28 @@ class _ProfileState extends State<Profile> {
                             height: 30,
                             width: 30,
                             color: Colors.teal,
-                            child: Icon(Icons.location_on_outlined,color: Colors.white,),
+                            child: Icon(
+                              Icons.location_on_outlined,
+                              color: Colors.white,
+                            ),
                           ),
                           Padding(
                             padding: const EdgeInsets.all(8.0),
-                            child: Text("Delivery",style: TextStyle(fontSize: 15),),
+                            child: Text(
+                              "Shipping",
+                              style: TextStyle(fontSize: 15),
+                            ),
                           ),
                         ],
                       ),
                       Expanded(
                         child: Container(
-                           // width: 180,
+                            // width: 200,
                             alignment: Alignment.centerRight,
-                            child: Text(shippingAddress,textAlign:TextAlign.end,maxLines:2,style: TextStyle(fontSize: 13))),
+                            child: Text(shippingAddress,
+                                textAlign: TextAlign.end,
+                                maxLines: 2,
+                                style: TextStyle(fontSize: 13))),
                       )
                     ],
                   ),
@@ -354,11 +373,54 @@ class _ProfileState extends State<Profile> {
                             height: 30,
                             width: 30,
                             color: Colors.teal,
-                            child: Icon(Icons.star,color: Colors.white,),
+                            child: Icon(
+                              Icons.location_on_outlined,
+                              color: Colors.white,
+                            ),
                           ),
                           Padding(
                             padding: const EdgeInsets.all(8.0),
-                            child: Text("My Order",style: TextStyle(fontSize: 15),),
+                            child: Text(
+                              "Delivery",
+                              style: TextStyle(fontSize: 15),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Expanded(
+                        child: Container(
+                            // width: 180,
+                            alignment: Alignment.centerRight,
+                            child: Text(shippingAddress,
+                                textAlign: TextAlign.end,
+                                maxLines: 2,
+                                style: TextStyle(fontSize: 13))),
+                      )
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            height: 30,
+                            width: 30,
+                            color: Colors.teal,
+                            child: Icon(
+                              Icons.star,
+                              color: Colors.white,
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                              "My Order",
+                              style: TextStyle(fontSize: 15),
+                            ),
                           ),
                         ],
                       ),
@@ -368,19 +430,23 @@ class _ProfileState extends State<Profile> {
                           width: 50,
                           height: 25,
                           alignment: Alignment.centerRight,
-                          child:  CustomButton(onPressed:(){
-                            Navigator.push(context, MaterialPageRoute(builder: (context) {
-                              return OrderList();
-                            }));
-                          },title: '\tVIEW\t',bgColor: MyTheme.yellow,
-                          )
-                      )
+                          child: CustomButton(
+                            onPressed: () {
+                              Navigator.push(context,
+                                  MaterialPageRoute(builder: (context) {
+                                return OrderList();
+                              }));
+                            },
+                            title: '\tVIEW\t',
+                            bgColor: MyTheme.yellow,
+                          ))
                     ],
                   ),
                 ),
                 InkWell(
-                  onTap: (){
-                    Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  onTap: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) {
                       return ProfileEdit();
                     })).then((value) {
                       onPopped(value);
@@ -394,13 +460,19 @@ class _ProfileState extends State<Profile> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.edit,color: Colors.white,),Text('Edit Profile',style: TextStyle(fontSize:13,color: Colors.white),)
+                          Icon(
+                            Icons.edit,
+                            color: Colors.white,
+                          ),
+                          Text(
+                            'Edit Profile',
+                            style: TextStyle(fontSize: 13, color: Colors.white),
+                          )
                         ],
                       ),
                     ),
                   ),
                 )
-
               ],
             ),
           ),
@@ -471,7 +543,7 @@ class _ProfileState extends State<Profile> {
               Padding(
                 padding: const EdgeInsets.only(top: 8),
                 child: Text(
-                  AppLocalizations.of(context).profile_screen_orders,
+                  AppLocalizations.of(context)!.profile_screen_orders,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                       color: MyTheme.font_grey, fontWeight: FontWeight.w300),
@@ -507,7 +579,7 @@ class _ProfileState extends State<Profile> {
               Padding(
                 padding: const EdgeInsets.only(top: 8),
                 child: Text(
-                  AppLocalizations.of(context).profile_screen_profile,
+                  AppLocalizations.of(context)!.profile_screen_profile,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                       color: MyTheme.font_grey, fontWeight: FontWeight.w300),
@@ -541,7 +613,7 @@ class _ProfileState extends State<Profile> {
               Padding(
                 padding: const EdgeInsets.only(top: 8),
                 child: Text(
-                  AppLocalizations.of(context).profile_screen_address,
+                  AppLocalizations.of(context)!.profile_screen_address,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                       color: MyTheme.font_grey, fontWeight: FontWeight.w300),
@@ -593,8 +665,9 @@ class _ProfileState extends State<Profile> {
         children: [
           InkWell(
             onTap: () {
-              ToastComponent.showDialog(AppLocalizations.of(context).common_coming_soon, context,
-                  gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+              ToastComponent.showDialog(
+                  AppLocalizations.of(context)!.common_coming_soon, context,
+                  gravity: Toast.center, duration: Toast.lengthLong);
             },
             child: Visibility(
               visible: false,
@@ -619,7 +692,8 @@ class _ProfileState extends State<Profile> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: Text(
-                        AppLocalizations.of(context).profile_screen_notification,
+                        AppLocalizations.of(context)!
+                            .profile_screen_notification,
                         textAlign: TextAlign.center,
                         style:
                             TextStyle(color: MyTheme.font_grey, fontSize: 14),
@@ -657,7 +731,8 @@ class _ProfileState extends State<Profile> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     child: Text(
-                      AppLocalizations.of(context).profile_screen_purchase_history,
+                      AppLocalizations.of(context)!
+                          .profile_screen_purchase_history,
                       textAlign: TextAlign.center,
                       style: TextStyle(color: MyTheme.font_grey, fontSize: 14),
                     ),
@@ -695,7 +770,8 @@ class _ProfileState extends State<Profile> {
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16.0),
                           child: Text(
-                            AppLocalizations.of(context).profile_screen_earning_points,
+                            AppLocalizations.of(context)!
+                                .profile_screen_earning_points,
                             textAlign: TextAlign.center,
                             style: TextStyle(
                                 color: MyTheme.font_grey, fontSize: 14),
@@ -708,43 +784,44 @@ class _ProfileState extends State<Profile> {
               : Container(),
           refund_addon_installed.$
               ? InkWell(
-            onTap: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) {
-                    return RefundRequest();
-                  }));
-            },
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 16.0),
-              child: Row(
-                children: [
-                  Container(
-                      height: 40,
-                      width: 40,
-                      decoration: BoxDecoration(
-                        color: Colors.pinkAccent,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Icon(
-                          Icons.double_arrow,
-                          color: Colors.white,
-                        ),
-                      )),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Text(
-                      AppLocalizations.of(context).profile_screen_refund_requests,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          color: MyTheme.font_grey, fontSize: 14),
+                  onTap: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) {
+                      return RefundRequest();
+                    }));
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 16.0),
+                    child: Row(
+                      children: [
+                        Container(
+                            height: 40,
+                            width: 40,
+                            decoration: BoxDecoration(
+                              color: Colors.pinkAccent,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Icon(
+                                Icons.double_arrow,
+                                color: Colors.white,
+                              ),
+                            )),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          child: Text(
+                            AppLocalizations.of(context)!
+                                .profile_screen_refund_requests,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                color: MyTheme.font_grey, fontSize: 14),
+                          ),
+                        )
+                      ],
                     ),
-                  )
-                ],
-              ),
-            ),
-          )
+                  ),
+                )
               : Container(),
         ],
       ),
@@ -770,7 +847,7 @@ class _ProfileState extends State<Profile> {
             Padding(
                 padding: const EdgeInsets.only(top: 4.0),
                 child: Text(
-                  AppLocalizations.of(context).profile_screen_in_your_cart,
+                  AppLocalizations.of(context)!.profile_screen_in_your_cart,
                   style: TextStyle(
                     color: MyTheme.medium_grey,
                   ),
@@ -792,7 +869,7 @@ class _ProfileState extends State<Profile> {
             Padding(
                 padding: const EdgeInsets.only(top: 4.0),
                 child: Text(
-                  AppLocalizations.of(context).profile_screen_in_wishlist,
+                  AppLocalizations.of(context)!.profile_screen_in_wishlist,
                   style: TextStyle(
                     color: MyTheme.medium_grey,
                   ),
@@ -814,7 +891,7 @@ class _ProfileState extends State<Profile> {
             Padding(
                 padding: const EdgeInsets.only(top: 4.0),
                 child: Text(
-                  AppLocalizations.of(context).profile_screen_in_ordered,
+                  AppLocalizations.of(context)!.profile_screen_in_ordered,
                   style: TextStyle(
                     color: MyTheme.medium_grey,
                   ),
@@ -861,16 +938,13 @@ class _ProfileState extends State<Profile> {
         ),
         Padding(
             padding: const EdgeInsets.only(top: 4.0),
-            child:
-                Text(
-                  //if user email is not available then check user phone if user phone is not available use empty string
-                    "${user_email.$ != "" && user_email.$ != null?
-                    user_email.$:user_phone.$ != "" && user_phone.$ != null?user_phone.$:''}",
-                    style: TextStyle(
-                      color: MyTheme.medium_grey,
-                    ),
-                  )
-        ),
+            child: Text(
+              //if user email is not available then check user phone if user phone is not available use empty string
+              "${user_email.$ != "" && user_email.$ != null ? user_email.$ : user_phone.$ != "" && user_phone.$ != null ? user_phone.$ : ''}",
+              style: TextStyle(
+                color: MyTheme.medium_grey,
+              ),
+            )),
         Padding(
           padding: const EdgeInsets.only(top: 16.0),
           child: Container(
@@ -886,7 +960,7 @@ class _ProfileState extends State<Profile> {
                 bottomRight: const Radius.circular(16.0),
               )),
               child: Text(
-                AppLocalizations.of(context).profile_screen_check_balance,
+                AppLocalizations.of(context)!.profile_screen_check_balance,
                 style: TextStyle(
                     color: Colors.white,
                     fontSize: 11,

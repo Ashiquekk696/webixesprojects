@@ -9,14 +9,13 @@ import 'package:webixes/screens/order_list.dart';
 import 'package:webixes/screens/wallet.dart';
 import 'package:webixes/helpers/shared_value_helper.dart';
 
-
 class FlutterwaveScreen extends StatefulWidget {
   double amount;
   String payment_type;
   String payment_method_key;
 
   FlutterwaveScreen(
-      {Key key,
+      {Key? key,
       this.amount = 0.00,
       this.payment_type = "",
       this.payment_method_key = ""})
@@ -32,7 +31,7 @@ class _FlutterwaveScreenState extends State<FlutterwaveScreen> {
   String _initial_url = "";
   bool _initial_url_fetched = false;
 
-  WebViewController _webViewController;
+  WebViewController? _webViewController;
 
   @override
   void initState() {
@@ -54,13 +53,13 @@ class _FlutterwaveScreenState extends State<FlutterwaveScreen> {
         .getOrderCreateResponse(widget.payment_method_key);
 
     if (orderCreateResponse.result == false) {
-      ToastComponent.showDialog(orderCreateResponse.message, context,
-          gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+      ToastComponent.showDialog(orderCreateResponse.message ?? "", context,
+          gravity: Toast.center, duration: Toast.lengthLong);
       Navigator.of(context).pop();
       return;
     }
 
-    _combined_order_id = orderCreateResponse.combined_order_id;
+    _combined_order_id = orderCreateResponse.combined_order_id ?? 0;
     _order_init = true;
     setState(() {});
 
@@ -68,20 +67,19 @@ class _FlutterwaveScreenState extends State<FlutterwaveScreen> {
   }
 
   getSetInitialUrl() async {
-
-    var flutterwaveUrlResponse = await PaymentRepository().getFlutterwaveUrlResponse(
-        widget.payment_type, _combined_order_id, widget.amount);
+    var flutterwaveUrlResponse = await PaymentRepository()
+        .getFlutterwaveUrlResponse(
+            widget.payment_type, _combined_order_id, widget.amount);
 
     if (flutterwaveUrlResponse.result == false) {
-      ToastComponent.showDialog(flutterwaveUrlResponse.message, context,
-          gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+      ToastComponent.showDialog(flutterwaveUrlResponse.message ?? '', context,
+          gravity: Toast.center, duration: Toast.lengthLong);
       Navigator.of(context).pop();
       return;
     }
 
-    _initial_url = flutterwaveUrlResponse.url;
+    _initial_url = flutterwaveUrlResponse.url ?? '';
     _initial_url_fetched = true;
-
 
     setState(() {});
 
@@ -101,33 +99,33 @@ class _FlutterwaveScreenState extends State<FlutterwaveScreen> {
     );
   }
 
-  void getData() {
-    _webViewController
-        .evaluateJavascript("document.body.innerText")
-        .then((data) {
-      var decodedJSON = jsonDecode(data);
-      Map<String, dynamic> responseJSON = jsonDecode(decodedJSON);
-      //print(data.toString());
-      if (responseJSON["result"] == false) {
-        Toast.show(responseJSON["message"], context,
-            duration: Toast.LENGTH_LONG, gravity: Toast.CENTER);
-        Navigator.pop(context);
-      } else if (responseJSON["result"] == true) {
-        Toast.show(responseJSON["message"], context,
-            duration: Toast.LENGTH_LONG, gravity: Toast.CENTER);
+  // void getData() {
+  //   _webViewController
+  //       .evaluateJavascript("document.body.innerText")
+  //       .then((data) {
+  //     var decodedJSON = jsonDecode(data);
+  //     Map<String, dynamic> responseJSON = jsonDecode(decodedJSON);
+  //     //print(data.toString());
+  //     if (responseJSON["result"] == false) {
+  //       Toast.show(responseJSON["message"], context,
+  //           duration: Toast.LENGTH_LONG, gravity: Toast.CENTER);
+  //       Navigator.pop(context);
+  //     } else if (responseJSON["result"] == true) {
+  //       Toast.show(responseJSON["message"], context,
+  //           duration: Toast.LENGTH_LONG, gravity: Toast.CENTER);
 
-        if (widget.payment_type == "cart_payment") {
-          Navigator.push(context, MaterialPageRoute(builder: (context) {
-            return OrderList(from_checkout: true);
-          }));
-        } else if (widget.payment_type == "wallet_payment") {
-          Navigator.push(context, MaterialPageRoute(builder: (context) {
-            return Wallet(from_recharge: true);
-          }));
-        }
-      }
-    });
-  }
+  //       if (widget.payment_type == "cart_payment") {
+  //         Navigator.push(context, MaterialPageRoute(builder: (context) {
+  //           return OrderList(from_checkout: true);
+  //         }));
+  //       } else if (widget.payment_type == "wallet_payment") {
+  //         Navigator.push(context, MaterialPageRoute(builder: (context) {
+  //           return Wallet(from_recharge: true);
+  //         }));
+  //       }
+  //     }
+  //   });
+  // }
 
   buildBody() {
     if (_order_init == false &&
@@ -154,7 +152,7 @@ class _FlutterwaveScreenState extends State<FlutterwaveScreen> {
             javascriptMode: JavascriptMode.unrestricted,
             onWebViewCreated: (controller) {
               _webViewController = controller;
-              _webViewController.loadUrl(_initial_url);
+              //    _webViewController.loadUrl(_initial_url);
             },
             onWebResourceError: (error) {
               //(error.description);
@@ -164,7 +162,7 @@ class _FlutterwaveScreenState extends State<FlutterwaveScreen> {
               //print(page.toString());
 
               if (page.contains("/flutterwave/payment/callback")) {
-                getData();
+                //getData();
               }
             },
           ),
@@ -175,7 +173,7 @@ class _FlutterwaveScreenState extends State<FlutterwaveScreen> {
 
   AppBar buildAppBar(BuildContext context) {
     return AppBar(
-backgroundColor: Colors.white,
+      backgroundColor: Colors.white,
       centerTitle: true,
       leading: Builder(
         builder: (context) => IconButton(

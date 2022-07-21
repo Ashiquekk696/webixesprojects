@@ -5,15 +5,13 @@ class DialogBuilder {
 
   final BuildContext context;
 
-  void showLoadingIndicator([String text]) {
+  void showLoadingIndicator([String? text]) {
     showDialog(
       context: context,
       //barrierDismissible: true,
       builder: (BuildContext context) {
         return WillPopScope(
-            onWillPop: () async => true,
-            child: LoadingIndicator()
-        );
+            onWillPop: () async => true, child: LoadingIndicator());
       },
     );
   }
@@ -23,7 +21,7 @@ class DialogBuilder {
   }
 }
 
-class LoadingIndicator extends StatelessWidget{
+class LoadingIndicator extends StatelessWidget {
   const LoadingIndicator({this.text = ''});
 
   final String text;
@@ -31,7 +29,7 @@ class LoadingIndicator extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
     var displayedText = text;
-    return  AlertDialog(
+    return AlertDialog(
       backgroundColor: Colors.transparent,
       elevation: 0,
       content: Container(
@@ -44,54 +42,38 @@ class LoadingIndicator extends StatelessWidget{
         padding: const EdgeInsets.all(8.0),
         color: Colors.white,
         height: 55,
-        child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _getLoadingIndicator(),
-              _getHeading(context),
-              //_getText(displayedText)
-            ]
-        )
-    );
+        child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+          _getLoadingIndicator(),
+          _getHeading(context),
+          //_getText(displayedText)
+        ]));
   }
 
   Padding _getLoadingIndicator() {
-    return
-     Padding(
+    return Padding(
         child: SizedBox(
             child: CircularProgressIndicator(
                 strokeWidth: 5,
-                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF2F4697))
-            ),
+                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF2F4697))),
             width: 40,
-            height: 40
-        ),
-        padding: EdgeInsets.only(bottom: 1)
-
-    );
+            height: 40),
+        padding: EdgeInsets.only(bottom: 1));
   }
 
   Widget _getHeading(context) {
     return const Padding(
         child: Text(
           'Please wait …',
-          style: TextStyle(
-              color: Colors.black,
-              fontSize: 16
-          ),
+          style: TextStyle(color: Colors.black, fontSize: 16),
           textAlign: TextAlign.center,
         ),
-        padding: EdgeInsets.only(bottom: 4)
-    );
+        padding: EdgeInsets.only(bottom: 4));
   }
 
   Text _getText(String displayedText) {
     return Text(
       displayedText,
-      style: const TextStyle(
-          color: Colors.black,
-          fontSize: 14
-      ),
+      style: const TextStyle(color: Colors.black, fontSize: 14),
       textAlign: TextAlign.center,
     );
   }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:webixes/my_theme.dart';
-import 'package:flutter_icons/flutter_icons.dart';
 import 'package:timeline_tile/timeline_tile.dart';
 import 'package:webixes/repositories/order_repository.dart';
 import 'package:webixes/helpers/shimmer_helper.dart';
@@ -15,12 +14,12 @@ import 'package:webixes/helpers/shared_value_helper.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class OrderDetails extends StatefulWidget {
-  int id;
-  final bool from_notification;
-  bool go_back;
+  int? id;
+  final bool? from_notification;
+  bool? go_back;
 
   OrderDetails(
-      {Key key, this.id, this.from_notification = false, this.go_back = true})
+      {Key? key, this.id, this.from_notification = false, this.go_back = true})
       : super(key: key);
 
   @override
@@ -60,10 +59,10 @@ class _OrderDetailsState extends State<OrderDetails> {
 
   fetchOrderDetails() async {
     var orderDetailsResponse =
-        await OrderRepository().getOrderDetails(id: widget.id);
+        await OrderRepository().getOrderDetails(id: widget.id ?? 0);
 
-    if (orderDetailsResponse.detailed_orders.length > 0) {
-      _orderDetails = orderDetailsResponse.detailed_orders[0];
+    if ((orderDetailsResponse.detailed_orders?.length ?? 0) > 0) {
+      _orderDetails = orderDetailsResponse.detailed_orders?[0];
       setStepIndex(_orderDetails.delivery_status);
     }
 
@@ -77,8 +76,8 @@ class _OrderDetailsState extends State<OrderDetails> {
 
   fetchOrderedItems() async {
     var orderItemResponse =
-        await OrderRepository().getOrderItems(id: widget.id);
-    _orderedItemList.addAll(orderItemResponse.ordered_items);
+        await OrderRepository().getOrderItems(id: widget.id ?? 0);
+    _orderedItemList.addAll(orderItemResponse.ordered_items ?? []);
     _orderItemsInit = true;
 
     setState(() {});
@@ -100,7 +99,7 @@ class _OrderDetailsState extends State<OrderDetails> {
   onPressOfflinePaymentButton() {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
       return Checkout(
-        order_id: widget.id,
+        order_id: widget.id ?? 0,
         list: "offline",
         manual_payment_from_order_details: true,
       );
@@ -129,7 +128,9 @@ class _OrderDetailsState extends State<OrderDetails> {
                         padding: const EdgeInsets.only(bottom: 8.0),
                         child: Row(
                           children: [
-                            Text(AppLocalizations.of(context).order_details_screen_refund_product_name,
+                            Text(
+                                AppLocalizations.of(context)!
+                                    .order_details_screen_refund_product_name,
                                 style: TextStyle(
                                     color: MyTheme.font_grey, fontSize: 12)),
                             Container(
@@ -151,7 +152,9 @@ class _OrderDetailsState extends State<OrderDetails> {
                         padding: const EdgeInsets.only(bottom: 8.0),
                         child: Row(
                           children: [
-                            Text(AppLocalizations.of(context).order_details_screen_refund_order_code,
+                            Text(
+                                AppLocalizations.of(context)!
+                                    .order_details_screen_refund_order_code,
                                 style: TextStyle(
                                     color: MyTheme.font_grey, fontSize: 12)),
                             Padding(
@@ -167,7 +170,8 @@ class _OrderDetailsState extends State<OrderDetails> {
                         padding: const EdgeInsets.only(bottom: 8.0),
                         child: Row(
                           children: [
-                            Text("${AppLocalizations.of(context).order_details_screen_refund_reason} *",
+                            Text(
+                                "${AppLocalizations.of(context)!.order_details_screen_refund_reason} *",
                                 style: TextStyle(
                                     color: MyTheme.font_grey, fontSize: 12)),
                             _showReasonWarning
@@ -175,7 +179,9 @@ class _OrderDetailsState extends State<OrderDetails> {
                                     padding: const EdgeInsets.only(
                                       left: 8.0,
                                     ),
-                                    child: Text(AppLocalizations.of(context).order_details_screen_refund_reason_empty_warning,
+                                    child: Text(
+                                        AppLocalizations.of(context)!
+                                            .order_details_screen_refund_reason_empty_warning,
                                         style: TextStyle(
                                             color: Colors.red, fontSize: 12)),
                                   )
@@ -193,7 +199,8 @@ class _OrderDetailsState extends State<OrderDetails> {
                             maxLines: null,
                             keyboardType: TextInputType.multiline,
                             decoration: InputDecoration(
-                                hintText: AppLocalizations.of(context).order_details_screen_refund_enter_reason,
+                                hintText: AppLocalizations.of(context)!
+                                    .order_details_screen_refund_enter_reason,
                                 hintStyle: TextStyle(
                                     fontSize: 12.0,
                                     color: MyTheme.textfield_grey),
@@ -237,7 +244,8 @@ class _OrderDetailsState extends State<OrderDetails> {
                             side: BorderSide(
                                 color: MyTheme.light_grey, width: 1.0)),
                         child: Text(
-                          AppLocalizations.of(context).common_close_in_all_capital,
+                          AppLocalizations.of(context)!
+                              .common_close_in_all_capital,
                           style: TextStyle(
                             color: MyTheme.font_grey,
                           ),
@@ -262,7 +270,7 @@ class _OrderDetailsState extends State<OrderDetails> {
                             side: BorderSide(
                                 color: MyTheme.light_grey, width: 1.0)),
                         child: Text(
-                          AppLocalizations.of(context).common_submit,
+                          AppLocalizations.of(context)!.common_submit,
                           style: TextStyle(
                               color: Colors.white,
                               fontSize: 16,
@@ -304,8 +312,9 @@ class _OrderDetailsState extends State<OrderDetails> {
         .getRefundRequestSendResponse(id: item_id, reason: reason);
 
     if (refundRequestSendResponse.result == false) {
-      ToastComponent.showDialog(refundRequestSendResponse.message, context,
-          gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+      ToastComponent.showDialog(
+          refundRequestSendResponse.message ?? "", context,
+          gravity: Toast.center, duration: Toast.lengthLong);
       return;
     }
 
@@ -314,13 +323,14 @@ class _OrderDetailsState extends State<OrderDetails> {
 
     Scaffold.of(context).showSnackBar(SnackBar(
       content: Text(
-        refundRequestSendResponse.message,
+        refundRequestSendResponse.message ?? "",
         style: TextStyle(color: MyTheme.font_grey),
       ),
       backgroundColor: MyTheme.soft_accent_color,
       duration: const Duration(seconds: 3),
       action: SnackBarAction(
-        label: AppLocalizations.of(context).order_details_screen_refund_snackbar_show_request_list,
+        label: AppLocalizations.of(context)!
+            .order_details_screen_refund_snackbar_show_request_list,
         onPressed: () {
           Navigator.push(context, MaterialPageRoute(builder: (context) {
             return RefundRequest();
@@ -345,91 +355,82 @@ class _OrderDetailsState extends State<OrderDetails> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () {
-        print(widget.from_notification);
-        //if (widget.from_notification || widget.go_back == false) {
-          Navigator.push(context, MaterialPageRoute(builder: (context) {
-            return Main();
-          }));
-        //}
-      },
-      child: Directionality(
-        textDirection:
-            app_language_rtl.$ ? TextDirection.rtl : TextDirection.ltr,
-        child: Scaffold(
+    return Directionality(
+      textDirection: app_language_rtl.$ ? TextDirection.rtl : TextDirection.ltr,
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        appBar: buildAppBar(context),
+        body: RefreshIndicator(
+          color: MyTheme.accent_color,
           backgroundColor: Colors.white,
-          appBar: buildAppBar(context),
-          body: RefreshIndicator(
-            color: MyTheme.accent_color,
-            backgroundColor: Colors.white,
-            onRefresh: _onPageRefresh,
-            child: CustomScrollView(
-              controller: _mainScrollController,
-              physics: const BouncingScrollPhysics(
-                  parent: AlwaysScrollableScrollPhysics()),
-              slivers: [
-                SliverToBoxAdapter(
-                  child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: _orderDetails != null
-                          ? buildTimeLineTiles()
-                          : buildTimeLineShimmer()),
-                ),
-                SliverList(
-                    delegate: SliverChildListDelegate([
-                  Padding(
+          onRefresh: _onPageRefresh,
+          child: CustomScrollView(
+            controller: _mainScrollController,
+            physics: const BouncingScrollPhysics(
+                parent: AlwaysScrollableScrollPhysics()),
+            slivers: [
+              SliverToBoxAdapter(
+                child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: _orderDetails != null
-                        ? buildOrderDetailsTopCard()
-                        : ShimmerHelper().buildBasicShimmer(height: 150.0),
+                        ? buildTimeLineTiles()
+                        : buildTimeLineShimmer()),
+              ),
+              SliverList(
+                  delegate: SliverChildListDelegate([
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: _orderDetails != null
+                      ? buildOrderDetailsTopCard()
+                      : ShimmerHelper().buildBasicShimmer(height: 150.0),
+                ),
+              ])),
+              SliverList(
+                  delegate: SliverChildListDelegate([
+                Center(
+                  child: Text(
+                    AppLocalizations.of(context)!
+                        .order_details_screen_ordered_product,
+                    style: TextStyle(
+                        color: MyTheme.font_grey,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600),
                   ),
-                ])),
-                SliverList(
-                    delegate: SliverChildListDelegate([
-                  Center(
-                    child: Text(
-                      AppLocalizations.of(context).order_details_screen_ordered_product,
-                      style: TextStyle(
-                          color: MyTheme.font_grey,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600),
-                    ),
-                  ),
-                  Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: _orderedItemList.length == 0 && _orderItemsInit
-                          ? ShimmerHelper().buildBasicShimmer(height: 100.0)
-                          : (_orderedItemList.length > 0
-                              ? buildOrderdProductList()
-                              : Container(
-                                  height: 100,
-                                  child: Text(
-                                    AppLocalizations.of(context).order_details_screen_ordered_product,
-                                    style: TextStyle(color: MyTheme.font_grey),
-                                  ),
-                                )))
-                ])),
-                SliverList(
-                    delegate: SliverChildListDelegate([
-                  Padding(
+                ),
+                Padding(
                     padding: const EdgeInsets.all(16.0),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          width: 75,
-                        ),
-                        buildBottomSection()
-                      ],
-                    ),
-                  )
-                ])),
-                SliverList(
-                    delegate:
-                        SliverChildListDelegate([buildPaymentButtonSection()]))
-              ],
-            ),
+                    child: _orderedItemList.length == 0 && _orderItemsInit
+                        ? ShimmerHelper().buildBasicShimmer(height: 100.0)
+                        : (_orderedItemList.length > 0
+                            ? buildOrderdProductList()
+                            : Container(
+                                height: 100,
+                                child: Text(
+                                  AppLocalizations.of(context)!
+                                      .order_details_screen_ordered_product,
+                                  style: TextStyle(color: MyTheme.font_grey),
+                                ),
+                              )))
+              ])),
+              SliverList(
+                  delegate: SliverChildListDelegate([
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 75,
+                      ),
+                      buildBottomSection()
+                    ],
+                  ),
+                )
+              ])),
+              SliverList(
+                  delegate:
+                      SliverChildListDelegate([buildPaymentButtonSection()]))
+            ],
           ),
         ),
       ),
@@ -448,7 +449,8 @@ class _OrderDetailsState extends State<OrderDetails> {
                         Container(
                           width: 120,
                           child: Text(
-                            AppLocalizations.of(context).order_details_screen_sub_total,
+                            AppLocalizations.of(context)!
+                                .order_details_screen_sub_total,
                             textAlign: TextAlign.end,
                             style: TextStyle(
                                 color: MyTheme.font_grey,
@@ -473,7 +475,8 @@ class _OrderDetailsState extends State<OrderDetails> {
                         Container(
                           width: 120,
                           child: Text(
-                            AppLocalizations.of(context).order_details_screen_tax,
+                            AppLocalizations.of(context)!
+                                .order_details_screen_tax,
                             textAlign: TextAlign.end,
                             style: TextStyle(
                                 color: MyTheme.font_grey,
@@ -498,7 +501,8 @@ class _OrderDetailsState extends State<OrderDetails> {
                         Container(
                           width: 120,
                           child: Text(
-                            AppLocalizations.of(context).order_details_screen_shipping_cost,
+                            AppLocalizations.of(context)!
+                                .order_details_screen_shipping_cost,
                             textAlign: TextAlign.end,
                             style: TextStyle(
                                 color: MyTheme.font_grey,
@@ -523,7 +527,8 @@ class _OrderDetailsState extends State<OrderDetails> {
                         Container(
                           width: 120,
                           child: Text(
-                            AppLocalizations.of(context).order_details_screen_discount,
+                            AppLocalizations.of(context)!
+                                .order_details_screen_discount,
                             textAlign: TextAlign.end,
                             style: TextStyle(
                                 color: MyTheme.font_grey,
@@ -549,7 +554,8 @@ class _OrderDetailsState extends State<OrderDetails> {
                         Container(
                           width: 120,
                           child: Text(
-                            AppLocalizations.of(context).order_details_screen_grand_total,
+                            AppLocalizations.of(context)!
+                                .order_details_screen_grand_total,
                             textAlign: TextAlign.end,
                             style: TextStyle(
                                 color: MyTheme.font_grey,
@@ -624,8 +630,9 @@ class _OrderDetailsState extends State<OrderDetails> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Container(
-                    width: _orderDetails.delivery_status == "pending"? 36: 30,
-                    height: _orderDetails.delivery_status == "pending"? 36: 30,
+                    width: _orderDetails.delivery_status == "pending" ? 36 : 30,
+                    height:
+                        _orderDetails.delivery_status == "pending" ? 36 : 30,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(5),
                       border: Border.all(color: Colors.redAccent, width: 2),
@@ -649,7 +656,8 @@ class _OrderDetailsState extends State<OrderDetails> {
                   Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Text(
-                      AppLocalizations.of(context).order_details_screen_timeline_tile_order_placed,
+                      AppLocalizations.of(context)!
+                          .order_details_screen_timeline_tile_order_placed,
                       textAlign: TextAlign.center,
                       style: TextStyle(color: MyTheme.font_grey),
                     ),
@@ -685,8 +693,10 @@ class _OrderDetailsState extends State<OrderDetails> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Container(
-                    width: _orderDetails.delivery_status == "confirmed"? 36: 30,
-                    height: _orderDetails.delivery_status == "confirmed"? 36: 30,
+                    width:
+                        _orderDetails.delivery_status == "confirmed" ? 36 : 30,
+                    height:
+                        _orderDetails.delivery_status == "confirmed" ? 36 : 30,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(5),
                       border: Border.all(color: Colors.blue, width: 2),
@@ -710,7 +720,8 @@ class _OrderDetailsState extends State<OrderDetails> {
                   Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Text(
-                      AppLocalizations.of(context).order_details_screen_timeline_tile_confirmed,
+                      AppLocalizations.of(context)!
+                          .order_details_screen_timeline_tile_confirmed,
                       textAlign: TextAlign.center,
                       style: TextStyle(color: MyTheme.font_grey),
                     ),
@@ -755,8 +766,12 @@ class _OrderDetailsState extends State<OrderDetails> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Container(
-                    width: _orderDetails.delivery_status == "on_delivery"? 36: 30,
-                    height: _orderDetails.delivery_status == "on_delivery"? 36: 30,
+                    width: _orderDetails.delivery_status == "on_delivery"
+                        ? 36
+                        : 30,
+                    height: _orderDetails.delivery_status == "on_delivery"
+                        ? 36
+                        : 30,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(5),
                       border: Border.all(color: Colors.amber, width: 2),
@@ -780,7 +795,8 @@ class _OrderDetailsState extends State<OrderDetails> {
                   Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Text(
-                      AppLocalizations.of(context).order_details_screen_timeline_tile_on_delivery,
+                      AppLocalizations.of(context)!
+                          .order_details_screen_timeline_tile_on_delivery,
                       textAlign: TextAlign.center,
                       style: TextStyle(color: MyTheme.font_grey),
                     ),
@@ -826,8 +842,10 @@ class _OrderDetailsState extends State<OrderDetails> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Container(
-                    width: _orderDetails.delivery_status == "delivered"? 36: 30,
-                    height: _orderDetails.delivery_status == "delivered"? 36: 30,
+                    width:
+                        _orderDetails.delivery_status == "delivered" ? 36 : 30,
+                    height:
+                        _orderDetails.delivery_status == "delivered" ? 36 : 30,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(5),
                       border: Border.all(color: Colors.purple, width: 2),
@@ -851,7 +869,8 @@ class _OrderDetailsState extends State<OrderDetails> {
                   Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Text(
-                      AppLocalizations.of(context).order_details_screen_timeline_tile_delivered,
+                      AppLocalizations.of(context)!
+                          .order_details_screen_timeline_tile_delivered,
                       textAlign: TextAlign.center,
                       style: TextStyle(color: MyTheme.font_grey),
                     ),
@@ -1020,7 +1039,9 @@ class _OrderDetailsState extends State<OrderDetails> {
             Row(
               children: [
                 Text(
-                  _orderDetails.shipping_address != null ?"Shipping Address":"Pickup Point",
+                  _orderDetails.shipping_address != null
+                      ? "Shipping Address"
+                      : "Pickup Point",
                   style: TextStyle(
                       color: MyTheme.font_grey,
                       fontSize: 13,
@@ -1043,101 +1064,100 @@ class _OrderDetailsState extends State<OrderDetails> {
                   Container(
                     width: (MediaQuery.of(context).size.width - (32.0)) / 2,
                     // (total_screen_width - padding)/2
-                    child:_orderDetails.shipping_address != null ?
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _orderDetails.shipping_address.name != null
-                            ? Text(
-                                "${AppLocalizations.of(context).order_details_screen_name}: ${_orderDetails.shipping_address.name}",
+                    child: _orderDetails.shipping_address != null
+                        ? Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _orderDetails.shipping_address.name != null
+                                  ? Text(
+                                      "${AppLocalizations.of(context)!.order_details_screen_name}: ${_orderDetails.shipping_address.name}",
+                                      maxLines: 3,
+                                      style: TextStyle(
+                                        color: MyTheme.grey_153,
+                                      ),
+                                    )
+                                  : Container(),
+                              _orderDetails.shipping_address.email != null
+                                  ? Text(
+                                      "${AppLocalizations.of(context)!.order_details_screen_email}: ${_orderDetails.shipping_address.email}",
+                                      maxLines: 3,
+                                      style: TextStyle(
+                                        color: MyTheme.grey_153,
+                                      ),
+                                    )
+                                  : Container(),
+                              Text(
+                                "${AppLocalizations.of(context)!.order_details_screen_address}: ${_orderDetails.shipping_address.address}",
                                 maxLines: 3,
                                 style: TextStyle(
                                   color: MyTheme.grey_153,
                                 ),
-                              )
-                            : Container(),
-                        _orderDetails.shipping_address.email != null
-                            ? Text(
-                                "${AppLocalizations.of(context).order_details_screen_email}: ${_orderDetails.shipping_address.email}",
+                              ),
+                              Text(
+                                "${AppLocalizations.of(context)!.order_details_screen_city}: ${_orderDetails.shipping_address.city}",
                                 maxLines: 3,
                                 style: TextStyle(
                                   color: MyTheme.grey_153,
                                 ),
-                              )
-                            : Container(),
-                        Text(
-                          "${AppLocalizations.of(context).order_details_screen_address}: ${_orderDetails.shipping_address.address}",
-                          maxLines: 3,
-                          style: TextStyle(
-                            color: MyTheme.grey_153,
+                              ),
+                              Text(
+                                "${AppLocalizations.of(context)!.order_details_screen_country}: ${_orderDetails.shipping_address.country}",
+                                maxLines: 3,
+                                style: TextStyle(
+                                  color: MyTheme.grey_153,
+                                ),
+                              ),
+                              Text(
+                                "${AppLocalizations.of(context)!.order_details_screen_state}: ${_orderDetails.shipping_address.state}",
+                                maxLines: 3,
+                                style: TextStyle(
+                                  color: MyTheme.grey_153,
+                                ),
+                              ),
+                              Text(
+                                "${AppLocalizations.of(context)!.order_details_screen_phone}: ${_orderDetails.shipping_address.phone}",
+                                maxLines: 3,
+                                style: TextStyle(
+                                  color: MyTheme.grey_153,
+                                ),
+                              ),
+                              Text(
+                                "${AppLocalizations.of(context)!.order_details_screen_postal_code}: ${_orderDetails.shipping_address.postal_code}",
+                                maxLines: 3,
+                                style: TextStyle(
+                                  color: MyTheme.grey_153,
+                                ),
+                              ),
+                            ],
+                          )
+                        : Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _orderDetails.pickupPoint.name != null
+                                  ? Text(
+                                      "${AppLocalizations.of(context)!.order_details_screen_name}: ${_orderDetails.pickupPoint.name}",
+                                      maxLines: 3,
+                                      style: TextStyle(
+                                        color: MyTheme.grey_153,
+                                      ),
+                                    )
+                                  : Container(),
+                              Text(
+                                "${AppLocalizations.of(context)!.order_details_screen_address}: ${_orderDetails.pickupPoint.address}",
+                                maxLines: 3,
+                                style: TextStyle(
+                                  color: MyTheme.grey_153,
+                                ),
+                              ),
+                              Text(
+                                "${AppLocalizations.of(context)!.address_screen_phone}: ${_orderDetails.pickupPoint.phone}",
+                                maxLines: 3,
+                                style: TextStyle(
+                                  color: MyTheme.grey_153,
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                        Text(
-                          "${AppLocalizations.of(context).order_details_screen_city}: ${_orderDetails.shipping_address.city}",
-                          maxLines: 3,
-                          style: TextStyle(
-                            color: MyTheme.grey_153,
-                          ),
-                        ),
-                        Text(
-                          "${AppLocalizations.of(context).order_details_screen_country}: ${_orderDetails.shipping_address.country}",
-                          maxLines: 3,
-                          style: TextStyle(
-                            color: MyTheme.grey_153,
-                          ),
-                        ),
-                        Text(
-                          "${AppLocalizations.of(context).order_details_screen_state}: ${_orderDetails.shipping_address.state}",
-                          maxLines: 3,
-                          style: TextStyle(
-                            color: MyTheme.grey_153,
-                          ),
-                        ),
-                        Text(
-                          "${AppLocalizations.of(context).order_details_screen_phone}: ${_orderDetails.shipping_address.phone}",
-                          maxLines: 3,
-                          style: TextStyle(
-                            color: MyTheme.grey_153,
-                          ),
-                        ),
-                        Text(
-                          "${AppLocalizations.of(context).order_details_screen_postal_code}: ${_orderDetails.shipping_address.postal_code}",
-                          maxLines: 3,
-                          style: TextStyle(
-                            color: MyTheme.grey_153,
-                          ),
-                        ),
-                      ],
-                    ):
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _orderDetails.pickupPoint.name != null
-                            ? Text(
-                          "${AppLocalizations.of(context).order_details_screen_name}: ${_orderDetails.pickupPoint.name}",
-                          maxLines: 3,
-                          style: TextStyle(
-                            color: MyTheme.grey_153,
-                          ),
-                        )
-                            : Container(),
-                        Text(
-                          "${AppLocalizations.of(context).order_details_screen_address}: ${_orderDetails.pickupPoint.address}",
-                          maxLines: 3,
-                          style: TextStyle(
-                            color: MyTheme.grey_153,
-                          ),
-                        ),
-                        Text(
-                          "${AppLocalizations.of(context).address_screen_phone}: ${_orderDetails.pickupPoint.phone}",
-                          maxLines: 3,
-                          style: TextStyle(
-                            color: MyTheme.grey_153,
-                          ),
-                        ),
-
-                      ],
-                    ),
                   ),
                   Spacer(),
                   Text(
@@ -1231,7 +1251,8 @@ class _OrderDetailsState extends State<OrderDetails> {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           Text(
-                            AppLocalizations.of(context).order_details_screen_ask_for_refund,
+                            AppLocalizations.of(context)!
+                                .order_details_screen_ask_for_refund,
                             style: TextStyle(
                                 color: MyTheme.accent_color,
                                 fontWeight: FontWeight.w600,
@@ -1240,7 +1261,7 @@ class _OrderDetailsState extends State<OrderDetails> {
                           Padding(
                             padding: const EdgeInsets.only(left: 2.0),
                             child: Icon(
-                              FontAwesome.rotate_left,
+                              Icons.rotate_left,
                               color: MyTheme.accent_color,
                               size: 14,
                             ),
@@ -1259,7 +1280,8 @@ class _OrderDetailsState extends State<OrderDetails> {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Text(
-                            AppLocalizations.of(context).order_details_screen_refund_status,
+                            AppLocalizations.of(context)!
+                                .order_details_screen_refund_status,
                             style: TextStyle(color: MyTheme.font_grey),
                           ),
                           Text(
@@ -1317,7 +1339,7 @@ class _OrderDetailsState extends State<OrderDetails> {
         builder: (context) => IconButton(
             icon: Icon(Icons.arrow_back, color: MyTheme.dark_grey),
             onPressed: () {
-              if (widget.from_notification || widget.go_back == false) {
+              if (widget.from_notification! || widget.go_back == false) {
                 Navigator.push(context, MaterialPageRoute(builder: (context) {
                   return Main();
                 }));
@@ -1327,7 +1349,7 @@ class _OrderDetailsState extends State<OrderDetails> {
             }),
       ),
       title: Text(
-        AppLocalizations.of(context).order_details_screen_order_details,
+        AppLocalizations.of(context)!.order_details_screen_order_details,
         style: TextStyle(fontSize: 16, color: MyTheme.accent_color),
       ),
       elevation: 0.0,
@@ -1345,7 +1367,8 @@ class _OrderDetailsState extends State<OrderDetails> {
               ? FlatButton(
                   color: MyTheme.soft_accent_color,
                   child: Text(
-                    AppLocalizations.of(context).order_details_screen_make_offline_payment,
+                    AppLocalizations.of(context)!
+                        .order_details_screen_make_offline_payment,
                     style: TextStyle(color: MyTheme.font_grey),
                   ),
                   onPressed: () {
@@ -1367,10 +1390,8 @@ class _OrderDetailsState extends State<OrderDetails> {
           color: payment_status == "paid" ? Colors.green : Colors.red),
       child: Padding(
         padding: const EdgeInsets.all(3),
-        child: Icon(
-            payment_status == "paid" ? FontAwesome.check : FontAwesome.times,
-            color: Colors.white,
-            size: 10),
+        child: Icon(payment_status == "paid" ? Icons.check : Icons.timer_sharp,
+            color: Colors.white, size: 10),
       ),
     );
   }

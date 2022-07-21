@@ -5,7 +5,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:webixes/my_theme.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import 'package:flutter_icons/flutter_icons.dart';
 import 'package:webixes/ui_elements/product_card.dart';
 import 'package:webixes/ui_elements/list_product_card.dart';
 import 'package:webixes/ui_elements/mini_product_card.dart';
@@ -17,9 +16,9 @@ import 'package:webixes/helpers/shared_value_helper.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ShopDetails extends StatefulWidget {
- final String shopName;
+  final String? shopName;
 
-  ShopDetails({Key key, this.shopName}) : super(key: key);
+  ShopDetails({Key? key, this.shopName}) : super(key: key);
 
   @override
   _ShopDetailsState createState() => _ShopDetailsState();
@@ -33,7 +32,7 @@ class _ShopDetailsState extends State<ShopDetails> {
   int _current_slider = 0;
   List<dynamic> _carouselImageList = [];
   bool _carouselInit = false;
-  List<dynamic> _shopDetails ;
+  List<dynamic>? _shopDetails;
 
   List<dynamic> _newArrivalProducts = [];
   bool _newArrivalProductInit = false;
@@ -62,17 +61,18 @@ class _ShopDetailsState extends State<ShopDetails> {
   }
 
   fetchProductDetails() async {
-    var shopDetailsResponse = await ShopRepository().getShopInfobySlug(shopName: widget.shopName);
-    _shopDetails=shopDetailsResponse.data;
+    var shopDetailsResponse =
+        await ShopRepository().getShopInfobySlug(shopName: widget.shopName);
+    _shopDetails = shopDetailsResponse.data;
 
     print("_shopDetails--->$_shopDetails");
     //print('ss:' + shopDetailsResponse.toString());
-   /* if (shopDetailsResponse.data.length > 0) {
+    /* if (shopDetailsResponse.data.length > 0) {
 
 
     }*/
 
-   /* if (_shopDetails != null) {
+    /* if (_shopDetails != null) {
       _shopDetails.sliders.forEach((slider) {
         _carouselImageList.add(slider);
       });
@@ -85,21 +85,23 @@ class _ShopDetailsState extends State<ShopDetails> {
   fetchNewArrivalProducts() async {
     var newArrivalProductResponse =
         await ShopRepository().getNewFromThisSellerProducts(id: 81);
-    _newArrivalProducts.addAll(newArrivalProductResponse.products);
+    _newArrivalProducts.addAll(newArrivalProductResponse.products ?? []);
     _newArrivalProductInit = true;
 
     setState(() {});
   }
 
   fetchTopProducts() async {
-    var topProductResponse = await ShopRepository().getTopFromThisSellerProducts(id: 81);
-    _topProducts.addAll(topProductResponse.products);
+    var topProductResponse =
+        await ShopRepository().getTopFromThisSellerProducts(id: 81);
+    _topProducts.addAll(topProductResponse.products ?? []);
     _topProductInit = true;
   }
 
   fetchFeaturedProducts() async {
-    var featuredProductResponse = await ShopRepository().getfeaturedFromThisSellerProducts(id: 81);
-    _featuredProducts.addAll(featuredProductResponse.products);
+    var featuredProductResponse =
+        await ShopRepository().getfeaturedFromThisSellerProducts(id: 81);
+    _featuredProducts.addAll(featuredProductResponse.products ?? []);
     _featuredProductInit = true;
   }
 
@@ -123,194 +125,207 @@ class _ShopDetailsState extends State<ShopDetails> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop:(){
-       return Navigator.push(context, MaterialPageRoute(builder: (context) {
-          return Main();
-        }));
-      } ,
-      child: Directionality(
-        textDirection: app_language_rtl.$ ? TextDirection.rtl : TextDirection.ltr,
-        child: Scaffold(
-            backgroundColor: Colors.white,
-           appBar: buildAppBar(context),
-           // bottomNavigationBar: buildBottomAppBar(context),
-            body:Container(
-              height: MediaQuery.of(context).size.height,
-              child: _shopDetails!=null? ListView.builder(
-                itemCount: 1,
-                  shrinkWrap:true,itemBuilder: (context,index){
-                return InkWell(
-                  onTap: (){
-                    Navigator.push(context, MaterialPageRoute(builder: (context) {
-                      return SellerDetails(id: _shopDetails[index].id,);
-                    }));
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Container(
-                      height: 150,
-                     // height: MediaQuery.of(context).size.height,
-                        decoration: BoxDecoration(
-                          color: MyTheme.soft_accent_color1,
+    return Directionality(
+      textDirection: app_language_rtl.$ ? TextDirection.rtl : TextDirection.ltr,
+      child: Scaffold(
+          backgroundColor: Colors.white,
+          appBar: buildAppBar(context),
+          // bottomNavigationBar: buildBottomAppBar(context),
+          body: Container(
+            height: MediaQuery.of(context).size.height,
+            child: _shopDetails != null
+                ? ListView.builder(
+                    itemCount: 1,
+                    shrinkWrap: true,
+                    itemBuilder: (context, index) {
+                      return InkWell(
+                        onTap: () {
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) {
+                            return SellerDetails(
+                              id: _shopDetails?[index].id,
+                            );
+                          }));
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Container(
+                              height: 150,
+                              // height: MediaQuery.of(context).size.height,
+                              decoration: BoxDecoration(
+                                color: MyTheme.soft_accent_color1,
+                              ),
+                              child: Container(
+                                color: MyTheme.soft_accent_color1,
+                                width: double.infinity,
+                                // height: 60.0,
+                                child: Center(
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: <Widget>[
+                                      _shopDetails?[index].logo != null
+                                          ? Padding(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              child: Container(
+                                                height: 100,
+                                                child: ClipRRect(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10),
+                                                    child: FadeInImage
+                                                        .assetNetwork(
+                                                      placeholder:
+                                                          'assets/placeholder.png',
+                                                      image: AppConfig
+                                                              .BASE_PATH +
+                                                          _shopDetails?[index]
+                                                              .logo,
+                                                      fit: BoxFit.cover,
+                                                    )),
+                                              ),
+                                            )
+                                          : Padding(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              child: Container(
+                                                height: 100,
+                                                child: ClipRRect(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10),
+                                                    child: Image.asset(
+                                                      'assets/placeholder.png',
+                                                      // image: AppConfig.BASE_PATH + _shopDetails[index].logo,
+                                                      fit: BoxFit.cover,
+                                                    )),
+                                              ),
+                                            ),
+                                      SizedBox(
+                                        width: 10.0,
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Text(
+                                          _shopDetails?[index].name,
+                                          style: TextStyle(
+                                            fontSize: 17.0,
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              )),
                         ),
-                        child: Container(
-                          color: MyTheme.soft_accent_color1,
-                          width: double.infinity,
-                         // height: 60.0,
-                          child: Center(
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: <Widget>[
-                                _shopDetails[index].logo!=null? Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Container(
-                                    height:100 ,
-                                    child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(10),
-                                        child: FadeInImage.assetNetwork(
-                                          placeholder: 'assets/placeholder.png',
-                                          image: AppConfig.BASE_PATH + _shopDetails[index].logo,
-                                          fit: BoxFit.cover,
-                                        )),
-                                  ),
-                                ):Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Container(
-                                    height:100 ,
-                                    child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(10),
-                                        child: Image.asset(
-                                         'assets/placeholder.png',
-                                         // image: AppConfig.BASE_PATH + _shopDetails[index].logo,
-                                          fit: BoxFit.cover,
-                                        )),
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 10.0,
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text(
-                                    _shopDetails[index].name,
-                                    style: TextStyle(
-                                      fontSize: 17.0,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                ),
-
-                              ],
-                            ),
-                          ),
-                        )
+                      );
+                    })
+                : Center(
+                    child: CircularProgressIndicator(),
+                  ),
+          )
+          /* CustomScrollView(
+            controller: _mainScrollController,
+            physics: const BouncingScrollPhysics(
+                parent: AlwaysScrollableScrollPhysics()),
+            slivers: [
+             */ /* SliverList(
+                delegate: SliverChildListDelegate([
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      16.0,
+                      16.0,
+                      16.0,
+                      0.0,
+                    ),
+                    child: buildCarouselSlider(context),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      16.0,
+                      16.0,
+                      16.0,
+                      0.0,
+                    ),
+                    child: Text(
+                      AppLocalizations.of(context)
+                          .seller_details_screen_new_arrivals,
+                      style: TextStyle(
+                          color: MyTheme.font_grey,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600),
                     ),
                   ),
-                );
-              }):Center(child: CircularProgressIndicator(),),
-            )
-           /* CustomScrollView(
-              controller: _mainScrollController,
-              physics: const BouncingScrollPhysics(
-                  parent: AlwaysScrollableScrollPhysics()),
-              slivers: [
-               *//* SliverList(
-                  delegate: SliverChildListDelegate([
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(
-                        16.0,
-                        16.0,
-                        16.0,
-                        0.0,
-                      ),
-                      child: buildCarouselSlider(context),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      8.0,
+                      16.0,
+                      0.0,
+                      0.0,
                     ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(
-                        16.0,
-                        16.0,
-                        16.0,
-                        0.0,
-                      ),
-                      child: Text(
-                        AppLocalizations.of(context)
-                            .seller_details_screen_new_arrivals,
-                        style: TextStyle(
-                            color: MyTheme.font_grey,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600),
-                      ),
+                    child: buildNewArrivalList(),
+                  )
+                ]),
+              ),*/ /*
+             */ /* SliverList(
+                delegate: SliverChildListDelegate([
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      16.0,
+                      16.0,
+                      16.0,
+                      0.0,
                     ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(
-                        8.0,
-                        16.0,
-                        0.0,
-                        0.0,
-                      ),
-                      child: buildNewArrivalList(),
-                    )
-                  ]),
-                ),*//*
-               *//* SliverList(
-                  delegate: SliverChildListDelegate([
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(
-                        16.0,
-                        16.0,
-                        16.0,
-                        0.0,
-                      ),
-                      child: Text(
-                        AppLocalizations.of(context)
-                            .seller_details_screen_no_top_selling_products,
-                        style: TextStyle(
-                            color: MyTheme.font_grey,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600),
-                      ),
+                    child: Text(
+                      AppLocalizations.of(context)
+                          .seller_details_screen_no_top_selling_products,
+                      style: TextStyle(
+                          color: MyTheme.font_grey,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600),
                     ),
-                    Padding(
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      16.0,
+                      16.0,
+                      16.0,
+                      0.0,
+                    ),
+                    child: buildTopSellingProductList(),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      16.0,
+                      16.0,
+                      16.0,
+                      0.0,
+                    ),
+                    child: Text(
+                      AppLocalizations.of(context)
+                          .seller_details_screen_featured_products,
+                      style: TextStyle(
+                          color: MyTheme.font_grey,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                  Padding(
                       padding: const EdgeInsets.fromLTRB(
                         16.0,
                         16.0,
                         16.0,
                         0.0,
                       ),
-                      child: buildTopSellingProductList(),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(
-                        16.0,
-                        16.0,
-                        16.0,
-                        0.0,
-                      ),
-                      child: Text(
-                        AppLocalizations.of(context)
-                            .seller_details_screen_featured_products,
-                        style: TextStyle(
-                            color: MyTheme.font_grey,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600),
-                      ),
-                    ),
-                    Padding(
-                        padding: const EdgeInsets.fromLTRB(
-                          16.0,
-                          16.0,
-                          16.0,
-                          0.0,
-                        ),
-                        child: buildfeaturedProductList())
-                  ]),
-                )*//*
-              ],
-            )*/
-        ),
-      ),
+                      child: buildfeaturedProductList())
+                ]),
+              )*/ /*
+            ],
+          )*/
+          ),
     );
   }
 
@@ -335,13 +350,12 @@ class _ShopDetailsState extends State<ShopDetails> {
         itemBuilder: (context, index) {
           // 3
           return ProductCard(
-              id: _featuredProducts[index].id,
-              image: _featuredProducts[index].thumbnail_image.replaceAll(",",""),
-              name: _featuredProducts[index].name,
-              main_price: _featuredProducts[index].main_price,
-              stroked_price: _featuredProducts[index].stroked_price,
-              has_discount: _featuredProducts[index].has_discount,
-
+            id: _featuredProducts[index].id,
+            image: _featuredProducts[index].thumbnail_image.replaceAll(",", ""),
+            name: _featuredProducts[index].name,
+            main_price: _featuredProducts[index].main_price,
+            stroked_price: _featuredProducts[index].stroked_price,
+            has_discount: _featuredProducts[index].has_discount,
           );
         },
       );
@@ -350,7 +364,7 @@ class _ShopDetailsState extends State<ShopDetails> {
           height: 100,
           child: Center(
               child: Text(
-                  AppLocalizations.of(context)
+                  AppLocalizations.of(context)!
                       .seller_details_screen_no_featured_porducts,
                   style: TextStyle(color: MyTheme.font_grey))));
     }
@@ -453,14 +467,12 @@ class _ShopDetailsState extends State<ShopDetails> {
         borderRadius: BorderRadius.circular(0.0),
       ),
       child: Text(
-        AppLocalizations.of(context)
+        AppLocalizations.of(context)!
             .seller_details_screen_btn_view_all_products,
         style: TextStyle(
             color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
       ),
-      onPressed: () {
-
-      },
+      onPressed: () {},
     );
   }
 
@@ -497,7 +509,9 @@ class _ShopDetailsState extends State<ShopDetails> {
               padding: const EdgeInsets.only(bottom: 3.0),
               child: ListProductCard(
                   id: _topProducts[index].id,
-                  image:_topProducts[index].thumbnail_image!=null? _topProducts[index].thumbnail_image.replaceAll(",",""):null,
+                  image: _topProducts[index].thumbnail_image != null
+                      ? _topProducts[index].thumbnail_image.replaceAll(",", "")
+                      : null,
                   name: _topProducts[index].name,
                   main_price: _topProducts[index].main_price,
                   stroked_price: _topProducts[index].stroked_price,
@@ -511,7 +525,7 @@ class _ShopDetailsState extends State<ShopDetails> {
           height: 100,
           child: Center(
               child: Text(
-                  AppLocalizations.of(context)
+                  AppLocalizations.of(context)!
                       .seller_details_screen_no_top_selling_products,
                   style: TextStyle(color: MyTheme.font_grey))));
     }
@@ -551,7 +565,11 @@ class _ShopDetailsState extends State<ShopDetails> {
                 padding: const EdgeInsets.only(right: 3.0),
                 child: MiniProductCard(
                   id: _newArrivalProducts[index].id,
-                  image: _newArrivalProducts[index].thumbnail_image!=null?_newArrivalProducts[index].thumbnail_image.replaceAll(",",""):null,
+                  image: _newArrivalProducts[index].thumbnail_image != null
+                      ? _newArrivalProducts[index]
+                          .thumbnail_image
+                          .replaceAll(",", "")
+                      : null,
                   name: _newArrivalProducts[index].name,
                   main_price: _newArrivalProducts[index].main_price,
                   stroked_price: _newArrivalProducts[index].stroked_price,
@@ -567,7 +585,7 @@ class _ShopDetailsState extends State<ShopDetails> {
           height: 100,
           child: Center(
               child: Text(
-            AppLocalizations.of(context).seller_details_screen_no_new_arrival,
+            AppLocalizations.of(context)!.seller_details_screen_no_new_arrival,
             style: TextStyle(color: MyTheme.font_grey),
           )));
     }
@@ -579,15 +597,14 @@ class _ShopDetailsState extends State<ShopDetails> {
       toolbarHeight: 75,
       leading: Builder(
         builder: (context) => IconButton(
-          icon: Icon(Icons.arrow_back, color: MyTheme.dark_grey),
-          onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) {
-              return Main();
-            }));
-          }
-        ),
+            icon: Icon(Icons.arrow_back, color: MyTheme.dark_grey),
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return Main();
+              }));
+            }),
       ),
-     /* title: Container(
+      /* title: Container(
         child: Container(
             width: 350,
             child: _shopDetails != null
@@ -616,7 +633,6 @@ class _ShopDetailsState extends State<ShopDetails> {
       ),*/
       elevation: 0.0,
       titleSpacing: 0,
-
     );
   }
 
@@ -636,20 +652,21 @@ class _ShopDetailsState extends State<ShopDetails> {
             borderRadius: BorderRadius.circular(5),
             child: FadeInImage.assetNetwork(
               placeholder: 'assets/placeholder.png',
-              image: AppConfig.BASE_PATH + _shopDetails[0].logo.replaceAll(",",""),
+              image: AppConfig.BASE_PATH +
+                  _shopDetails?[0].logo.replaceAll(",", ""),
               fit: BoxFit.cover,
             )),
       ),
       Expanded(
         child: Container(
-         // width: 220,
+          // width: 220,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
                 padding: EdgeInsets.fromLTRB(8, 8, 8, 0),
                 child: Text(
-                  _shopDetails[0].name,
+                  _shopDetails?[0].name,
                   overflow: TextOverflow.ellipsis,
                   maxLines: 2,
                   style: TextStyle(
@@ -659,7 +676,7 @@ class _ShopDetailsState extends State<ShopDetails> {
                       fontWeight: FontWeight.w600),
                 ),
               ),
-             /* Padding(
+              /* Padding(
                 padding: EdgeInsets.fromLTRB(8, 4, 8, 8),
                 child: buildRatingWithCountRow(),
               ),
@@ -679,23 +696,23 @@ class _ShopDetailsState extends State<ShopDetails> {
   Row buildRatingWithCountRow() {
     return Row(
       children: [
-        RatingBar(
-          itemSize: 14.0,
-          ignoreGestures: true,
-          initialRating: 5,
-          direction: Axis.horizontal,
-          allowHalfRating: true,
-          itemCount: 5,
-          ratingWidget: RatingWidget(
-            full: Icon(FontAwesome.star, color: Colors.amber),
-            empty:
-                Icon(FontAwesome.star, color: Color.fromRGBO(224, 224, 225, 1)),
-          ),
-          itemPadding: EdgeInsets.only(right: 4.0),
-          onRatingUpdate: (rating) {
-            print(rating);
-          },
-        ),
+        // RatingBar(
+        //   itemSize: 14.0,
+        //   ignoreGestures: true,
+        //   initialRating: 5,
+        //   direction: Axis.horizontal,
+        //   allowHalfRating: true,
+        //   itemCount: 5,
+        //   ratingWidget: RatingWidget(
+        //     full: Icon(FontAwesome.star, color: Colors.amber),
+        //     empty:
+        //         Icon(FontAwesome.star, color: Color.fromRGBO(224, 224, 225, 1)),
+        //   ),
+        //   itemPadding: EdgeInsets.only(right: 4.0),
+        //   onRatingUpdate: (rating) {
+        //     print(rating);
+        //   },
+        // ),
       ],
     );
   }

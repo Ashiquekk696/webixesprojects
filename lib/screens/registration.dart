@@ -16,7 +16,6 @@ import 'package:webixes/repositories/auth_repository.dart';
 import 'package:webixes/helpers/shared_value_helper.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-
 class Registration extends StatefulWidget {
   @override
   _RegistrationState createState() => _RegistrationState();
@@ -54,58 +53,82 @@ class _RegistrationState extends State<Registration> {
 
   onPressSignUp() async {
     var name = _nameController.text.toString();
-    var mobile=_mobileController.text.toString();
+    var mobile = _mobileController.text.toString();
     var email = _emailController.text.toString();
     var password = _passwordController.text.toString();
     var password_confirm = _passwordConfirmController.text.toString();
 
     if (name == "") {
-      ToastComponent.showDialog(AppLocalizations.of(context).registration_screen_name_warning, context,
-          gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+      ToastComponent.showDialog(
+          AppLocalizations.of(context)!.registration_screen_name_warning,
+          context,
+          gravity: Toast.center,
+          duration: Toast.lengthLong);
       return;
-    }if (mobile == "") {
+    }
+    if (mobile == "") {
       ToastComponent.showDialog('Enter mobile number', context,
-          gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+          gravity: Toast.center, duration: Toast.lengthLong);
       return;
     } else if (_register_by == 'email' && email == "") {
-      ToastComponent.showDialog(AppLocalizations.of(context).registration_screen_email_warning, context,
-          gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+      ToastComponent.showDialog(
+          AppLocalizations.of(context)!.registration_screen_email_warning,
+          context,
+          gravity: Toast.center,
+          duration: Toast.lengthLong);
       return;
     } else if (_register_by == 'phone' && _phone == "") {
-      ToastComponent.showDialog(AppLocalizations.of(context).registration_screen_phone_warning, context,
-          gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+      ToastComponent.showDialog(
+          AppLocalizations.of(context)!.registration_screen_phone_warning,
+          context,
+          gravity: Toast.center,
+          duration: Toast.lengthLong);
       return;
     } else if (password == "") {
-      ToastComponent.showDialog(AppLocalizations.of(context).registration_screen_password_warning, context,
-          gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+      ToastComponent.showDialog(
+          AppLocalizations.of(context)!.registration_screen_password_warning,
+          context,
+          gravity: Toast.center,
+          duration: Toast.lengthLong);
       return;
     } else if (password_confirm == "") {
-      ToastComponent.showDialog(AppLocalizations.of(context).registration_screen_password_confirm_warning, context,
-          gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+      ToastComponent.showDialog(
+          AppLocalizations.of(context)!
+              .registration_screen_password_confirm_warning,
+          context,
+          gravity: Toast.center,
+          duration: Toast.lengthLong);
       return;
     } else if (password.length < 6) {
       ToastComponent.showDialog(
-          AppLocalizations.of(context).registration_screen_password_length_warning, context,
-          gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+          AppLocalizations.of(context)!
+              .registration_screen_password_length_warning,
+          context,
+          gravity: Toast.center,
+          duration: Toast.lengthLong);
       return;
     } else if (password != password_confirm) {
-      ToastComponent.showDialog(AppLocalizations.of(context).registration_screen_password_match_warning, context,
-          gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+      ToastComponent.showDialog(
+          AppLocalizations.of(context)!
+              .registration_screen_password_match_warning,
+          context,
+          gravity: Toast.center,
+          duration: Toast.lengthLong);
       return;
     }
 
     var signupResponse = await AuthRepository().getSignupResponse(
         name,
-        _register_by=='email'?email:_phone,
+        _register_by == 'email' ? email : _phone,
         password,
         password_confirm,
         _register_by);
     if (signupResponse.result == false) {
-      ToastComponent.showDialog(signupResponse.message, context,
-          gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+      ToastComponent.showDialog(signupResponse.message ?? "", context,
+          gravity: Toast.center, duration: Toast.lengthLong);
     } else {
-      ToastComponent.showDialog(signupResponse.message, context,
-          gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+      ToastComponent.showDialog(signupResponse.message ?? "", context,
+          gravity: Toast.center, duration: Toast.lengthLong);
       Navigator.push(context, MaterialPageRoute(builder: (context) {
         return Otp(
           verify_by: _register_by,
@@ -122,12 +145,12 @@ class _RegistrationState extends State<Registration> {
     return Directionality(
       textDirection: app_language_rtl.$ ? TextDirection.rtl : TextDirection.ltr,
       child: Scaffold(
-        backgroundColor:MyTheme.soft_accent_color,
+        backgroundColor: MyTheme.soft_accent_color,
         body: Stack(
           children: [
             Container(
               width: _screen_width * (3 / 4),
-             /* child: Image.asset(
+              /* child: Image.asset(
                   "assets/splash_login_registration_background_image.png"),*/
             ),
             Container(
@@ -141,10 +164,10 @@ class _RegistrationState extends State<Registration> {
                     child: Container(
                       width: 200,
                       height: 75,
-                      child: Image.asset('citydeal/img/core-img/logo-small.png'),
+                      child:
+                          Image.asset('citydeal/img/core-img/logo-small.png'),
                     ),
                   ),
-
                   Container(
                     width: _screen_width * (3 / 4),
                     child: Column(
@@ -153,7 +176,8 @@ class _RegistrationState extends State<Registration> {
                         Padding(
                           padding: const EdgeInsets.only(bottom: 4.0),
                           child: Text(
-                            AppLocalizations.of(context).registration_screen_name,
+                            AppLocalizations.of(context)!
+                                .registration_screen_name,
                             style: TextStyle(
                                 color: MyTheme.black,
                                 fontWeight: FontWeight.w600),
@@ -166,15 +190,17 @@ class _RegistrationState extends State<Registration> {
                             child: TextField(
                               controller: _nameController,
                               autofocus: false,
-                              decoration: InputDecorations.buildInputDecoration_1(
-                                  hint_text: "Enter full name",
-                              icon: Icons.person_outline),
+                              decoration:
+                                  InputDecorations.buildInputDecoration_1(
+                                      hint_text: "Enter full name",
+                                      icon: Icons.person_outline),
                             ),
                           ),
                         ),
                         Padding(
                           padding: const EdgeInsets.only(bottom: 4.0),
-                          child: Text('Mobile Number',
+                          child: Text(
+                            'Mobile Number',
                             style: TextStyle(
                                 color: MyTheme.black,
                                 fontWeight: FontWeight.w600),
@@ -188,16 +214,21 @@ class _RegistrationState extends State<Registration> {
                               controller: _mobileController,
                               keyboardType: TextInputType.phone,
                               autofocus: false,
-                              decoration: InputDecorations.buildInputDecoration_1(
-                                  hint_text: "Enter mobile number",
-                                  icon: CupertinoIcons.phone),
+                              decoration:
+                                  InputDecorations.buildInputDecoration_1(
+                                      hint_text: "Enter mobile number",
+                                      icon: CupertinoIcons.phone),
                             ),
                           ),
                         ),
                         Padding(
                           padding: const EdgeInsets.only(bottom: 4.0),
                           child: Text(
-                            _register_by == "email" ? AppLocalizations.of(context).registration_screen_email : AppLocalizations.of(context).registration_screen_phone,
+                            _register_by == "email"
+                                ? AppLocalizations.of(context)!
+                                    .registration_screen_email
+                                : AppLocalizations.of(context)!
+                                    .registration_screen_phone,
                             style: TextStyle(
                                 color: MyTheme.black,
                                 fontWeight: FontWeight.w600),
@@ -217,10 +248,10 @@ class _RegistrationState extends State<Registration> {
                                     decoration:
                                         InputDecorations.buildInputDecoration_1(
                                             hint_text: "Enter email",
-                                        icon: Icons.email_outlined),
+                                            icon: Icons.email_outlined),
                                   ),
                                 ),
-                              /*  otp_addon_installed.$
+                                /*  otp_addon_installed.$
                                     ? GestureDetector(
                                         onTap: () {
                                           setState(() {
@@ -246,38 +277,37 @@ class _RegistrationState extends State<Registration> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                Container(
-                                  height: 36,
-                                  child: CustomInternationalPhoneNumberInput(
-                                    onInputChanged: (PhoneNumber number) {
-                                      print(number.phoneNumber);
-                                      setState(() {
-                                        _phone = number.phoneNumber;
-                                      });
-                                    },
-                                    onInputValidated: (bool value) {
-                                      print(value);
-                                    },
-                                    selectorConfig: SelectorConfig(
-                                      selectorType: PhoneInputSelectorType.DIALOG,
+                                Container(height: 36, child: Container()
+                                    // CustomInternationalPhoneNumberInput(
+                                    //   onInputChanged: (PhoneNumber number) {
+                                    //     print(number?.phoneNumber);
+                                    //     setState(() {
+                                    //       _phone = number.phoneNumber!;
+                                    //     });
+                                    //   },
+                                    //   onInputValidated: (bool value) {
+                                    //     print(value);
+                                    //   },
+                                    //   selectorConfig: SelectorConfig(
+                                    //     selectorType: PhoneInputSelectorType.DIALOG,
+                                    //   ),
+                                    //   ignoreBlank: false,
+                                    //   autoValidateMode: AutovalidateMode.disabled,
+                                    //   selectorTextStyle:
+                                    //       TextStyle(color: MyTheme.font_grey),
+                                    //   initialValue: phoneCode,
+                                    //   textFieldController: _phoneNumberController,
+                                    //   formatInput: true,
+                                    //   keyboardType: TextInputType.numberWithOptions(
+                                    //       signed: true, decimal: true),
+                                    //   inputDecoration: InputDecorations
+                                    //       .buildInputDecoration_phone(
+                                    //           hint_text: "01710 333 558"),
+                                    //   onSaved: (PhoneNumber number) {
+                                    //     //print('On Saved: $number');
+                                    //   },
+                                    // ),
                                     ),
-                                    ignoreBlank: false,
-                                    autoValidateMode: AutovalidateMode.disabled,
-                                    selectorTextStyle:
-                                        TextStyle(color: MyTheme.font_grey),
-                                    initialValue: phoneCode,
-                                    textFieldController: _phoneNumberController,
-                                    formatInput: true,
-                                    keyboardType: TextInputType.numberWithOptions(
-                                        signed: true, decimal: true),
-                                    inputDecoration: InputDecorations
-                                        .buildInputDecoration_phone(
-                                            hint_text: "01710 333 558"),
-                                    onSaved: (PhoneNumber number) {
-                                      //print('On Saved: $number');
-                                    },
-                                  ),
-                                ),
                                 GestureDetector(
                                   onTap: () {
                                     setState(() {
@@ -285,7 +315,8 @@ class _RegistrationState extends State<Registration> {
                                     });
                                   },
                                   child: Text(
-                                    AppLocalizations.of(context).registration_screen_or_register_with_email,
+                                    AppLocalizations.of(context)!
+                                        .registration_screen_or_register_with_email,
                                     style: TextStyle(
                                         color: MyTheme.accent_color,
                                         fontStyle: FontStyle.italic,
@@ -298,7 +329,8 @@ class _RegistrationState extends State<Registration> {
                         Padding(
                           padding: const EdgeInsets.only(bottom: 4.0),
                           child: Text(
-                            AppLocalizations.of(context).registration_screen_password,
+                            AppLocalizations.of(context)!
+                                .registration_screen_password,
                             style: TextStyle(
                                 color: MyTheme.black,
                                 fontWeight: FontWeight.w600),
@@ -319,11 +351,13 @@ class _RegistrationState extends State<Registration> {
                                   autocorrect: false,
                                   decoration:
                                       InputDecorations.buildInputDecoration_1(
-                                          hint_text: "Password",icon:CupertinoIcons.padlock),
+                                          hint_text: "Password",
+                                          icon: CupertinoIcons.padlock),
                                 ),
                               ),
                               Text(
-                                AppLocalizations.of(context).registration_screen_password_length_recommendation,
+                                AppLocalizations.of(context)!
+                                    .registration_screen_password_length_recommendation,
                                 style: TextStyle(
                                     color: MyTheme.textfield_grey,
                                     fontStyle: FontStyle.italic),
@@ -334,7 +368,8 @@ class _RegistrationState extends State<Registration> {
                         Padding(
                           padding: const EdgeInsets.only(bottom: 4.0),
                           child: Text(
-                            AppLocalizations.of(context).registration_screen_retype_password,
+                            AppLocalizations.of(context)!
+                                .registration_screen_retype_password,
                             style: TextStyle(
                                 color: MyTheme.black,
                                 fontWeight: FontWeight.w600),
@@ -350,22 +385,23 @@ class _RegistrationState extends State<Registration> {
                               obscureText: true,
                               enableSuggestions: false,
                               autocorrect: false,
-                              decoration: InputDecorations.buildInputDecoration_1(
-                                  hint_text: "Confirm password",icon:CupertinoIcons.padlock),
+                              decoration:
+                                  InputDecorations.buildInputDecoration_1(
+                                      hint_text: "Confirm password",
+                                      icon: CupertinoIcons.padlock),
                             ),
                           ),
                         ),
                         Padding(
                             padding: const EdgeInsets.only(top: 15.0),
                             child: CustomButton(
-                              onPressed: (){
+                              onPressed: () {
                                 onPressSignUp();
                               },
-                              title:  AppLocalizations.of(context).registration_screen_register_sign_up,
-                              bgColor:  MyTheme.yellow,
-                            )
-                        ),
-
+                              title: AppLocalizations.of(context)!
+                                  .registration_screen_register_sign_up,
+                              bgColor: MyTheme.yellow,
+                            )),
                         Padding(
                           padding: const EdgeInsets.only(top: 18.0),
                           child: Center(
@@ -379,23 +415,26 @@ class _RegistrationState extends State<Registration> {
                                 children: [
                                   new TextSpan(
                                       text: 'Already have an account?\t',
-                                      style: new TextStyle(color: MyTheme.font_grey)),
+                                      style: new TextStyle(
+                                          color: MyTheme.font_grey)),
                                   new TextSpan(
                                       text: 'Sign In',
-                                      style: new TextStyle(color: MyTheme.black,fontWeight: FontWeight.bold),
+                                      style: new TextStyle(
+                                          color: MyTheme.black,
+                                          fontWeight: FontWeight.bold),
                                       recognizer: TapGestureRecognizer()
                                         ..onTap = () {
                                           Navigator.push(context,
-                                              MaterialPageRoute(builder: (context) {
-                                                return Login();
-                                              }));
+                                              MaterialPageRoute(
+                                                  builder: (context) {
+                                            return Login();
+                                          }));
                                         }),
                                 ],
                               ),
                             ),
                           ),
                         ),
-
                       ],
                     ),
                   )

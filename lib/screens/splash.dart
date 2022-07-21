@@ -32,7 +32,6 @@ class _SplashState extends State<Splash> {
     super.initState();
     _initPackageInfo();
     startTime();
-
   }
 
   @override
@@ -51,157 +50,147 @@ class _SplashState extends State<Splash> {
   }
 
   Future<Widget> loadFromFuture() async {
-
     // <fetch data from server. ex. login>
 
-    return Future.value( Main());
+    return Future.value(Main());
   }
-   Future fetchCategories() async {
+
+  Future fetchCategories() async {
     print("Initial calling--splash");
-    AppConfig.featuredCategoryList=[];
+    AppConfig.featuredCategoryList = [];
     var categoryResponse = await CategoryRepository().getTopCategories();
-    AppConfig.featuredCategoryList.addAll(categoryResponse.categories);
+    AppConfig.featuredCategoryList.addAll(categoryResponse.categories ?? []);
     print("API CALL-->${AppConfig.featuredCategoryList.length}");
     return categoryResponse.categories;
   }
+
   startTime() async {
     var _duration = new Duration(seconds: 3);
     return new Timer(_duration, navigationPage);
   }
 
   Future<void> navigationPage() async {
-
     if (is_logged_in.$ == true) {
       //final response = await weatherRepo.postLogin(event._mobile, event._password);
       final categoryResponse = await CategoryRepository().getTopCategories();
-      AppConfig.featuredCategoryList.addAll(categoryResponse.categories);
+      AppConfig.featuredCategoryList.addAll(categoryResponse.categories ?? []);
       print("API CALL-->${AppConfig.featuredCategoryList.length}");
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
           builder: (BuildContext context) => Main(),
         ),
-            (route) => false,
+        (route) => false,
       );
-    }
-
-    else {
+    } else {
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
           builder: (BuildContext context) => Login(),
         ),
-            (route) => false,
+        (route) => false,
       );
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         body: Container(
-        height: double.infinity,
-        width: double.infinity,
-        decoration: BoxDecoration(
+      height: double.infinity,
+      width: double.infinity,
+      decoration: BoxDecoration(
         color: Colors.transparent,
         image: DecorationImage(
-        fit: BoxFit.fill,
-        image: AssetImage(
-            "assets/splash.jpeg"
-    ),
-    ),
-    ),
-        )
-    );
-    return CustomSplashScreen(
-      //comment this
-      //seconds: 5,
+          fit: BoxFit.fill,
+          image: AssetImage("assets/splash.jpeg"),
+        ),
+      ),
+    ));
+    // return CustomSplashScreen(
+    //comment this
+    //seconds: 5,
 
+    //comment this
+    //navigateAfterSeconds:navigate(),
 
-      //comment this
-      //navigateAfterSeconds:navigate(),
+    //navigateAfterFuture: navigate(), //uncomment this
 
+    //   useLoader: false,
 
-      //navigateAfterFuture: navigate(), //uncomment this
-
-      useLoader: false,
-
-     // image: Image.asset("citydeal/img/core-img/logo-small.png"),
-     //// backgroundImage: Image.asset("citydeal/img/core-img/logo-small.png"),
-      backgroundColor: MyTheme.soft_accent_color,
-    ////  photoSize: 70.0,
-      //backgroundPhotoSize: 120.0,
-    );
+    //  // image: Image.asset("citydeal/img/core-img/logo-small.png"),
+    //  //// backgroundImage: Image.asset("citydeal/img/core-img/logo-small.png"),
+    //   backgroundColor: MyTheme.soft_accent_color,
+    // ////  photoSize: 70.0,
+    //   //backgroundPhotoSize: 120.0,
+    // );
   }
-   navigate(){
+
+  navigate() {
     // is_logged_in.load();
 
-     fetchCategories().then((value){
-       if (is_logged_in.$ == true) {
-
-         return Main();
-
-
-       }else{
-         return Login();
-       }
-     });
-
+    fetchCategories().then((value) {
+      if (is_logged_in.$ == true) {
+        return Main();
+      } else {
+        return Login();
+      }
+    });
   }
-
 }
 
 class CustomSplashScreen extends StatefulWidget {
   /// Seconds to navigate after for time based navigation
-  final int seconds;
+  final int? seconds;
 
   /// App title, shown in the middle of screen in case of no image available
-  final Text title;
+  final Text? title;
 
   /// Page background color
-  final Color backgroundColor;
+  final Color? backgroundColor;
 
   /// Style for the laodertext
-  final TextStyle styleTextUnderTheLoader;
+  final TextStyle? styleTextUnderTheLoader;
 
   /// The page where you want to navigate if you have chosen time based navigation
-  final dynamic navigateAfterSeconds;
+  final dynamic? navigateAfterSeconds;
 
   /// Main image size
-  final double photoSize;
+  final double? photoSize;
 
-  final double backgroundPhotoSize;
+  final double? backgroundPhotoSize;
 
   /// Triggered if the user clicks the screen
-  final dynamic onClick;
+  final dynamic? onClick;
 
   /// Loader color
-  final Color loaderColor;
+  final Color? loaderColor;
 
   /// Main image mainly used for logos and like that
-  final Image image;
+  final Image? image;
 
-  final Image backgroundImage;
+  final Image? backgroundImage;
 
   /// Loading text, default: "Loading"
-  final Text loadingText;
+  final Text? loadingText;
 
   ///  Background image for the entire screen
-  final ImageProvider imageBackground;
+  final ImageProvider? imageBackground;
 
   /// Background gradient for the entire screen
-  final Gradient gradientBackground;
+  final Gradient? gradientBackground;
 
   /// Whether to display a loader or not
-  final bool useLoader;
+  final bool? useLoader;
 
   /// Custom page route if you have a custom transition you want to play
-  final Route pageRoute;
+  final Route? pageRoute;
 
   /// RouteSettings name for pushing a route with custom name (if left out in MaterialApp route names) to navigator stack (Contribution by Ramis Mustafa)
-  final String routeName;
+  final String? routeName;
 
   /// expects a function that returns a future, when this future is returned it will navigate
-  final Future<dynamic> navigateAfterFuture;
+  final Future<dynamic>? navigateAfterFuture;
 
   /// Use one of the provided factory constructors instead of.
   @protected
@@ -228,73 +217,72 @@ class CustomSplashScreen extends StatefulWidget {
   });
 
   factory CustomSplashScreen.timer(
-          {//int seconds,
-          Color loaderColor,
-          Color backgroundColor,
-          double photoSize,
-          Text loadingText,
-          Image image,
-          Route pageRoute,
-          dynamic onClick,
-         // dynamic navigateAfterSeconds,
-          Text title,
-          TextStyle styleTextUnderTheLoader,
-          ImageProvider imageBackground,
-          Gradient gradientBackground,
-          bool useLoader,
-          String routeName}) =>
+          { //int seconds,
+          Color? loaderColor,
+          Color? backgroundColor,
+          double? photoSize,
+          Text? loadingText,
+          Image? image,
+          Route? pageRoute,
+          dynamic? onClick,
+          // dynamic navigateAfterSeconds,
+          Text? title,
+          TextStyle? styleTextUnderTheLoader,
+          ImageProvider? imageBackground,
+          Gradient? gradientBackground,
+          bool? useLoader,
+          String? routeName}) =>
       CustomSplashScreen(
-        loaderColor: loaderColor,
-       // seconds: seconds,
-        photoSize: photoSize,
-        loadingText: loadingText,
-        backgroundColor: backgroundColor,
-        image: image,
-        pageRoute: pageRoute,
+        loaderColor: loaderColor ?? Colors.black,
+        // seconds: seconds,
+        photoSize: photoSize ?? 0,
+        loadingText: loadingText!,
+        backgroundColor: backgroundColor ?? Colors.black,
+        image: image ?? Image.asset("name"),
+        // pageRoute: pageRoute ,
         onClick: onClick,
-       // navigateAfterSeconds: navigateAfterSeconds,
-        title: title,
-        styleTextUnderTheLoader: styleTextUnderTheLoader,
-        imageBackground: imageBackground,
-        gradientBackground: gradientBackground,
-        useLoader: useLoader,
-        routeName: routeName,
+        // navigateAfterSeconds: navigateAfterSeconds,
+        title: title ?? Text("data"),
+        styleTextUnderTheLoader: styleTextUnderTheLoader ?? TextStyle(),
+        //      imageBackground: imageBackground,
+        //   gradientBackground: gradientBackground,
+        useLoader: useLoader ?? false,
+        routeName: routeName ?? "",
       );
 
   factory CustomSplashScreen.network(
-          {//@required Future<dynamic> navigateAfterFuture,
-          Color loaderColor,
-          Color backgroundColor,
-          double photoSize,
-          double backgroundPhotoSize,
-          Text loadingText,
-          Image image,
-          Route pageRoute,
+          { //@required Future<dynamic> navigateAfterFuture,
+          Color? loaderColor,
+          Color? backgroundColor,
+          double? photoSize,
+          double? backgroundPhotoSize,
+          Text? loadingText,
+          Image? image,
+          Route? pageRoute,
           dynamic onClick,
-         // dynamic navigateAfterSeconds,
-          Text title,
-          TextStyle styleTextUnderTheLoader,
-          ImageProvider imageBackground,
-          Gradient gradientBackground,
-          bool useLoader,
-          String routeName}) =>
+          // dynamic navigateAfterSeconds,
+          Text? title,
+          TextStyle? styleTextUnderTheLoader,
+          ImageProvider? imageBackground,
+          Gradient? gradientBackground,
+          bool? useLoader,
+          String? routeName}) =>
       CustomSplashScreen(
-        loaderColor: loaderColor,
-       // navigateAfterFuture: navigateAfterFuture,
-        photoSize: photoSize,
-        backgroundPhotoSize: backgroundPhotoSize,
-        loadingText: loadingText,
-        backgroundColor: backgroundColor,
-        image: image,
-        pageRoute: pageRoute,
+        loaderColor: loaderColor ?? Colors.black,
+        // seconds: seconds,
+        photoSize: photoSize ?? 0,
+        loadingText: loadingText!,
+        backgroundColor: backgroundColor ?? Colors.black,
+        image: image ?? Image.asset("name"),
+        // pageRoute: pageRoute ,
         onClick: onClick,
-        //navigateAfterSeconds: navigateAfterSeconds,
-        title: title,
-        styleTextUnderTheLoader: styleTextUnderTheLoader,
-        imageBackground: imageBackground,
-        gradientBackground: gradientBackground,
-        useLoader: useLoader,
-        routeName: routeName,
+        // navigateAfterSeconds: navigateAfterSeconds,
+        title: title ?? Text("data"),
+        styleTextUnderTheLoader: styleTextUnderTheLoader ?? TextStyle(),
+        //      imageBackground: imageBackground,
+        //   gradientBackground: gradientBackground,
+        useLoader: useLoader ?? false,
+        routeName: routeName ?? "",
       );
 
   @override
@@ -307,11 +295,11 @@ class _CustomSplashScreenState extends State<CustomSplashScreen> {
     super.initState();
     if (widget.routeName != null &&
         widget.routeName is String &&
-        "${widget.routeName[0]}" != "/") {
+        "${widget.routeName?[0]}" != "/") {
       throw ArgumentError(
           "widget.routeName must be a String beginning with forward slash (/)");
     }
-   /* if (widget.navigateAfterFuture == null) {
+    /* if (widget.navigateAfterFuture == null) {
       Timer(Duration(seconds: widget.seconds), () {
         if (widget.navigateAfterSeconds is String) {
           // It's fairly safe to assume this is using the in-built material
@@ -359,16 +347,13 @@ class _CustomSplashScreenState extends State<CustomSplashScreen> {
     return Directionality(
       textDirection: app_language_rtl.$ ? TextDirection.rtl : TextDirection.ltr,
       child: Scaffold(
-      //  backgroundColor: MyTheme.soft_accent_color,
-        body :Container(
-            height: MediaQuery.of(context).size.height,
-            width: MediaQuery.of(context).size.width,
+        //  backgroundColor: MyTheme.soft_accent_color,
+        body: Container(
+          height: MediaQuery.of(context).size.height,
+          width: MediaQuery.of(context).size.width,
           //  alignment: Alignment.center,
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage("assets/splash.jpeg")
-              )
-            ),
+          decoration: BoxDecoration(
+              image: DecorationImage(image: AssetImage("assets/splash.jpeg"))),
           /*  child:Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 //vertically align center
@@ -426,10 +411,7 @@ class _CustomSplashScreenState extends State<CustomSplashScreen> {
                 )),
           ),
         ),*/
-
-
       ),
     );
   }
-
 }

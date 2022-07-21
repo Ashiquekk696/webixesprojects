@@ -9,14 +9,13 @@ import 'package:webixes/screens/order_list.dart';
 import 'package:webixes/screens/wallet.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-
 class NagadScreen extends StatefulWidget {
   double amount;
   String payment_type;
   String payment_method_key;
 
   NagadScreen(
-      {Key key,
+      {Key? key,
       this.amount = 0.00,
       this.payment_type = "",
       this.payment_method_key = ""})
@@ -32,7 +31,7 @@ class _NagadScreenState extends State<NagadScreen> {
   String _initial_url = "";
   bool _initial_url_fetched = false;
 
-  WebViewController _webViewController;
+  WebViewController? _webViewController;
 
   @override
   void initState() {
@@ -51,16 +50,16 @@ class _NagadScreenState extends State<NagadScreen> {
 
   createOrder() async {
     var orderCreateResponse = await PaymentRepository()
-        .getOrderCreateResponse( widget.payment_method_key);
+        .getOrderCreateResponse(widget.payment_method_key);
 
     if (orderCreateResponse.result == false) {
-      ToastComponent.showDialog(orderCreateResponse.message, context,
-          gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+      ToastComponent.showDialog(orderCreateResponse.message ?? "", context,
+          gravity: Toast.center, duration: Toast.lengthLong);
       Navigator.of(context).pop();
       return;
     }
 
-    _combined_order_id = orderCreateResponse.combined_order_id;
+    _combined_order_id = orderCreateResponse.combined_order_id ?? 0;
     _order_init = true;
     setState(() {});
 
@@ -72,15 +71,14 @@ class _NagadScreenState extends State<NagadScreen> {
         widget.payment_type, _combined_order_id, widget.amount);
 
     if (nagadUrlResponse.result == false) {
-      ToastComponent.showDialog(nagadUrlResponse.message, context,
-          gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+      ToastComponent.showDialog(nagadUrlResponse.message ?? "", context,
+          gravity: Toast.center, duration: Toast.lengthLong);
       Navigator.of(context).pop();
       return;
     }
 
-    _initial_url = nagadUrlResponse.url;
+    _initial_url = nagadUrlResponse.url ?? "";
     _initial_url_fetched = true;
-
 
     setState(() {});
 
@@ -99,36 +97,37 @@ class _NagadScreenState extends State<NagadScreen> {
 
   void getData() {
     var payment_details = '';
-    _webViewController
-        .evaluateJavascript("document.body.innerText")
-        .then((data) {
-      var decodedJSON = jsonDecode(data);
-      Map<String, dynamic> responseJSON = jsonDecode(decodedJSON);
-      print(data.toString());
-      if (responseJSON["result"] == false) {
-        Toast.show(responseJSON["message"], context,
-            duration: Toast.LENGTH_LONG, gravity: Toast.CENTER);
-        Navigator.pop(context);
-      } else if (responseJSON["result"] == true) {
-        payment_details = responseJSON['payment_details'];
-        onPaymentSuccess(payment_details);
-      }
-    });
+    // _webViewController
+    //     .evaluateJavascript("document.body.innerText")
+    //     .then((data) {
+    //   var decodedJSON = jsonDecode(data);
+    //   Map<String, dynamic> responseJSON = jsonDecode(decodedJSON);
+    //   print(data.toString());
+    //   if (responseJSON["result"] == false) {
+    //     Toast.show(responseJSON["message"],
+    //         duration: Toast.lengthLong, gravity: Toast.center);
+    //     Navigator.pop(context);
+    //   } else if (responseJSON["result"] == true) {
+    //     payment_details = responseJSON['payment_details'];
+    //     onPaymentSuccess(payment_details);
+    //   }
+    // });
   }
-  onPaymentSuccess(payment_details) async{
 
-    var nagadPaymentProcessResponse = await PaymentRepository().getNagadPaymentProcessResponse(widget.payment_type, widget.amount,_combined_order_id, payment_details);
+  onPaymentSuccess(payment_details) async {
+    var nagadPaymentProcessResponse = await PaymentRepository()
+        .getNagadPaymentProcessResponse(widget.payment_type, widget.amount,
+            _combined_order_id, payment_details);
 
-    if(nagadPaymentProcessResponse.result == false ){
-
-      Toast.show(nagadPaymentProcessResponse.message, context,
-          duration: Toast.LENGTH_LONG, gravity: Toast.CENTER);
+    if (nagadPaymentProcessResponse.result == false) {
+      Toast.show(nagadPaymentProcessResponse.message ?? "",
+          duration: Toast.lengthLong, gravity: Toast.center);
       Navigator.pop(context);
       return;
     }
 
-    Toast.show(nagadPaymentProcessResponse.message, context,
-        duration: Toast.LENGTH_LONG, gravity: Toast.CENTER);
+    Toast.show(nagadPaymentProcessResponse.message ?? "",
+        duration: Toast.lengthLong, gravity: Toast.center);
     if (widget.payment_type == "cart_payment") {
       Navigator.push(context, MaterialPageRoute(builder: (context) {
         return OrderList(from_checkout: true);
@@ -138,10 +137,7 @@ class _NagadScreenState extends State<NagadScreen> {
         return Wallet(from_recharge: true);
       }));
     }
-
-
   }
-  
 
   buildBody() {
     if (_order_init == false &&
@@ -149,13 +145,14 @@ class _NagadScreenState extends State<NagadScreen> {
         widget.payment_type == "cart_payment") {
       return Container(
         child: Center(
-          child: Text(AppLocalizations.of(context).common_creating_order),
+          child: Text(AppLocalizations.of(context)!.common_creating_order),
         ),
       );
     } else if (_initial_url_fetched == false) {
       return Container(
         child: Center(
-          child: Text(AppLocalizations.of(context).nagad_screen_fetching_nagad_url),
+          child: Text(
+              AppLocalizations.of(context)!.nagad_screen_fetching_nagad_url),
         ),
       );
     } else {
@@ -168,7 +165,7 @@ class _NagadScreenState extends State<NagadScreen> {
             javascriptMode: JavascriptMode.unrestricted,
             onWebViewCreated: (controller) {
               _webViewController = controller;
-              _webViewController.loadUrl(_initial_url);
+              _webViewController?.loadUrl(_initial_url);
             },
             onWebResourceError: (error) {},
             onPageFinished: (page) {
@@ -193,7 +190,7 @@ class _NagadScreenState extends State<NagadScreen> {
 
   AppBar buildAppBar(BuildContext context) {
     return AppBar(
-backgroundColor: Colors.white,
+      backgroundColor: Colors.white,
       centerTitle: true,
       leading: Builder(
         builder: (context) => IconButton(
@@ -202,7 +199,7 @@ backgroundColor: Colors.white,
         ),
       ),
       title: Text(
-        AppLocalizations.of(context).nagad_screen_pay_with_nagad,
+        AppLocalizations.of(context)!.nagad_screen_pay_with_nagad,
         style: TextStyle(fontSize: 16, color: MyTheme.accent_color),
       ),
       elevation: 0.0,

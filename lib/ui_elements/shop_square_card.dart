@@ -4,11 +4,11 @@ import 'package:webixes/app_config.dart';
 import 'package:webixes/screens/seller_details.dart';
 
 class ShopSquareCard extends StatefulWidget {
-  int id;
-  String image;
-  String name;
+  int? id;
+  String? image;
+  String? name;
 
-  ShopSquareCard({Key key,this.id, this.image, this.name}) : super(key: key);
+  ShopSquareCard({Key? key, this.id, this.image, this.name}) : super(key: key);
 
   @override
   _ShopSquareCardState createState() => _ShopSquareCardState();
@@ -18,9 +18,11 @@ class _ShopSquareCardState extends State<ShopSquareCard> {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: (){
+      onTap: () {
         Navigator.push(context, MaterialPageRoute(builder: (context) {
-          return SellerDetails(id: widget.id,);
+          return SellerDetails(
+            id: widget.id,
+          );
         }));
       },
       child: Card(
@@ -34,48 +36,46 @@ class _ShopSquareCardState extends State<ShopSquareCard> {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              widget.name!=null?Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Container(
-                    //width: double.infinity,
-                    //height: ((MediaQuery.of(context).size.width - 24) /2) * .72,
-                    width: 180,
-                    height: 110,
-                    child: ClipRRect(
-                        borderRadius: BorderRadius.vertical(
-                            top: Radius.circular(0), bottom: Radius.zero),
-                        child:
-                       FadeInImage.assetNetwork(
-                          placeholder: 'assets/placeholder.png',
-                          image: AppConfig.BASE_PATH + widget.image,
-                          fit: BoxFit.cover,
-                        )
+              widget.name != null
+                  ? Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Container(
+                          //width: double.infinity,
+                          //height: ((MediaQuery.of(context).size.width - 24) /2) * .72,
+                          width: 180,
+                          height: 110,
+                          child: ClipRRect(
+                              borderRadius: BorderRadius.vertical(
+                                  top: Radius.circular(0), bottom: Radius.zero),
+                              child: FadeInImage.assetNetwork(
+                                placeholder: 'assets/placeholder.png',
+                                image:
+                                    AppConfig.BASE_PATH + (widget.image ?? ""),
+                                fit: BoxFit.cover,
+                              ))),
                     )
-                ),
-              ):Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Container(
-                  //width: double.infinity,
-                  //height: ((MediaQuery.of(context).size.width - 24) /2) * .72,
-                    width: 180,
-                    height: 110,
-                    child: ClipRRect(
-                        borderRadius: BorderRadius.vertical(
-                            top: Radius.circular(0), bottom: Radius.zero),
-                        child: Image.asset(
-                           AppConfig.BASE_PATH + widget.image,
-                          fit: BoxFit.cover,
-                        )
-                    )
-                ),
-              ),
+                  : Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Container(
+                          //width: double.infinity,
+                          //height: ((MediaQuery.of(context).size.width - 24) /2) * .72,
+                          width: 180,
+                          height: 110,
+                          child: ClipRRect(
+                              borderRadius: BorderRadius.vertical(
+                                  top: Radius.circular(0), bottom: Radius.zero),
+                              child: Image.asset(
+                                AppConfig.BASE_PATH + (widget.image ?? ""),
+                                fit: BoxFit.cover,
+                              ))),
+                    ),
               Expanded(
                 child: Container(
                   //height: 40,
                   child: Padding(
                     padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
                     child: Text(
-                      widget.name,
+                      widget.name ?? '',
                       textAlign: TextAlign.left,
                       overflow: TextOverflow.ellipsis,
                       maxLines: 3,

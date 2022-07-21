@@ -12,7 +12,7 @@ class TopSellingProducts extends StatefulWidget {
 }
 
 class _TopSellingProductsState extends State<TopSellingProducts> {
-  ScrollController _scrollController;
+  ScrollController? _scrollController;
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +37,8 @@ class _TopSellingProductsState extends State<TopSellingProducts> {
         ),
       ),
       title: Text(
-        AppLocalizations.of(context).top_selling_products_screen_top_selling_products,
+        AppLocalizations.of(context)!
+            .top_selling_products_screen_top_selling_products,
         style: TextStyle(fontSize: 16, color: MyTheme.accent_color),
       ),
       elevation: 0.0,
@@ -61,7 +62,8 @@ class _TopSellingProductsState extends State<TopSellingProducts> {
               child: GridView.builder(
                 // 2
                 //addAutomaticKeepAlives: true,
-                itemCount: productResponse.products.length,
+                //itemCount: productResponse.products.length,
+                itemCount: 0,
                 controller: _scrollController,
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
@@ -74,14 +76,16 @@ class _TopSellingProductsState extends State<TopSellingProducts> {
                 itemBuilder: (context, index) {
                   // 3
                   return ProductCard(
-                    id: productResponse.products[index].id,
-                    image:  productResponse.products[index].thumbnail_image!=null?productResponse.products[index].thumbnail_image.replaceAll(",",""):null,
-                    name: productResponse.products[index].name,
-                    main_price: productResponse.products[index].main_price,
-                    stroked_price:
-                        productResponse.products[index].stroked_price,
-                    has_discount: productResponse.products[index].has_discount,
+                    //  id: (productResponse.products[index].id??0),
 
+                    id: 0,
+                    image: "productResponse.products[index].thumbnail_image",
+                    name: "productResponse.products[index].name",
+                    main_price: "productResponse.products[index].main_price",
+                    stroked_price:
+                        "productResponse.products[index].stroked_price",
+                    // has_discount: productResponse.products[index].has_discount,
+                    has_discount: false,
                   );
                 },
               ),

@@ -1,4 +1,3 @@
-
 import 'package:location/location.dart';
 import 'package:webixes/my_theme.dart';
 import 'package:webixes/screens/seller_details.dart';
@@ -9,32 +8,25 @@ import 'package:webixes/helpers/shimmer_helper.dart';
 import 'package:webixes/helpers/shared_value_helper.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-
-
 class NearByShops extends StatefulWidget {
   NearByShops({
-    Key key,
+    Key? key,
   }) : super(key: key);
-
 
   @override
   _NearByShopsState createState() => _NearByShopsState();
 }
 
 class _NearByShopsState extends State<NearByShops> {
- // Position _currentPosition;
+  // Position _currentPosition;
 
   ScrollController _shopScrollController = ScrollController();
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
-  ScrollController _scrollController;
-
-
-
+  ScrollController? _scrollController;
 
   //--------------------
-
 
   //----------------------------------------
   String _searchKey = "";
@@ -46,7 +38,7 @@ class _NearByShopsState extends State<NearByShops> {
 
   //----------------------------------------
 
-  LocationData currentLocation;
+  LocationData? currentLocation;
   String address = "";
 
   @override
@@ -65,17 +57,19 @@ class _NearByShopsState extends State<NearByShops> {
   init() {
     _getLocation().then((value) {
       LocationData location = value;
-      _getAddress(location?.latitude, location?.longitude)
+      _getAddress(location?.latitude ?? 0, location?.longitude ?? 0)
           .then((value) {
         setState(() {
           currentLocation = location;
-          print( "Location: ${currentLocation?.latitude}, ${currentLocation?.longitude}");
+          print(
+              "Location: ${currentLocation?.latitude}, ${currentLocation?.longitude}");
           address = value;
           fetchShopData();
         });
       });
     });
   }
+
   Future<LocationData> _getLocation() async {
     Location location = new Location();
     LocationData _locationData;
@@ -86,24 +80,24 @@ class _NearByShopsState extends State<NearByShops> {
     _serviceEnabled = await location.serviceEnabled();
     if (!_serviceEnabled) {
       _serviceEnabled = await location.requestService();
-      if (!_serviceEnabled) {
-        return null;
-      }
+      // if (!_serviceEnabled) {
+      //   return "j";
+      // }
     }
 
     _permissionGranted = await location.hasPermission();
     if (_permissionGranted == PermissionStatus.denied) {
       _permissionGranted = await location.requestPermission();
-      if (_permissionGranted != PermissionStatus.granted) {
-        return null;
-      }
+      // if (_permissionGranted != PermissionStatus.granted) {
+      //   return null;
+      // }
     }
-
 
     _locationData = await location.getLocation();
 
     return _locationData;
   }
+
   Future<String> _getAddress(double lat, double lang) async {
     if (lat == null || lang == null) return "";
 
@@ -111,7 +105,7 @@ class _NearByShopsState extends State<NearByShops> {
     //Address address =
     //await geoCode.reverseGeocoding(latitude: lat, longitude: lang);
     //return "${address.streetAddress}, ${address.city}, ${address.countryName}, ${address.postal}";
-  return "";
+    return "";
   }
 /*  _getCurrentLocation() {
     print("hi");
@@ -131,23 +125,22 @@ class _NearByShopsState extends State<NearByShops> {
     });
   }*/
 
-
   resetProductList() {
     setState(() {});
   }
-
-
 
   resetBrandList() {
     setState(() {});
   }
 
   fetchShopData() async {
-    var shopResponse =
-    await ShopRepository().getNearByShops(lat:currentLocation.latitude, lag:currentLocation.longitude,);
-    _shopList.addAll(shopResponse.shops);
+    var shopResponse = await ShopRepository().getNearByShops(
+      lat: currentLocation?.latitude ?? 0,
+      lag: currentLocation?.longitude,
+    );
+    _shopList.addAll(shopResponse.shops ?? []);
     _isShopInitial = false;
-    _totalShopData = shopResponse.meta.total;
+    _totalShopData = shopResponse.meta?.total ?? 0;
     _showShopLoadingContainer = false;
     //print("_shopPage:" + _shopPage.toString());
     //print("_totalShopData:" + _totalShopData.toString());
@@ -167,16 +160,11 @@ class _NearByShopsState extends State<NearByShops> {
     setState(() {});
   }
 
-
-
   Future<void> _onShopListRefresh() async {
     reset();
     resetShopList();
     fetchShopData();
   }
-
-
-
 
   Container buildShopLoadingContainer() {
     return Container(
@@ -185,8 +173,8 @@ class _NearByShopsState extends State<NearByShops> {
       color: Colors.white,
       child: Center(
         child: Text(_totalShopData == _shopList.length
-            ? AppLocalizations.of(context).common_no_more_shops
-            : AppLocalizations.of(context).common_loading_more_shops),
+            ? AppLocalizations.of(context)!.common_no_more_shops
+            : AppLocalizations.of(context)!.common_loading_more_shops),
       ),
     );
   }
@@ -203,9 +191,8 @@ class _NearByShopsState extends State<NearByShops> {
       child: Scaffold(
         key: _scaffoldKey,
         backgroundColor: Colors.white,
-        body: Stack(
-            overflow: Overflow.visible, children: [
-              buildShopList(),
+        body: Stack(children: [
+          buildShopList(),
           Positioned(
             top: 0.0,
             left: 0.0,
@@ -214,7 +201,7 @@ class _NearByShopsState extends State<NearByShops> {
           ),
           Align(
               alignment: Alignment.bottomCenter,
-              child:buildShopLoadingContainer())
+              child: buildShopLoadingContainer())
         ]),
       ),
     );
@@ -233,34 +220,28 @@ class _NearByShopsState extends State<NearByShops> {
           child: Column(
             children: [buildTopAppbar(context)],
           ),
-        )
-    );
+        ));
   }
-
-
 
   Row buildTopAppbar(BuildContext context) {
-    return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <
-        Widget>[
-      IconButton(
-        icon: Icon(Icons.arrow_back, color: MyTheme.dark_grey),
-        onPressed: () => Navigator.of(context).pop(),
-      ),
-      Container(
-        width: MediaQuery.of(context).size.width * .6,
-        child: Container(
-          child:Text(
-    '',
-    style: TextStyle(fontSize: 16, color: MyTheme.black),
-    ),
-        ),
-      ),
-    ]);
+    return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          IconButton(
+            icon: Icon(Icons.arrow_back, color: MyTheme.dark_grey),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          Container(
+            width: MediaQuery.of(context).size.width * .6,
+            child: Container(
+              child: Text(
+                '',
+                style: TextStyle(fontSize: 16, color: MyTheme.black),
+              ),
+            ),
+          ),
+        ]);
   }
-
-
-
-
 
   Container buildShopList() {
     return Container(
@@ -293,9 +274,9 @@ class _NearByShopsState extends State<NearByShops> {
             children: [
               SizedBox(
                   height:
-                  MediaQuery.of(context).viewPadding.top > 40 ? 180 : 135
-                //MediaQuery.of(context).viewPadding.top is the statusbar height, with a notch phone it results almost 50, without a notch it shows 24.0.For safety we have checked if its greater than thirty
-              ),
+                      MediaQuery.of(context).viewPadding.top > 40 ? 180 : 135
+                  //MediaQuery.of(context).viewPadding.top is the statusbar height, with a notch phone it results almost 50, without a notch it shows 24.0.For safety we have checked if its greater than thirty
+                  ),
               ListView.builder(
                 // 2
                 //addAutomaticKeepAlives: true,
@@ -307,22 +288,24 @@ class _NearByShopsState extends State<NearByShops> {
                 shrinkWrap: true,
                 itemBuilder: (context, index) {
                   // 3
-                  return _shopList[index].logo!=null? Container(
-                    height: 140,
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) {
-                              return SellerDetails();
-                            }));
-                      },
-                      child: ShopSquareCard(
-                        id: _shopList[index].id,
-                        image: _shopList[index].logo.replaceAll(",", ""),
-                        name: _shopList[index].name,
-                      ),
-                    ),
-                  ):Container();
+                  return _shopList[index].logo != null
+                      ? Container(
+                          height: 140,
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.push(context,
+                                  MaterialPageRoute(builder: (context) {
+                                return SellerDetails();
+                              }));
+                            },
+                            child: ShopSquareCard(
+                              id: _shopList[index].id,
+                              image: _shopList[index].logo.replaceAll(",", ""),
+                              name: _shopList[index].name,
+                            ),
+                          ),
+                        )
+                      : Container();
                 },
               )
             ],
@@ -330,7 +313,9 @@ class _NearByShopsState extends State<NearByShops> {
         ),
       );
     } else if (_totalShopData == 0) {
-      return Center(child: Text(AppLocalizations.of(context).common_no_shop_is_available));
+      return Center(
+          child:
+              Text(AppLocalizations.of(context)!.common_no_shop_is_available));
     } else {
       return Container(); // should never be happening
     }

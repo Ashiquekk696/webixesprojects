@@ -6,23 +6,32 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:webixes/screens/product_details.dart';
 import 'package:webixes/app_config.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:toast/toast.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 class ProductCard extends StatefulWidget {
+  int? id;
+  String? image;
+  String? name;
+  String? shop_name;
+  String? main_price;
+  String? stroked_price;
+  bool? has_discount;
+  bool? wishListButton;
 
-  int id;
-  String image;
-  String name;
-  String shop_name;
-  String main_price;
-  String stroked_price;
-  bool has_discount;
-  bool wishListButton;
-
-
-  ProductCard({Key key,this.id, this.image, this.name, this.main_price,this.stroked_price,this.has_discount,this.wishListButton,this.shop_name}) : super(key: key);
+  ProductCard(
+      {Key? key,
+      this.id,
+      this.image,
+      this.name,
+      this.main_price,
+      this.stroked_price,
+      this.has_discount,
+      this.wishListButton,
+      this.shop_name})
+      : super(key: key);
 
   @override
   _ProductCardState createState() => _ProductCardState();
@@ -30,15 +39,15 @@ class ProductCard extends StatefulWidget {
 
 class _ProductCardState extends State<ProductCard> {
 // bool _isInWishList=true;
- @override
- void initState() {
+  @override
+  void initState() {
+    super.initState();
+    fetchWishListCheckInfo();
+  }
 
-   super.initState();
-   fetchWishListCheckInfo();
- }
   fetchWishListCheckInfo() async {
     var wishListCheckResponse =
-    await WishListRepository().isProductInUserWishList(
+        await WishListRepository().isProductInUserWishList(
       product_id: widget.id,
     );
 
@@ -49,7 +58,7 @@ class _ProductCardState extends State<ProductCard> {
 
   addToWishList() async {
     var wishListCheckResponse =
-    await WishListRepository().add(product_id: widget.id);
+        await WishListRepository().add(product_id: widget.id);
 
     //print("p&u:" + widget.id.toString() + " | " + _user_id.toString());
     widget.wishListButton = wishListCheckResponse.is_in_wishlist;
@@ -58,7 +67,7 @@ class _ProductCardState extends State<ProductCard> {
 
   removeFromWishList() async {
     var wishListCheckResponse =
-    await WishListRepository().remove(product_id: widget.id);
+        await WishListRepository().remove(product_id: widget.id);
 
     //print("p&u:" + widget.id.toString() + " | " + _user_id.toString());
     widget.wishListButton = wishListCheckResponse.is_in_wishlist;
@@ -67,12 +76,13 @@ class _ProductCardState extends State<ProductCard> {
 
   onWishTap() {
     if (is_logged_in.$ == false) {
-      ToastComponent.showDialog(AppLocalizations.of(context).common_login_warning, context,
-          gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+      ToastComponent.showDialog(
+          AppLocalizations.of(context)!.common_login_warning, context,
+          gravity: Toast.center, duration: Toast.lengthLong);
       return;
     }
 
-    if (widget.wishListButton) {
+    if (widget.wishListButton ?? false) {
       widget.wishListButton = false;
       setState(() {});
       removeFromWishList();
@@ -82,18 +92,21 @@ class _ProductCardState extends State<ProductCard> {
       addToWishList();
     }
   }
+
   @override
   Widget build(BuildContext context) {
-    print((MediaQuery.of(context).size.width - 48 ) / 2);
+    print((MediaQuery.of(context).size.width - 48) / 2);
     print("pp card-->${widget.image}");
     return InkWell(
       onTap: () {
         Navigator.push(context, MaterialPageRoute(builder: (context) {
-          return ProductDetails(id: widget.id,);
+          return ProductDetails(
+            id: widget.id,
+          );
         }));
       },
       child: Card(
-         //clipBehavior: Clip.antiAliasWithSaveLayer,
+        //clipBehavior: Clip.antiAliasWithSaveLayer,
         shape: RoundedRectangleBorder(
           side: new BorderSide(color: MyTheme.light_grey, width: 1.0),
           borderRadius: BorderRadius.circular(16.0),
@@ -109,74 +122,78 @@ class _ProductCardState extends State<ProductCard> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     //Container(width: 89,),
-                    Expanded(child:Row(
+                    Expanded(
+                        child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                      /*  Icon(
+                        /*  Icon(
                           CupertinoIcons.refresh_thin,
                           color: Color.fromRGBO(230, 46, 4, 1),size: 18,
                         ),*/
-                        SizedBox(width: 10,),
-                        widget.wishListButton
+                        SizedBox(
+                          width: 10,
+                        ),
+                        widget.wishListButton ?? false
                             ? InkWell(
-                          onTap: () {
-                            onWishTap();
-                          },
-                          child: Icon(
-                            FontAwesome.heart,
-                            color: Color.fromRGBO(230, 46, 4, 1),
-                            size: 18,
-                          ),
-                        )
+                                onTap: () {
+                                  onWishTap();
+                                },
+                                child: Icon(
+                                  Icons.abc,
+                                  color: Color.fromRGBO(230, 46, 4, 1),
+                                  size: 18,
+                                ),
+                              )
                             : InkWell(
-                          onTap: () {
-                            onWishTap();
-                          },
-                          child: Icon(
-                            FontAwesome.heart_o,
-                            color: Color.fromRGBO(230, 46, 4, 1),
-                            size: 18,
-                          ),
-                        )
+                                onTap: () {
+                                  onWishTap();
+                                },
+                                child: Icon(
+                                  Icons.abc,
+                                  color: Color.fromRGBO(230, 46, 4, 1),
+                                  size: 18,
+                                ),
+                              )
                       ],
                     ))
                   ],
                 ),
               ),
-              widget.image!=null?Expanded(
-                child: Container(
-                    width: double.infinity,
-                   // height: 150,
-                 //  height: (( MediaQuery.of(context).size.width - 20 ) / 2) + 2,
-                    child: ClipRRect(
-                      clipBehavior: Clip.hardEdge,
-                        borderRadius: BorderRadius.vertical(
-                            top: Radius.circular(0), bottom: Radius.zero),
-                        child: FadeInImage.assetNetwork(
-                          placeholder: 'assets/placeholder.png',
-                          image: AppConfig.BASE_PATH + widget.image,
-                          fit: BoxFit.contain,
-                        ))),
-              ):
+              widget.image != null
+                  ? Expanded(
+                      child: Container(
+                          width: double.infinity,
+                          // height: 150,
+                          //  height: (( MediaQuery.of(context).size.width - 20 ) / 2) + 2,
+                          child: ClipRRect(
+                              clipBehavior: Clip.hardEdge,
+                              borderRadius: BorderRadius.vertical(
+                                  top: Radius.circular(0), bottom: Radius.zero),
+                              child: FadeInImage.assetNetwork(
+                                placeholder: 'assets/placeholder.png',
+                                image:
+                                    AppConfig.BASE_PATH + (widget.image ?? ""),
+                                fit: BoxFit.contain,
+                              ))),
+                    )
+                  : Container(
+                      width: double.infinity,
+                      height: 100,
+                      // height: (( MediaQuery.of(context).size.width - 28 ) / 2) + 2,
+                      child: ClipRRect(
+                          clipBehavior: Clip.hardEdge,
+                          borderRadius: BorderRadius.vertical(
+                              top: Radius.circular(0), bottom: Radius.zero),
+                          child: Image.asset("assets/placeholder.png"))),
               Container(
-                  width: double.infinity,
-                  height: 100,
-                 // height: (( MediaQuery.of(context).size.width - 28 ) / 2) + 2,
-                  child: ClipRRect(
-                      clipBehavior: Clip.hardEdge,
-                      borderRadius: BorderRadius.vertical(
-                          top: Radius.circular(0), bottom: Radius.zero),
-                      child:Image.asset("assets/placeholder.png")
-                  )),
-             Container(
-              //  height: 60,
+                //  height: 60,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Padding(
                       padding: EdgeInsets.fromLTRB(16, 0, 16, 0),
                       child: Text(
-                        widget.name,
+                        widget.name ?? "",
                         overflow: TextOverflow.ellipsis,
                         maxLines: 2,
                         style: TextStyle(
@@ -186,23 +203,25 @@ class _ProductCardState extends State<ProductCard> {
                             fontWeight: FontWeight.w400),
                       ),
                     ),
-                    widget.shop_name!=null?  Padding(
-                      padding: EdgeInsets.fromLTRB(16, 1, 16, 0),
-                      child: Text(
-                        widget.shop_name,
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 2,
-                        style: TextStyle(
-                            color: MyTheme.font_grey,
-                            fontSize: 14,
-                            height: 1.2,
-                            fontWeight: FontWeight.w400),
-                      ),
-                    ):Container(),
+                    widget.shop_name != null
+                        ? Padding(
+                            padding: EdgeInsets.fromLTRB(16, 1, 16, 0),
+                            child: Text(
+                              widget.shop_name ?? "",
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 2,
+                              style: TextStyle(
+                                  color: MyTheme.font_grey,
+                                  fontSize: 14,
+                                  height: 1.2,
+                                  fontWeight: FontWeight.w400),
+                            ),
+                          )
+                        : Container(),
                     Padding(
                       padding: EdgeInsets.fromLTRB(16, 4, 16, 0),
                       child: Text(
-                        widget.main_price,
+                        widget.main_price ?? "",
                         textAlign: TextAlign.left,
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
@@ -212,24 +231,26 @@ class _ProductCardState extends State<ProductCard> {
                             fontWeight: FontWeight.w600),
                       ),
                     ),
-                   widget.has_discount ? Padding(
-                      padding: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                      child: Text(
-                        widget.stroked_price,
-                        textAlign: TextAlign.left,
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                        style: TextStyle(
-                          decoration:TextDecoration.lineThrough,
-                            color: MyTheme.accent_color,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600),
-                      ),
-                    ):Container(),
+                    (widget.has_discount ?? false)
+                        ? Padding(
+                            padding: EdgeInsets.fromLTRB(16, 0, 16, 0),
+                            child: Text(
+                              widget.stroked_price ?? "",
+                              textAlign: TextAlign.left,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                              style: TextStyle(
+                                  decoration: TextDecoration.lineThrough,
+                                  color: MyTheme.accent_color,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                          )
+                        : Container(),
                   ],
                 ),
               ),
-             /* Padding(
+              /* Padding(
                 padding: const EdgeInsets.only(bottom: 8.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,

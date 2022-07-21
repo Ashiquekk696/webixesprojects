@@ -21,7 +21,7 @@ class PushNotificationService {
       provisional: false,
       sound: true,
     );
-    String fcmToken = await _fcm.getToken();
+    String fcmToken = await _fcm.getToken() ?? "";
 
     if (fcmToken != null) {
       print("--fcm token--");
@@ -64,7 +64,7 @@ class PushNotificationService {
             onPressed: () {
               if (is_logged_in.$ == false) {
                 ToastComponent.showDialog("You are not logged in", context,
-                    gravity: Toast.TOP, duration: Toast.LENGTH_LONG);
+                    gravity: Toast.top, duration: Toast.lengthLong);
                 return;
               }
               print(message);
@@ -87,25 +87,25 @@ class PushNotificationService {
     print(message.toString());
     if (is_logged_in.$ == false) {
       OneContext().showDialog(
-        // barrierDismissible: false,
+          // barrierDismissible: false,
           builder: (context) => AlertDialog(
-            title: new Text("You are not logged in"),
-            content: new Text("Please log in"),
-            actions: <Widget>[
-              FlatButton(
-                child: Text('close'),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-              FlatButton(
-                  child: Text('Login'),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    OneContext().push(MaterialPageRoute(builder: (_) {
-                      return Login();
-                    }));
-                  }),
-            ],
-          ));
+                title: new Text("You are not logged in"),
+                content: new Text("Please log in"),
+                actions: <Widget>[
+                  FlatButton(
+                    child: Text('close'),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                  FlatButton(
+                      child: Text('Login'),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        OneContext().push(MaterialPageRoute(builder: (_) {
+                          return Login();
+                        }));
+                      }),
+                ],
+              ));
       return;
     }
     if (message['data']['item_type'] == 'order') {
@@ -116,5 +116,4 @@ class PushNotificationService {
       }));
     } // If there's no view it'll just open the app on the first view    }
   }
-
 }

@@ -16,7 +16,7 @@ class SslCommerzScreen extends StatefulWidget {
   String payment_method_key;
 
   SslCommerzScreen(
-      {Key key,
+      {Key? key,
       this.amount = 0.00,
       this.payment_type = "",
       this.payment_method_key = ""})
@@ -33,7 +33,7 @@ class _SslCommerzScreenState extends State<SslCommerzScreen> {
   String _initial_url = "";
   bool _initial_url_fetched = false;
 
-  WebViewController _webViewController;
+  WebViewController? _webViewController;
 
   @override
   void initState() {
@@ -52,16 +52,16 @@ class _SslCommerzScreenState extends State<SslCommerzScreen> {
 
   createOrder() async {
     var orderCreateResponse = await PaymentRepository()
-        .getOrderCreateResponse( widget.payment_method_key);
+        .getOrderCreateResponse(widget.payment_method_key);
 
     if (orderCreateResponse.result == false) {
-      ToastComponent.showDialog(orderCreateResponse.message, context,
-          gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+      ToastComponent.showDialog(orderCreateResponse.message ?? "", context,
+          gravity: Toast.center, duration: Toast.lengthLong);
       Navigator.of(context).pop();
       return;
     }
 
-    _combined_order_id = orderCreateResponse.combined_order_id;
+    _combined_order_id = orderCreateResponse.combined_order_id ?? 0;
     _order_init = true;
     setState(() {});
 
@@ -69,19 +69,19 @@ class _SslCommerzScreenState extends State<SslCommerzScreen> {
   }
 
   getSetInitialUrl() async {
-    var sslcommerzUrlResponse = await PaymentRepository().getSslcommerzBeginResponse(
-        widget.payment_type, _combined_order_id, widget.amount);
+    var sslcommerzUrlResponse = await PaymentRepository()
+        .getSslcommerzBeginResponse(
+            widget.payment_type, _combined_order_id, widget.amount);
 
     if (sslcommerzUrlResponse.result == false) {
-      ToastComponent.showDialog(sslcommerzUrlResponse.message, context,
-          gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+      ToastComponent.showDialog(sslcommerzUrlResponse.message ?? "", context,
+          gravity: Toast.center, duration: Toast.lengthLong);
       Navigator.of(context).pop();
       return;
     }
 
-    _initial_url = sslcommerzUrlResponse.url;
+    _initial_url = sslcommerzUrlResponse.url ?? "";
     _initial_url_fetched = true;
-
 
     setState(() {});
 
@@ -102,33 +102,31 @@ class _SslCommerzScreenState extends State<SslCommerzScreen> {
   }
 
   void getData() {
-    _webViewController
-        .evaluateJavascript("document.body.innerText")
-        .then((data) {
-      var decodedJSON = jsonDecode(data);
-      Map<String, dynamic> responseJSON = jsonDecode(decodedJSON);
-      //print(data.toString());
-      if (responseJSON["result"] == false) {
-        Toast.show(responseJSON["message"], context,
-            duration: Toast.LENGTH_LONG, gravity: Toast.CENTER);
-        Navigator.pop(context);
-      } else if (responseJSON["result"] == true) {
-        Toast.show(responseJSON["message"], context,
-            duration: Toast.LENGTH_LONG, gravity: Toast.CENTER);
-        if (widget.payment_type == "cart_payment") {
-          Navigator.push(context, MaterialPageRoute(builder: (context) {
-            return OrderList(from_checkout: true);
-          }));
-        } else if (widget.payment_type == "wallet_payment") {
-          Navigator.push(context, MaterialPageRoute(builder: (context) {
-            return Wallet(from_recharge: true);
-          }));
-        }
-      }
-    });
+    // _webViewController
+    //     .evaluateJavascript("document.body.innerText")
+    //     .then((data) {
+    //   var decodedJSON = jsonDecode(data);
+    //   Map<String, dynamic> responseJSON = jsonDecode(decodedJSON);
+    //   //print(data.toString());
+    //   if (responseJSON["result"] == false) {
+    //     Toast.show(responseJSON["message"], context,
+    //         duration: Toast.LENGTH_LONG, gravity: Toast.CENTER);
+    //     Navigator.pop(context);
+    //   } else if (responseJSON["result"] == true) {
+    //     Toast.show(responseJSON["message"], context,
+    //         duration: Toast.LENGTH_LONG, gravity: Toast.CENTER);
+    //     if (widget.payment_type == "cart_payment") {
+    //       Navigator.push(context, MaterialPageRoute(builder: (context) {
+    //         return OrderList(from_checkout: true);
+    //       }));
+    //     } else if (widget.payment_type == "wallet_payment") {
+    //       Navigator.push(context, MaterialPageRoute(builder: (context) {
+    //         return Wallet(from_recharge: true);
+    //       }));
+    //     }
+    //   }
+    // });
   }
-
-
 
   buildBody() {
 /*    String initial_url =
@@ -142,13 +140,14 @@ class _SslCommerzScreenState extends State<SslCommerzScreen> {
         widget.payment_type == "cart_payment") {
       return Container(
         child: Center(
-          child: Text(AppLocalizations.of(context).common_creating_order),
+          child: Text(AppLocalizations.of(context)!.common_creating_order),
         ),
       );
-    }else if (_initial_url_fetched == false) {
+    } else if (_initial_url_fetched == false) {
       return Container(
         child: Center(
-          child: Text(AppLocalizations.of(context).sslcommerz_screen_fetching_sslcommerz_url),
+          child: Text(AppLocalizations.of(context)!
+              .sslcommerz_screen_fetching_sslcommerz_url),
         ),
       );
     } else {
@@ -161,7 +160,7 @@ class _SslCommerzScreenState extends State<SslCommerzScreen> {
             javascriptMode: JavascriptMode.unrestricted,
             onWebViewCreated: (controller) {
               _webViewController = controller;
-              _webViewController.loadUrl(_initial_url);
+              _webViewController?.loadUrl(_initial_url);
             },
             onWebResourceError: (error) {},
             onPageFinished: (page) {
@@ -169,9 +168,11 @@ class _SslCommerzScreenState extends State<SslCommerzScreen> {
 
               if (page.contains("/sslcommerz/success")) {
                 getData();
-              } else if (page.contains("/sslcommerz/cancel") || page.contains("/sslcommerz/fail")) {
-                ToastComponent.showDialog("Payment cancelled or failed", context,
-                    gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+              } else if (page.contains("/sslcommerz/cancel") ||
+                  page.contains("/sslcommerz/fail")) {
+                ToastComponent.showDialog(
+                    "Payment cancelled or failed", context,
+                    gravity: Toast.center, duration: Toast.lengthLong);
                 Navigator.of(context).pop();
                 return;
               }
@@ -184,7 +185,7 @@ class _SslCommerzScreenState extends State<SslCommerzScreen> {
 
   AppBar buildAppBar(BuildContext context) {
     return AppBar(
-backgroundColor: Colors.white,
+      backgroundColor: Colors.white,
       centerTitle: true,
       leading: Builder(
         builder: (context) => IconButton(
@@ -193,7 +194,7 @@ backgroundColor: Colors.white,
         ),
       ),
       title: Text(
-        AppLocalizations.of(context).sslcommerz_screen_pay_with_sslcommerz  ,
+        AppLocalizations.of(context)!.sslcommerz_screen_pay_with_sslcommerz,
         style: TextStyle(fontSize: 16, color: MyTheme.accent_color),
       ),
       elevation: 0.0,

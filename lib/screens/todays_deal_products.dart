@@ -6,14 +6,13 @@ import 'package:webixes/helpers/shimmer_helper.dart';
 import 'package:webixes/helpers/shared_value_helper.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-
 class TodaysDealProducts extends StatefulWidget {
   @override
   _TodaysDealProductsState createState() => _TodaysDealProductsState();
 }
 
 class _TodaysDealProductsState extends State<TodaysDealProducts> {
-  ScrollController _scrollController;
+  ScrollController? _scrollController;
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +37,7 @@ class _TodaysDealProductsState extends State<TodaysDealProducts> {
         ),
       ),
       title: Text(
-        AppLocalizations.of(context).todays_deal_products_screen_todays_deal,
+        AppLocalizations.of(context)!.todays_deal_products_screen_todays_deal,
         style: TextStyle(fontSize: 16, color: MyTheme.accent_color),
       ),
       elevation: 0.0,
@@ -61,7 +60,7 @@ class _TodaysDealProductsState extends State<TodaysDealProducts> {
               child: GridView.builder(
                 // 2
                 //addAutomaticKeepAlives: true,
-                itemCount: productResponse.products.length,
+                itemCount: 3,
                 controller: _scrollController,
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
@@ -74,14 +73,16 @@ class _TodaysDealProductsState extends State<TodaysDealProducts> {
                 itemBuilder: (context, index) {
                   // 3
                   return ProductCard(
-                    id: productResponse.products[index].id,
-                    image: productResponse.products[index].thumbnail_image,
-                    name: productResponse.products[index].name,
-                    main_price: productResponse.products[index].main_price,
-                    stroked_price:
-                        productResponse.products[index].stroked_price,
-                    has_discount: productResponse.products[index].has_discount,
+                    //  id: (productResponse.products[index].id??0),
 
+                    id: 0,
+                    image: "productResponse.products[index].thumbnail_image",
+                    name: "productResponse.products[index].name",
+                    main_price: "productResponse.products[index].main_price",
+                    stroked_price:
+                        "productResponse.products[index].stroked_price",
+                    // has_discount: productResponse.products[index].has_discount,
+                    has_discount: false,
                   );
                 },
               ),

@@ -10,7 +10,6 @@ import 'package:webixes/screens/nagad_screen.dart';
 import 'package:webixes/screens/sslcommerz_screen.dart';
 import 'package:webixes/screens/flutterwave_screen.dart';
 import 'package:webixes/screens/paytm_screen.dart';
-import 'package:flutter_icons/flutter_icons.dart';
 import 'package:webixes/repositories/payment_repository.dart';
 
 import 'package:webixes/helpers/shimmer_helper.dart';
@@ -19,11 +18,10 @@ import 'package:toast/toast.dart';
 import 'package:webixes/helpers/shared_value_helper.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-
 class RechargeWallet extends StatefulWidget {
-  double amount;
+  double? amount;
 
-  RechargeWallet({Key key, this.amount}) : super(key: key);
+  RechargeWallet({Key? key, this.amount}) : super(key: key);
 
   @override
   _RechargeWalletState createState() => _RechargeWalletState();
@@ -91,147 +89,158 @@ class _RechargeWalletState extends State<RechargeWallet> {
     print(widget.amount);
 
     if (_selected_payment_method == "") {
-      ToastComponent.showDialog(AppLocalizations.of(context).common_payment_choice_warning, context,
-          gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+      ToastComponent.showDialog(
+          AppLocalizations.of(context)!.common_payment_choice_warning, context,
+          gravity: Toast.center, duration: Toast.lengthLong);
       return;
     }
 
     if (_selected_payment_method == "stripe_payment") {
       if (widget.amount == 0.00) {
-        ToastComponent.showDialog(AppLocalizations.of(context).common_nothing_to_pay, context,
-            gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+        ToastComponent.showDialog(
+            AppLocalizations.of(context)!.common_nothing_to_pay, context,
+            gravity: Toast.center, duration: Toast.lengthLong);
         return;
       }
 
       Navigator.push(context, MaterialPageRoute(builder: (context) {
         return StripeScreen(
-          amount: widget.amount,
+          amount: widget.amount ?? 0,
           payment_type: "wallet_payment",
           payment_method_key: _selected_payment_method_key,
         );
       }));
     } else if (_selected_payment_method == "paypal_payment") {
       if (widget.amount == 0.00) {
-        ToastComponent.showDialog(AppLocalizations.of(context).common_nothing_to_pay, context,
-            gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+        ToastComponent.showDialog(
+            AppLocalizations.of(context)!.common_nothing_to_pay, context,
+            gravity: Toast.center, duration: Toast.lengthLong);
         return;
       }
 
       Navigator.push(context, MaterialPageRoute(builder: (context) {
         return PaypalScreen(
-          amount: widget.amount,
+          amount: widget.amount ?? 0,
           payment_type: "wallet_payment",
           payment_method_key: _selected_payment_method_key,
         );
       }));
     } else if (_selected_payment_method == "razorpay") {
       if (widget.amount == 0.00) {
-        ToastComponent.showDialog(AppLocalizations.of(context).common_nothing_to_pay, context,
-            gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+        ToastComponent.showDialog(
+            AppLocalizations.of(context)!.common_nothing_to_pay, context,
+            gravity: Toast.center, duration: Toast.lengthLong);
         return;
       }
 
       Navigator.push(context, MaterialPageRoute(builder: (context) {
         return RazorpayScreen(
-          amount: widget.amount,
+          amount: widget.amount ?? 0,
           payment_type: "wallet_payment",
           payment_method_key: _selected_payment_method_key,
         );
       }));
     } else if (_selected_payment_method == "paystack") {
       if (widget.amount == 0.00) {
-        ToastComponent.showDialog(AppLocalizations.of(context).common_nothing_to_pay, context,
-            gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+        ToastComponent.showDialog(
+            AppLocalizations.of(context)!.common_nothing_to_pay, context,
+            gravity: Toast.center, duration: Toast.lengthLong);
         return;
       }
 
       Navigator.push(context, MaterialPageRoute(builder: (context) {
         return PaystackScreen(
-          amount: widget.amount,
+          amount: widget.amount ?? 0,
           payment_type: "wallet_payment",
           payment_method_key: _selected_payment_method_key,
         );
       }));
     } else if (_selected_payment_method == "iyzico") {
       if (widget.amount == 0.00) {
-        ToastComponent.showDialog(AppLocalizations.of(context).common_nothing_to_pay, context,
-            gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+        ToastComponent.showDialog(
+            AppLocalizations.of(context)!.common_nothing_to_pay, context,
+            gravity: Toast.center, duration: Toast.lengthLong);
         return;
       }
 
       Navigator.push(context, MaterialPageRoute(builder: (context) {
         return IyzicoScreen(
-          amount: widget.amount,
+          amount: widget.amount ?? 0,
           payment_type: "wallet_payment",
           payment_method_key: _selected_payment_method_key,
         );
       }));
     } else if (_selected_payment_method == "bkash") {
       if (widget.amount == 0.00) {
-        ToastComponent.showDialog(AppLocalizations.of(context).common_nothing_to_pay, context,
-            gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+        ToastComponent.showDialog(
+            AppLocalizations.of(context)!.common_nothing_to_pay, context,
+            gravity: Toast.center, duration: Toast.lengthLong);
         return;
       }
 
-      Navigator.push(context, MaterialPageRoute(builder: (context) {
-        return BkashScreen(
-          amount: widget.amount,
-          payment_type: "wallet_payment",
-          payment_method_key: _selected_payment_method_key,
-        );
-      }));
+      // Navigator.push(context, MaterialPageRoute(builder: (context) {
+      //   // return BkashScreen(
+      //   //   amount: widget.amount,
+      //   //   payment_type: "wallet_payment",
+      //   //   payment_method_key: _selected_payment_method_key,
+      //   // );
+      // }));
     } else if (_selected_payment_method == "nagad") {
       if (widget.amount == 0.00) {
-        ToastComponent.showDialog(AppLocalizations.of(context).common_nothing_to_pay, context,
-            gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+        ToastComponent.showDialog(
+            AppLocalizations.of(context)!.common_nothing_to_pay, context,
+            gravity: Toast.center, duration: Toast.lengthLong);
         return;
       }
 
       Navigator.push(context, MaterialPageRoute(builder: (context) {
         return NagadScreen(
-          amount: widget.amount,
+          amount: widget.amount ?? 0,
           payment_type: "wallet_payment",
           payment_method_key: _selected_payment_method_key,
         );
       }));
     } else if (_selected_payment_method == "sslcommerz_payment") {
       if (widget.amount == 0.00) {
-        ToastComponent.showDialog(AppLocalizations.of(context).common_nothing_to_pay, context,
-            gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+        ToastComponent.showDialog(
+            AppLocalizations.of(context)!.common_nothing_to_pay, context,
+            gravity: Toast.center, duration: Toast.lengthLong);
         return;
       }
 
       Navigator.push(context, MaterialPageRoute(builder: (context) {
         return SslCommerzScreen(
-          amount: widget.amount,
+          amount: widget.amount ?? 0,
           payment_type: "wallet_payment",
           payment_method_key: _selected_payment_method_key,
         );
       }));
     } else if (_selected_payment_method == "flutterwave") {
       if (widget.amount == 0.00) {
-        ToastComponent.showDialog(AppLocalizations.of(context).common_nothing_to_pay, context,
-            gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+        ToastComponent.showDialog(
+            AppLocalizations.of(context)!.common_nothing_to_pay, context,
+            gravity: Toast.center, duration: Toast.lengthLong);
         return;
       }
 
       Navigator.push(context, MaterialPageRoute(builder: (context) {
         return FlutterwaveScreen(
-          amount: widget.amount,
+          amount: widget.amount ?? 0,
           payment_type: "wallet_payment",
           payment_method_key: _selected_payment_method_key,
         );
       }));
     } else if (_selected_payment_method == "paytm") {
       if (widget.amount == 0.00) {
-        ToastComponent.showDialog(AppLocalizations.of(context).common_nothing_to_pay, context,
-            gravity: Toast.CENTER, duration: Toast.LENGTH_LONG);
+        ToastComponent.showDialog(
+            AppLocalizations.of(context)!.common_nothing_to_pay, context,
+            gravity: Toast.center, duration: Toast.lengthLong);
         return;
       }
 
       Navigator.push(context, MaterialPageRoute(builder: (context) {
         return PaytmScreen(
-          amount: widget.amount,
+          amount: widget.amount ?? 0,
           payment_type: "wallet_payment",
           payment_method_key: _selected_payment_method_key,
         );
@@ -298,7 +307,7 @@ class _RechargeWalletState extends State<RechargeWallet> {
         ),
       ),
       title: Text(
-        AppLocalizations.of(context).recharge_wallet_screen_recharge_wallet,
+        AppLocalizations.of(context)!.recharge_wallet_screen_recharge_wallet,
         style: TextStyle(fontSize: 16, color: MyTheme.accent_color),
       ),
       elevation: 0.0,
@@ -331,7 +340,7 @@ class _RechargeWalletState extends State<RechargeWallet> {
           height: 100,
           child: Center(
               child: Text(
-                AppLocalizations.of(context).common_no_payment_method_added,
+            AppLocalizations.of(context)!.common_no_payment_method_added,
             style: TextStyle(color: MyTheme.font_grey),
           )));
     }
@@ -424,7 +433,7 @@ class _RechargeWalletState extends State<RechargeWallet> {
                 borderRadius: BorderRadius.circular(16.0), color: Colors.green),
             child: Padding(
               padding: const EdgeInsets.all(3),
-              child: Icon(FontAwesome.check, color: Colors.white, size: 10),
+              child: Icon(Icons.check, color: Colors.white, size: 10),
             ),
           )
         : Container();
@@ -446,7 +455,8 @@ class _RechargeWalletState extends State<RechargeWallet> {
                 borderRadius: BorderRadius.circular(0.0),
               ),
               child: Text(
-                AppLocalizations.of(context).recharge_wallet_screen_recharge_wallet,
+                AppLocalizations.of(context)!
+                    .recharge_wallet_screen_recharge_wallet,
                 style: TextStyle(
                     color: Colors.white,
                     fontSize: 16,

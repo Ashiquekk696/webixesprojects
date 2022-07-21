@@ -4,14 +4,21 @@ import 'package:webixes/screens/product_details.dart';
 import 'package:webixes/app_config.dart';
 
 class ListProductCard extends StatefulWidget {
-  int id;
-  String image;
-  String name;
-  String main_price;
-  String stroked_price;
-  bool has_discount;
+  int? id;
+  String? image;
+  String? name;
+  String? main_price;
+  String? stroked_price;
+  bool? has_discount;
 
-  ListProductCard({Key key, this.id, this.image, this.name, this.main_price,this.stroked_price,this.has_discount})
+  ListProductCard(
+      {Key? key,
+      this.id,
+      this.image,
+      this.name,
+      this.main_price,
+      this.stroked_price,
+      this.has_discount})
       : super(key: key);
 
   @override
@@ -37,27 +44,25 @@ class _ListProductCardState extends State<ListProductCard> {
         elevation: 0.0,
         child:
             Row(mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
-              widget.image!=null? Container(
-              width: 100,
-              height: 100,
-              child: ClipRRect(
-                  borderRadius: BorderRadius.horizontal(
-                      left: Radius.circular(16), right: Radius.zero),
-                  child: FadeInImage.assetNetwork(
-                    placeholder: 'assets/placeholder.png',
-                    image: AppConfig.BASE_PATH + widget.image,
-                    fit: BoxFit.cover,
-                  ))):
-              Container(
+          widget.image != null
+              ? Container(
                   width: 100,
                   height: 100,
                   child: ClipRRect(
                       borderRadius: BorderRadius.horizontal(
                           left: Radius.circular(16), right: Radius.zero),
-                      child:Image.asset("assets/placeholder.png")
-                  )
-              )
-              ,
+                      child: FadeInImage.assetNetwork(
+                        placeholder: 'assets/placeholder.png',
+                        image: AppConfig.BASE_PATH + (widget.image ?? ""),
+                        fit: BoxFit.cover,
+                      )))
+              : Container(
+                  width: 100,
+                  height: 100,
+                  child: ClipRRect(
+                      borderRadius: BorderRadius.horizontal(
+                          left: Radius.circular(16), right: Radius.zero),
+                      child: Image.asset("assets/placeholder.png"))),
           Expanded(
             child: Container(
               //width: 240,
@@ -67,7 +72,7 @@ class _ListProductCardState extends State<ListProductCard> {
                   Padding(
                     padding: EdgeInsets.fromLTRB(8, 8, 0, 0),
                     child: Text(
-                      widget.name,
+                      widget.name ?? "",
                       overflow: TextOverflow.ellipsis,
                       maxLines: 2,
                       style: TextStyle(
@@ -80,7 +85,7 @@ class _ListProductCardState extends State<ListProductCard> {
                   Padding(
                     padding: EdgeInsets.fromLTRB(8, 4, 8, 0),
                     child: Text(
-                      widget.main_price,
+                      widget.main_price ?? "",
                       textAlign: TextAlign.left,
                       overflow: TextOverflow.ellipsis,
                       maxLines: 1,
@@ -90,20 +95,22 @@ class _ListProductCardState extends State<ListProductCard> {
                           fontWeight: FontWeight.w600),
                     ),
                   ),
-                  widget.has_discount?Padding(
-                    padding: EdgeInsets.fromLTRB(8, 0, 8, 0),
-                    child: Text(
-                      widget.stroked_price,
-                      textAlign: TextAlign.left,
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                      style: TextStyle(
-                          decoration:TextDecoration.lineThrough,
-                          color: MyTheme.accent_color,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600),
-                    ),
-                  ):Container(),
+                  (widget.has_discount ?? false)
+                      ? Padding(
+                          padding: EdgeInsets.fromLTRB(8, 0, 8, 0),
+                          child: Text(
+                            widget.stroked_price ?? "",
+                            textAlign: TextAlign.left,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                            style: TextStyle(
+                                decoration: TextDecoration.lineThrough,
+                                color: MyTheme.accent_color,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600),
+                          ),
+                        )
+                      : Container(),
                 ],
               ),
             ),
