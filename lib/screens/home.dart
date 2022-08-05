@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:location/location.dart';
-import 'package:onboarding_overlay/onboarding_overlay.dart';
+//import 'package:onboarding_overlay/onboarding_overlay.dart';
 
 import 'package:webixes/my_theme.dart';
 import 'package:webixes/screens/filter.dart';
@@ -26,6 +26,8 @@ import 'package:webixes/helpers/shimmer_helper.dart';
 import 'package:webixes/helpers/shared_value_helper.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:location/location.dart' as locationO;
+
+import '../repositories/category_repository.dart';
 
 class Home extends StatefulWidget {
   Home(
@@ -76,12 +78,12 @@ class _HomeState extends State<Home> with TickerProviderStateMixin<Home> {
     // TODO: implement initState
     // _checkLocationPermission();
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((Duration timeStamp) {
-      final OnboardingState onboarding = Onboarding.of(context)!;
-      if (onboarding != null) {
-        onboarding.show();
-      }
-    });
+    // WidgetsBinding.instance.addPostFrameCallback((Duration timeStamp) {
+    //   final OnboardingState onboarding = Onboarding.of(context)!;
+    //   if (onboarding != null) {
+    //     onboarding.show();
+    //   }
+    // });
     AppConfig.featuredCategoryList.toList();
     _tabController = TabController(
         vsync: this, length: AppConfig.featuredCategoryList.length);
@@ -133,7 +135,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin<Home> {
   }
 
   fetchAll() {
-    // fetchCarouselImages();
+    fetchCarouselImages();
     print("HOME PAGE list-->${AppConfig.featuredCategoryList.length}");
     fetchFeaturedCategories();
     fetchFeaturedProducts(
@@ -154,7 +156,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin<Home> {
     var productResponse = await ProductRepository().getFeaturedProducts(
       page: _productPage,
     );
-    // var categoryResponse = await CategoryRepository().getFeturedCategories();
+    var categoryResponse = await CategoryRepository().getFeturedCategories();
 
     _featuredCategoryList.addAll(productResponse.products ?? []);
     _isCategoryInitial = false;
@@ -838,7 +840,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin<Home> {
               }));
             },
             child: Focus(
-              focusNode: AppConfig.focusNodes[1],
+              // focusNode: AppConfig.focusNodes[1],
               child: Container(
                 height: 70, width: 100,
                 decoration: BoxDecoration(
@@ -891,7 +893,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin<Home> {
               }));
             },
             child: Focus(
-              focusNode: AppConfig.focusNodes[2],
+              // focusNode: AppConfig.focusNodes[2],
               child: Container(
                 height: 70, width: 100,
                 decoration: BoxDecoration(
@@ -1386,19 +1388,16 @@ class _HomeState extends State<Home> with TickerProviderStateMixin<Home> {
                           return Navigator.of(context).pop();
                         }),
                   )
-                : Focus(
-                    focusNode: AppConfig.focusNodes[3],
-                    child: Builder(
-                      builder: (context) => Padding(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 18.0, horizontal: 0.0),
-                        child: Container(
-                          child: Image.asset(
-                            'assets/hamburger.png',
-                            height: 16,
-                            //color: MyTheme.dark_grey,
-                            color: MyTheme.dark_grey,
-                          ),
+                : Builder(
+                    builder: (context) => Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 18.0, horizontal: 0.0),
+                      child: Container(
+                        child: Image.asset(
+                          'assets/hamburger.png',
+                          height: 16,
+                          //color: MyTheme.dark_grey,
+                          color: MyTheme.dark_grey,
                         ),
                       ),
                     ),

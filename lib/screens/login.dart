@@ -163,6 +163,7 @@ class _LoginState extends State<Login> {
       ToastComponent.showDialog(loginResponse.message ?? "", context,
           gravity: Toast.center, duration: Toast.lengthLong);
     } else {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => Home()));
       ToastComponent.showDialog(loginResponse.message ?? "", context,
           gravity: Toast.center, duration: Toast.lengthLong);
       is_logged_in.$ = true;
@@ -542,7 +543,7 @@ class _LoginState extends State<Login> {
                             ],
                           ),
                         ),
-                        /* Padding(
+                        Padding(
                           padding: const EdgeInsets.only(top: 30.0),
                           child: Container(
                             height: 45,
@@ -559,7 +560,8 @@ class _LoginState extends State<Login> {
                                   borderRadius: const BorderRadius.all(
                                       Radius.circular(12.0))),
                               child: Text(
-                                AppLocalizations.of(context).login_screen_log_in,
+                                AppLocalizations.of(context)!
+                                    .login_screen_log_in,
                                 style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 14,
@@ -570,17 +572,17 @@ class _LoginState extends State<Login> {
                               },
                             ),
                           ),
-                        ),*/
-                        Padding(
-                            padding: const EdgeInsets.only(top: 15.0),
-                            child: CustomButton(
-                              onPressed: () {
-                                onPressedLogin();
-                              },
-                              title: AppLocalizations.of(context)!
-                                  .login_screen_log_in,
-                              bgColor: MyTheme.yellow,
-                            )),
+                        ),
+                        // Padding(
+                        //     padding: const EdgeInsets.only(top: 15.0),
+                        //     child: CustomButton(
+                        //       onPressed: () {
+                        //         onPressedLogin();
+                        //       },
+                        //       title: AppLocalizations.of(context)!
+                        //           .login_screen_log_in,
+                        //       bgColor: MyTheme.yellow,
+                        //     )),
                         SizedBox(
                           height: 10,
                         ),

@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
-import 'package:onboarding_overlay/onboarding_overlay.dart';
+
 import 'package:webixes/helpers/addons_helper.dart';
 import 'package:webixes/helpers/auth_helper.dart';
 import 'package:webixes/helpers/business_setting_helper.dart';
@@ -119,12 +119,12 @@ class _MyAppState extends State<MyApp> {
         }));
   }
 }
-// class MyHttpOverrides extends HttpOverrides{
-//   @override
-//   Future<HttpClient> createh(SecurityContext context) async {
-//     return super.createHttpClient(context)
-//       ..badCertificateCallback = (X509Certificate cert, String host, int port)=> true;
-//   }
-// }
 
-
+class MyHttpOverrides extends HttpOverrides {
+  @override
+  Future<HttpClient> createh(SecurityContext context) async {
+    return super.createHttpClient(context)
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
+  }
+}

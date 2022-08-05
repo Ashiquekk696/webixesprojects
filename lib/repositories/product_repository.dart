@@ -51,6 +51,7 @@ class ProductRepository {
     });
     return productMiniResponseFromJson(response.body);
   }
+
   Future<ProductMiniResponse> getCategoryWiseProducts(
       {apiUrl, page = 1}) async {
     print("API CALLing 23");
@@ -76,11 +77,13 @@ class ProductRepository {
 
     return productMiniResponseFromJson(response.body);
   }
+
 //api for filter shop product
   Future<ProductMiniResponse> getShopCatWiseProductsFilter(
-      { int id = 0,int catID=0,name = "", page = 1}) async {
+      {int id = 0, int catID = 0, name = "", page = 1}) async {
     //https://citydeal.co.in/city/api/v2/products/seller/3?page=1&category_id=249&brand_id=230
-    Uri url = Uri.parse("${AppConfig.BASE_URL}/products/seller/${id.toString()}?page=${page}&category_id=${catID}");
+    Uri url = Uri.parse(
+        "${AppConfig.BASE_URL}/products/seller/${id.toString()}?page=${page}&category_id=${catID}");
     print("url-->$url");
     final response = await http.get(url, headers: {
       "App-Language": app_language.$,
@@ -90,9 +93,10 @@ class ProductRepository {
   }
 
   Future<ProductMiniResponse> getShopBrandWiseProductsFilter(
-      { int id = 0,int brandID=0,name = "", page = 1}) async {
+      {int id = 0, int brandID = 0, name = "", page = 1}) async {
     //https://citydeal.co.in/city/api/v2/products/seller/3?page=1&category_id=249&brand_id=230
-    Uri url = Uri.parse("${AppConfig.BASE_URL}/products/seller/${id.toString()}?page=${page}&brand_id=$brandID");
+    Uri url = Uri.parse(
+        "${AppConfig.BASE_URL}/products/seller/${id.toString()}?page=${page}&brand_id=$brandID");
     print("url-->$url");
     final response = await http.get(url, headers: {
       "App-Language": app_language.$,
@@ -100,10 +104,12 @@ class ProductRepository {
     print("filter pp-->${response.body}");
     return productMiniResponseFromJson(response.body);
   }
+
   Future<ProductMiniResponse> catBrandFilter(
-      { int id = 0,int catID=0,int brandID=0,name = "", page = 1}) async {
+      {int id = 0, int catID = 0, int brandID = 0, name = "", page = 1}) async {
     //https://citydeal.co.in/city/api/v2/products/seller/3?page=1&category_id=249&brand_id=230
-    Uri url = Uri.parse("${AppConfig.BASE_URL}/products/seller/${id.toString()}?page=${page}&category_id=${catID}&brand_id=$brandID");
+    Uri url = Uri.parse(
+        "${AppConfig.BASE_URL}/products/seller/${id.toString()}?page=${page}&category_id=${catID}&brand_id=$brandID");
     print("url-->$url");
     final response = await http.get(url, headers: {
       "App-Language": app_language.$,
@@ -113,7 +119,7 @@ class ProductRepository {
   }
 
   Future<ProductMiniResponse> getBrandProducts(
-      {@required int id = 0, name = "", sort_key="",page = 1}) async {
+      {@required int id = 0, name = "", sort_key = "", page = 1}) async {
     Uri url = Uri.parse("${AppConfig.BASE_URL}/products/brand/" +
         id.toString() +
         "?page=${page}&name=${name}&selectedSort=${sort_key}");
@@ -150,6 +156,8 @@ class ProductRepository {
       "App-Language": app_language.$,
     });
     print(response.body.toString());
+
+    print("product details are ${response.body}");
     return productDetailsResponseFromJson(response.body);
   }
 
@@ -174,18 +182,18 @@ class ProductRepository {
 
   Future<VariantResponse> getVariantWiseInfo(
       {int id = 0, color = '', variants = ''}) async {
-    String encodeVariant="$variants";
+    String encodeVariant = "$variants";
     var parsedData = Uri.encodeComponent(encodeVariant);
     print("parsedData-->$parsedData");
-    Uri url = Uri.parse("${AppConfig.BASE_URL}/products/variant/price?id=${id.toString()}&color=${color}&variants=${parsedData}");
-
+    Uri url = Uri.parse(
+        "${AppConfig.BASE_URL}/products/variant/price?id=${id.toString()}&color=${color}&variants=${parsedData}");
 
     final response = await http.get(url, headers: {
       "App-Language": app_language.$,
     });
 
-   print("url-->$url");
-   print("varient res-->${response.body}");
+    print("url-->$url");
+    print("varient res-->${response.body}");
     return variantResponseFromJson(response.body);
   }
 }

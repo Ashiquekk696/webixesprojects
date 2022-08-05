@@ -1,6 +1,6 @@
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:onboarding_overlay/onboarding_overlay.dart';
+
 import 'package:webixes/app_config.dart';
 import 'package:webixes/lang_config.dart';
 import 'package:webixes/my_theme.dart';
@@ -21,7 +21,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'notification.dart';
 
 class Main extends StatefulWidget {
-  final GlobalKey<OnboardingState> onboardingKey = GlobalKey<OnboardingState>();
+  //final GlobalKey<OnboardingState> onboardingKey = GlobalKey<OnboardingState>();
   // ignore: non_constant_identifier_names
   // Main({Key ?key, go_back = true})
   //     : super(key: key);
@@ -46,7 +46,7 @@ class _MainState extends State<Main> {
     NotificationPage(),
     Profile()
   ];
-  final GlobalKey<OnboardingState> onboardingKey = GlobalKey<OnboardingState>();
+  //final GlobalKey<OnboardingState> onboardingKey = GlobalKey<OnboardingState>();
   void onTapped(int i) {
     setState(() {
       _currentIndex = i;
@@ -113,133 +113,60 @@ class _MainState extends State<Main> {
       ],
       //locale: provider.locale,
       supportedLocales: LangConfig().supportedLocales(),
-      home: Onboarding(
-        key: widget.onboardingKey,
-        steps: <OnboardingStep>[
-          OnboardingStep(
-            focusNode: AppConfig.focusNodes[0],
-            titleText: 'Welcome!!',
-            bodyText: 'Tap to continue',
-            shape: const CircleBorder(),
-            fullscreen: true,
-            overlayColor: Colors.blue.withOpacity(0.5),
-            overlayShape: const CircleBorder(),
-            hasLabelBox: false,
-          ),
-          OnboardingStep(
-            fullscreen: false,
-            focusNode: AppConfig.focusNodes[1],
-            titleText: 'All Category',
-            bodyText: 'You can view all category  from here',
-            overlayColor: Colors.blue.withOpacity(0.8),
-            shape: const CircleBorder(),
-            overlayBehavior: HitTestBehavior.translucent,
-            onTapCallback:
-                (TapArea area, VoidCallback next, VoidCallback close) {
-              if (area == TapArea.hole) {
-                next();
-              }
-            },
-          ),
-          OnboardingStep(
-            fullscreen: false,
-            focusNode: AppConfig.focusNodes[2],
-            titleText: 'Search by shop',
-            bodyText: 'You can view all shops  from here',
-            overlayColor: Colors.blue.withOpacity(0.8),
-            shape: const CircleBorder(),
-            overlayBehavior: HitTestBehavior.translucent,
-            onTapCallback:
-                (TapArea area, VoidCallback next, VoidCallback close) {
-              if (area == TapArea.hole) {
-                next();
-              }
-            },
-          ),
-          OnboardingStep(
-            fullscreen: false,
-            focusNode: AppConfig.focusNodes[3],
-            titleText: 'Menu',
-            bodyText: 'You can view all menus  from here',
-            overlayColor: Colors.blue.withOpacity(0.8),
-            shape: const CircleBorder(),
-            overlayBehavior: HitTestBehavior.translucent,
-            onTapCallback:
-                (TapArea area, VoidCallback next, VoidCallback close) {
-              if (area == TapArea.hole) {
-                next();
-              }
-            },
-          ),
-        ],
-        onChanged: (int index) {
-          if (index == 3) {
-            // close the drawer
-            // if (s.currentState?.isDrawerOpen ?? false) {
-            //   scaffoldKey.currentState?.openEndDrawer();
-            // }
-            // interrupt onboarding on specific step
-            widget.onboardingKey.currentState!.hide();
-          }
-          final int currentIndex =
-              widget.onboardingKey.currentState?.controller.currentIndex ?? 0;
-
-          print('currentIndex $currentIndex');
-        },
-        child: Directionality(
-          textDirection:
-              app_language_rtl.$ ? TextDirection.rtl : TextDirection.ltr,
-          child: Scaffold(
-            extendBody: true,
-            body: _children[_currentIndex],
-            floatingActionButtonLocation:
-                FloatingActionButtonLocation.centerDocked,
-            //specify the location of the FAB
-            floatingActionButton: Visibility(
-              visible: MediaQuery.of(context).viewInsets.bottom ==
-                  0.0, // if the kyeboard is open then hide, else show
-              child: FloatingActionButton(
-                backgroundColor: MyTheme.yellow,
-                onPressed: () {},
-                tooltip: "start FAB",
-                child: Container(
-                    margin: EdgeInsets.all(0.0),
-                    child: IconButton(
-                        icon: new Icon(Icons.qr_code_outlined),
-                        tooltip: 'Action',
-                        onPressed: () {
-                          Navigator.push(context,
-                              MaterialPageRoute(builder: (context) {
-                            return QRViewExample();
-                          }));
-                        })),
-                elevation: 0.0,
-              ),
+      home: Directionality(
+        textDirection:
+            app_language_rtl.$ ? TextDirection.rtl : TextDirection.ltr,
+        child: Scaffold(
+          extendBody: true,
+          body: _children[_currentIndex],
+          floatingActionButtonLocation:
+              FloatingActionButtonLocation.centerDocked,
+          //specify the location of the FAB
+          floatingActionButton: Visibility(
+            visible: MediaQuery.of(context).viewInsets.bottom ==
+                0.0, // if the kyeboard is open then hide, else show
+            child: FloatingActionButton(
+              backgroundColor: MyTheme.yellow,
+              onPressed: () {},
+              tooltip: "start FAB",
+              child: Container(
+                  margin: EdgeInsets.all(0.0),
+                  child: IconButton(
+                      icon: new Icon(Icons.qr_code_outlined),
+                      tooltip: 'Action',
+                      onPressed: () {
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) {
+                          return QRViewExample();
+                        }));
+                      })),
+              elevation: 0.0,
             ),
-            bottomNavigationBar: BottomAppBar(
-              color: Colors.transparent,
-              clipBehavior: Clip.antiAlias,
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 1.0, sigmaY: 1.0),
-                child: BottomNavigationBar(
-                  type: BottomNavigationBarType.fixed,
-                  onTap: onTapped,
-                  currentIndex: _currentIndex,
-                  backgroundColor: Colors.white.withOpacity(0.8),
-                  fixedColor: Theme.of(context).accentColor,
-                  unselectedItemColor: Color.fromRGBO(153, 153, 153, 1),
-                  items: [
-                    BottomNavigationBarItem(
-                        icon: Image.asset(
-                          "assets/home.png",
-                          color: _currentIndex == 0
-                              ? Theme.of(context).accentColor
-                              : Color.fromRGBO(153, 153, 153, 1),
-                          height: 20,
-                        ),
-                        label: AppLocalizations.of(context)!
-                            .main_screen_bottom_navigation_home),
-                    /*new BottomNavigationBarItem(
+          ),
+          bottomNavigationBar: BottomAppBar(
+            color: Colors.transparent,
+            clipBehavior: Clip.antiAlias,
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 1.0, sigmaY: 1.0),
+              child: BottomNavigationBar(
+                type: BottomNavigationBarType.fixed,
+                onTap: onTapped,
+                currentIndex: _currentIndex,
+                backgroundColor: Colors.white.withOpacity(0.8),
+                fixedColor: Theme.of(context).accentColor,
+                unselectedItemColor: Color.fromRGBO(153, 153, 153, 1),
+                items: [
+                  BottomNavigationBarItem(
+                      icon: Image.asset(
+                        "assets/home.png",
+                        color: _currentIndex == 0
+                            ? Theme.of(context).accentColor
+                            : Color.fromRGBO(153, 153, 153, 1),
+                        height: 20,
+                      ),
+                      label: AppLocalizations.of(context)!
+                          .main_screen_bottom_navigation_home),
+                  /*new BottomNavigationBarItem(
                           label: 'CART',
                           icon: new Stack(
 
@@ -271,69 +198,68 @@ class _MainState extends State<Main> {
                               ]
                           ),
                         ),*/
-                    BottomNavigationBarItem(
-                      icon: new Stack(
-                        children: <Widget>[
-                          new Icon(
-                            Icons.shopping_cart_outlined,
-                            color: _currentIndex == 2
-                                ? Theme.of(context).accentColor
-                                : Color.fromRGBO(153, 153, 153, 1),
-                          ),
-                          new Positioned(
-                            right: 0,
-                            child: new Container(
-                              padding: EdgeInsets.all(1),
-                              decoration: new BoxDecoration(
-                                color: Colors.red,
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              constraints: BoxConstraints(
-                                minWidth: 12,
-                                minHeight: 12,
-                              ),
-                              child: new Text(
-                                _cartCounter.toString(),
-                                style: new TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 8,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
+                  BottomNavigationBarItem(
+                    icon: new Stack(
+                      children: <Widget>[
+                        new Icon(
+                          Icons.shopping_cart_outlined,
+                          color: _currentIndex == 2
+                              ? Theme.of(context).accentColor
+                              : Color.fromRGBO(153, 153, 153, 1),
+                        ),
+                        new Positioned(
+                          right: 0,
+                          child: new Container(
+                            padding: EdgeInsets.all(1),
+                            decoration: new BoxDecoration(
+                              color: Colors.red,
+                              borderRadius: BorderRadius.circular(6),
                             ),
-                          )
-                        ],
-                      ),
-                      label: 'CART',
+                            constraints: BoxConstraints(
+                              minWidth: 12,
+                              minHeight: 12,
+                            ),
+                            child: new Text(
+                              _cartCounter.toString(),
+                              style: new TextStyle(
+                                color: Colors.white,
+                                fontSize: 8,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        )
+                      ],
                     ),
-                    BottomNavigationBarItem(
+                    label: 'CART',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(
+                      Icons.circle,
+                      color: Colors.transparent,
+                    ),
+                    label: "",
+                  ),
+                  BottomNavigationBarItem(
                       icon: Icon(
-                        Icons.circle,
-                        color: Colors.transparent,
+                        Icons.notifications_none,
+                        color: _currentIndex == 3
+                            ? Theme.of(context).accentColor
+                            : Color.fromRGBO(153, 153, 153, 1),
+                        //height: 20,
                       ),
-                      label: "",
-                    ),
-                    BottomNavigationBarItem(
-                        icon: Icon(
-                          Icons.notifications_none,
-                          color: _currentIndex == 3
-                              ? Theme.of(context).accentColor
-                              : Color.fromRGBO(153, 153, 153, 1),
-                          //height: 20,
-                        ),
-                        label: "NOTIFICATION"),
-                    BottomNavigationBarItem(
-                        icon: Image.asset(
-                          "assets/profile.png",
-                          color: _currentIndex == 4
-                              ? Theme.of(context).accentColor
-                              : Color.fromRGBO(153, 153, 153, 1),
-                          height: 20,
-                        ),
-                        label: AppLocalizations.of(context)!
-                            .main_screen_bottom_navigation_profile),
-                  ],
-                ),
+                      label: "NOTIFICATION"),
+                  BottomNavigationBarItem(
+                      icon: Image.asset(
+                        "assets/profile.png",
+                        color: _currentIndex == 4
+                            ? Theme.of(context).accentColor
+                            : Color.fromRGBO(153, 153, 153, 1),
+                        height: 20,
+                      ),
+                      label: AppLocalizations.of(context)!
+                          .main_screen_bottom_navigation_profile),
+                ],
               ),
             ),
           ),

@@ -30,9 +30,12 @@ class WhichFilter {
 
   static List<WhichFilter> getWhichFilterList() {
     return <WhichFilter>[
-      // WhichFilter('product', AppLocalizations.of(OneContext().context).filter_screen_product),
-      // WhichFilter('sellers', AppLocalizations.of(OneContext().context).filter_screen_sellers),
-      // WhichFilter('brands', AppLocalizations.of(OneContext().context).filter_screen_brands),
+      WhichFilter('product',
+          " AppLocalizations.of(OneContext().context).filter_screen_product"),
+      WhichFilter('sellers',
+          "AppLocalizations.of(OneContext().context).filter_screen_sellers"),
+      WhichFilter('brands',
+          " AppLocalizations.of(OneContext().context).filter_screen_brands"),
     ];
   }
 }
@@ -152,9 +155,9 @@ class _FilterState extends State<Filter> {
     fetchFilteredCategories();
     fetchFilteredBrands();
 
-    if (_selectedFilter!.option_key == "sellers") {
+    if (_selectedFilter?.option_key == "sellers") {
       fetchShopData();
-    } else if (_selectedFilter!.option_key == "brands") {
+    } else if (_selectedFilter?.option_key == "brands") {
       fetchBrandData();
     } else {
       fetchProductData();
@@ -417,9 +420,9 @@ class _FilterState extends State<Filter> {
         key: _scaffoldKey,
         backgroundColor: Colors.white,
         body: Stack(children: [
-          _selectedFilter!.option_key == 'product'
+          _selectedFilter?.option_key == 'product'
               ? buildProductList()
-              : (_selectedFilter!.option_key == 'brands'
+              : (_selectedFilter?.option_key == 'brands'
                   ? buildBrandList()
                   : buildShopList()),
           Positioned(
@@ -430,9 +433,9 @@ class _FilterState extends State<Filter> {
           ),
           Align(
               alignment: Alignment.bottomCenter,
-              child: _selectedFilter!.option_key == 'product'
+              child: _selectedFilter?.option_key == 'product'
                   ? buildProductLoadingContainer()
-                  : (_selectedFilter!.option_key == 'brands'
+                  : (_selectedFilter?.option_key == 'brands'
                       ? buildBrandLoadingContainer()
                       : buildShopLoadingContainer()))
         ]),
